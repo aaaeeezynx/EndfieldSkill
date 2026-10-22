@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://endfieldskill.local/schemas/rotation-presets.schema.json",
+  "title": "EndfieldSkill source-backed rotations",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["rotations"],
+  "properties": {
+    "rotations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+          "required": ["id", "name", "teamPresetId", "characterIds", "scenario", "description", "steps", "warnings", "sourceIds", "confidence"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "teamPresetId": { "type": ["string", "null"] },
+          "characterIds": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+          "scenario": { "type": ["string", "null"] },
+          "description": { "type": ["string", "null"] },
+          "steps": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "order", "phase", "characterId", "skillId", "skillName", "skillType", "triggerCondition", "waitFor", "comboWindowSeconds", "sharedSkillPointCost", "energyCost", "cooldownSeconds", "warnings", "note", "sourceIds"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "order": { "type": "integer", "minimum": 1 },
+                "phase": { "type": ["string", "null"] },
+                "characterId": { "type": "string", "minLength": 1 },
+                "skillId": { "type": ["string", "null"] },
+                "skillName": { "type": "string", "minLength": 1 },
+                "skillType": { "enum": ["battle", "combo", "ultimate"] },
+                "triggerCondition": { "type": ["string", "null"] },
+                "waitFor": { "type": ["string", "null"] },
+                "comboWindowSeconds": { "type": ["number", "null"] },
+                "sharedSkillPointCost": { "type": ["number", "null"] },
+                "energyCost": { "type": ["number", "null"] },
+                "cooldownSeconds": { "type": ["number", "null"] },
+                "warnings": { "type": "array", "items": { "type": "string" } },
+                "note": { "type": ["string", "null"] },
+                "sourceIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } }
+              }
+            }
+          },
+          "warnings": { "type": "array", "items": { "type": "string" } },
+          "sourceIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+          "confidence": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+        }
+      }
+    }
+  }
+}

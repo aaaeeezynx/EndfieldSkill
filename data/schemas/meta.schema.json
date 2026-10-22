@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://endfieldskill.local/schemas/meta.schema.json",
+  "title": "EndfieldSkill dataset metadata",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "dataVersion",
+    "gameVersion",
+    "generatedAt",
+    "sourceCount",
+    "database",
+    "mechanics",
+    "coverage",
+    "notes"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "string", "minLength": 1 },
+    "dataVersion": { "type": "string", "minLength": 1 },
+    "gameVersion": { "type": "string", "minLength": 1 },
+    "generatedAt": { "type": "string", "minLength": 1 },
+    "sourceCount": { "type": "integer", "minimum": 1 },
+    "database": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manifestId", "gameVersion", "hotfixVersion", "publishedAt", "tableCfgPath"],
+      "properties": {
+        "manifestId": { "type": ["string", "null"] },
+        "gameVersion": { "type": ["string", "null"] },
+        "hotfixVersion": { "type": ["string", "null"] },
+        "publishedAt": { "type": ["string", "null"] },
+        "tableCfgPath": { "type": ["string", "null"] }
+      }
+    },
+    "mechanics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["partySize", "sharedSkillPoints", "battleSkill", "comboSkill", "ultimate"],
+      "properties": {
+        "partySize": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["value", "sourceIds", "isOfficial"],
+          "properties": {
+            "value": { "type": "integer", "minimum": 1 },
+            "sourceIds": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+            "isOfficial": { "type": "boolean" }
+          }
+        },
+        "sharedSkillPoints": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["description", "tableScale", "gaugeBars", "gaugeBarsVerified", "sourceIds", "isOfficial"],
+          "properties": {
+            "description": { "type": "string" },
+            "tableScale": { "type": "number" },
+            "gaugeBars": { "type": "integer" },
+            "gaugeBarsVerified": { "type": "boolean" },
+            "sourceIds": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+            "isOfficial": { "type": "boolean" }
+          }
+        },
+        "battleSkill": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["resource", "cooldownSeconds", "grantsEnergyTo", "sourceIds", "isOfficial"],
+          "properties": {
+            "resource": { "const": "shared_skill_points" },
+            "cooldownSeconds": { "type": "number" },
+            "grantsEnergyTo": { "const": "whole_team" },
+            "sourceIds": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+            "isOfficial": { "type": "boolean" }
+          }
+        },
+        "comboSkill": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["resource", "trigger", "hasCooldown", "grantsEnergyTo", "sourceIds", "isOfficial"],
+          "properties": {
+            "resource": { "const": "none" },
+            "trigger": { "const": "character_condition" },
+            "hasCooldown": { "type": "boolean" },
+            "grantsEnergyTo": { "const": "caster" },
+            "sourceIds": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+            "isOfficial": { "type": "boolean" }
+          }
+        },
+        "ultimate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["resource", "hasCooldown", "sourceIds", "isOfficial"],
+          "properties": {
+            "resource": { "const": "energy" },
+            "hasCooldown": { "type": "boolean" },
+            "sourceIds": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+            "isOfficial": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "coverage": { "type": "object" },
+    "unresolved": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["field", "subject", "reason", "sourceIds"],
+        "properties": {
+          "field": { "type": "string" },
+          "subject": { "type": "string" },
+          "reason": { "type": "string" },
+          "sourceIds": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+        }
+      }
+    },
+    "notes": { "type": "array", "items": { "type": "string" } }
+  }
+}

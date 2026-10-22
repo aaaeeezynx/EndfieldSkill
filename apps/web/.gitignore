@@ -1,0 +1,4 @@
+node_modules/
+dist/
+public/data/v1/*.json
+!.gitkeep

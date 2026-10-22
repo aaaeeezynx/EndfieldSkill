@@ -1,0 +1,207 @@
+{
+  "rotations": [
+    {
+      "characterIds": [
+        "chr_0016_laevat",
+        "chr_0033_camille",
+        "chr_0006_wolfgd",
+        "chr_0025_ardelia"
+      ],
+      "confidence": 0.74,
+      "description": "Reviewed order from Game8. Use Ardelia before Camille to preserve the stated trigger order. Verify the in-game label behind 'Final Strike'.",
+      "id": "rotation_game8_laevatain_577071",
+      "name": "Game8 Laevatain single-target rotation",
+      "scenario": "single-enemy",
+      "sourceIds": [
+        "src_game8_rotation_577071",
+        "src_akedatabase",
+        "src_official_battle_tutorial"
+      ],
+      "steps": [
+        {
+          "characterId": "chr_0033_camille",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_game8_laevatain_577071-step-1",
+          "note": null,
+          "order": 1,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0033_camille_normal_skill",
+          "skillName": "战技",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_game8_rotation_577071",
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "triggerCondition": "Open the damage window with Camille's battle skill.",
+          "waitFor": "Shared skill points are available.",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0006_wolfgd",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_game8_laevatain_577071-step-2",
+          "note": null,
+          "order": 2,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0006_wolfgd_normal_skill",
+          "skillName": "战技",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_game8_rotation_577071",
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "triggerCondition": "Follow with Wulfgard's battle skill.",
+          "waitFor": "Camille's battle-skill setup is active.",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0006_wolfgd",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 20,
+          "energyCost": null,
+          "id": "rotation_game8_laevatain_577071-step-3",
+          "note": null,
+          "order": 3,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0006_wolfgd_combo_skill",
+          "skillName": "连携技",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_game8_rotation_577071",
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "triggerCondition": "Use when Wulfgard's combo condition is met.",
+          "waitFor": "Combo condition becomes available.",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0016_laevat",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 10,
+          "energyCost": 300,
+          "id": "rotation_game8_laevatain_577071-step-4",
+          "note": "Game8 calls this action 'Final Strike'.",
+          "order": 4,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0016_laevat_ultimate_skill",
+          "skillName": "终结技",
+          "skillType": "ultimate",
+          "sourceIds": [
+            "src_game8_rotation_577071",
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "triggerCondition": "Enter Laevatain's burst window.",
+          "waitFor": "Ultimate energy is full and the prior setup is active.",
+          "warnings": [
+            "Terminology mapping requires in-game verification."
+          ]
+        },
+        {
+          "characterId": "chr_0025_ardelia",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 18,
+          "energyCost": null,
+          "id": "rotation_game8_laevatain_577071-step-5",
+          "note": null,
+          "order": 5,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0025_ardelia_combo_skill",
+          "skillName": "连携技",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_game8_rotation_577071",
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "triggerCondition": "Use Ardelia's combo before Camille's combo.",
+          "waitFor": "Ardelia's combo condition is met.",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0033_camille",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 20,
+          "energyCost": null,
+          "id": "rotation_game8_laevatain_577071-step-6",
+          "note": null,
+          "order": 6,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0033_camille_combo_skill",
+          "skillName": "连携技",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_game8_rotation_577071",
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "triggerCondition": "Use Camille's combo after Ardelia's combo.",
+          "waitFor": "Camille's combo condition is met.",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0016_laevat",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 10,
+          "energyCost": null,
+          "id": "rotation_game8_laevatain_577071-step-7",
+          "note": null,
+          "order": 7,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0016_laevat_combo_skill",
+          "skillName": "连携技",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_game8_rotation_577071",
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "triggerCondition": "Use Laevatain's combo in the active window.",
+          "waitFor": "Laevatain's combo condition is met.",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0016_laevat",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_game8_laevatain_577071-step-8",
+          "note": null,
+          "order": 8,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0016_laevat_normal_skill",
+          "skillName": "战技",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_game8_rotation_577071",
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "triggerCondition": "Continue the damage window with Laevatain's battle skill.",
+          "waitFor": "Shared skill points are available.",
+          "warnings": []
+        }
+      ],
+      "teamPresetId": "team_game8_fire_577071",
+      "warnings": [
+        "Source guide assumes a single enemy.",
+        "Timing is condition-based; no frame-perfect seconds are claimed."
+      ]
+    }
+  ]
+}

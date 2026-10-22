@@ -1,0 +1,2 @@
+# Python 3.14 standard library only. No third-party runtime dependencies.
+

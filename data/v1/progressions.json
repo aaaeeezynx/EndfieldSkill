@@ -1,0 +1,65 @@
+{
+  "chapterGateStatus": "unavailable",
+  "chapters": [],
+  "notes": [
+    "当前结构化表未提供可核验的剧情章节与装备解锁映射；chapters 保持为空。",
+    "chapterGateStatus=unavailable 表示章节门槛未知，不能视为 0 级门槛；前端应跳过章节判断并直接使用装备 wear level 门槛。",
+    "玩家等级门槛来自 EquipTable.minWearLv，表示装备穿戴等级，不等同于权限等阶。",
+    "unlockDetails.authorityRank 仅表示权限等阶解锁值，不代表装备本身可制造；craftable 另有配方字段决定。"
+  ],
+  "partialCoverage": true,
+  "playerLevelGates": [
+    {
+      "kind": "equipment_wear_level",
+      "level": 10,
+      "sourceIds": [
+        "src_akedatabase"
+      ]
+    },
+    {
+      "kind": "equipment_wear_level",
+      "level": 20,
+      "sourceIds": [
+        "src_akedatabase"
+      ]
+    },
+    {
+      "kind": "equipment_wear_level",
+      "level": 28,
+      "sourceIds": [
+        "src_akedatabase"
+      ]
+    },
+    {
+      "kind": "equipment_wear_level",
+      "level": 36,
+      "sourceIds": [
+        "src_akedatabase"
+      ]
+    },
+    {
+      "kind": "equipment_wear_level",
+      "level": 50,
+      "sourceIds": [
+        "src_akedatabase"
+      ]
+    },
+    {
+      "kind": "equipment_wear_level",
+      "level": 60,
+      "sourceIds": [
+        "src_akedatabase"
+      ]
+    },
+    {
+      "kind": "equipment_wear_level",
+      "level": 70,
+      "sourceIds": [
+        "src_akedatabase"
+      ]
+    }
+  ],
+  "sourceIds": [
+    "src_akedatabase"
+  ]
+}

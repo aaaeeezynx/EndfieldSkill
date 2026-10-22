@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://endfieldskill.local/schemas/sources.schema.json",
+  "title": "EndfieldSkill source registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sources"],
+  "properties": {
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "title", "publisher", "url", "sourceType", "trustLevel", "isOfficial", "fields", "notes", "fetchedAt", "fetchStatus", "fromCache", "httpStatus", "finalUrl", "contentType", "bytes", "sha256", "fetchError", "tableFetch"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "title": { "type": "string", "minLength": 1 },
+          "publisher": { "type": ["string", "null"] },
+          "url": { "type": "string", "minLength": 1 },
+          "sourceType": { "type": "string", "minLength": 1 },
+          "trustLevel": { "type": "string", "minLength": 1 },
+          "isOfficial": { "type": "boolean" },
+          "fields": { "type": "array", "items": { "type": "string" } },
+          "notes": { "type": "array", "items": { "type": "string" } },
+          "fetchedAt": { "type": ["string", "null"] },
+          "fetchStatus": { "type": "string" },
+          "fromCache": { "type": ["boolean", "null"] },
+          "httpStatus": { "type": ["integer", "null"] },
+          "finalUrl": { "type": ["string", "null"] },
+          "contentType": { "type": ["string", "null"] },
+          "bytes": { "type": ["integer", "null"] },
+          "sha256": { "type": ["string", "null"] },
+          "fetchError": { "type": ["string", "null"] },
+          "tableFetch": {
+            "type": ["object", "null"],
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["fetchedAt", "status", "sha256", "bytes", "fromCache", "url"],
+              "properties": {
+                "fetchedAt": { "type": ["string", "null"] },
+                "status": { "type": ["integer", "null"] },
+                "sha256": { "type": ["string", "null"] },
+                "bytes": { "type": ["integer", "null"] },
+                "fromCache": { "type": ["boolean", "null"] },
+                "url": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

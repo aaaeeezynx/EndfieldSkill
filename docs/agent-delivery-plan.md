@@ -4,7 +4,7 @@
 
 - Product target: a deterministic team-and-rotation guide for players who own four specific characters.
 - MVP input: exactly four selected characters, player level, and story chapter.
-- MVP output: an executable skill order, timing conditions, and current craftable equipment recommendations.
+- MVP output: an executable skill order, timing conditions, and equipment candidates filtered by verified wear-level gates and role tags. Story and recipe-authority gates remain explicit unknowns until source-backed mappings exist.
 - Recommendation method: curated source data first, then deterministic tag-and-priority rules. No LLM or generative analysis at runtime.
 - Frontend stack: Vue 3, TypeScript, Vite, Pinia, Vue Router, Tailwind CSS.
 - Hosting target: GitHub Pages.
@@ -51,8 +51,8 @@ canonical copy remains in `data/v1/`.
 2. Choose player level and story chapter.
 3. Generate a team summary and show any missing source-backed assumptions.
 4. Show a rotation with ordered skills, trigger conditions, and warnings.
-5. Show recommended craftable gear and an alternative when the recommended item
-   is not yet unlocked.
+5. Show equipment candidates, known wear-level gates, and alternatives without
+   claiming that unresolved story or recipe-authority gates are unlocked.
 6. State data version, sources, and the fact that recommendations are
    deterministic.
 

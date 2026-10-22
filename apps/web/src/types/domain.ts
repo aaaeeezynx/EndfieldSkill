@@ -1,0 +1,200 @@
+export type SkillType = 'battle' | 'combo' | 'ultimate' | 'other'
+
+export type SkillResource = 'shared_skill_points' | 'energy' | 'none' | 'unknown'
+
+export interface SkillFact {
+  id: string
+  name: string
+  type: SkillType
+  resource: SkillResource
+  description: string | null
+  tags: string[]
+  triggerConditions: string[]
+  cooldownSeconds: number | null
+  energyCost: number | null
+  sharedSkillPointCost: number | null
+  sourceIds: string[]
+}
+
+export interface CharacterFact {
+  id: string
+  name: string
+  nameEn: string | null
+  rarity: number | null
+  profession: string | null
+  element: string | null
+  roles: string[]
+  tags: string[]
+  portraitUrl: string | null
+  skills: SkillFact[]
+  sourceIds: string[]
+}
+
+export interface TeamPreset {
+  id: string
+  name: string
+  description: string | null
+  characterIds: string[]
+  alternatives: Record<string, string[]>
+  tags: string[]
+  sourceIds: string[]
+  confidence: number | null
+}
+
+export interface RotationStep {
+  id: string
+  order: number
+  phase: string | null
+  characterId: string
+  skillId: string | null
+  skillName: string
+  skillType: SkillType
+  triggerCondition: string | null
+  waitFor: string | null
+  comboWindowSeconds: number | null
+  sharedSkillPointCost: number | null
+  energyCost: number | null
+  cooldownSeconds: number | null
+  warnings: string[]
+  note: string | null
+}
+
+export interface RotationPreset {
+  id: string
+  name: string
+  teamPresetId: string | null
+  characterIds: string[]
+  scenario: string | null
+  description: string | null
+  steps: RotationStep[]
+  sourceIds: string[]
+  confidence: number | null
+}
+
+export interface EquipmentUnlock {
+  playerLevel: number | null
+  playerLevelKind: string | null
+  chapterId: string | null
+  chapterOrder: number | null
+  materials: string[]
+}
+
+export interface EquipmentFact {
+  id: string
+  name: string
+  slot: string | null
+  rarity: number | null
+  setName: string | null
+  craftable: boolean | null
+  unlock: EquipmentUnlock
+  formulaAuthorityRank: number | null
+  recipeTier: string | null
+  formulaId: string | null
+  domainName: string | null
+  recommendedFor: string[]
+  roleTags: string[]
+  elementTags: string[]
+  stats: Record<string, string | number>
+  description: string | null
+  sourceIds: string[]
+}
+
+export interface StoryChapter {
+  id: string
+  name: string
+  order: number
+  minPlayerLevel: number | null
+  sourceIds: string[]
+}
+
+export interface SourceRecord {
+  id: string
+  title: string
+  publisher: string | null
+  url: string | null
+  fetchedAt: string | null
+  fields: string[]
+}
+
+export interface DatasetMeta {
+  schemaVersion: string | null
+  dataVersion: string | null
+  gameVersion: string | null
+  generatedAt: string | null
+  sourceCount: number | null
+  notes: string[]
+  coverage: Record<string, unknown>
+}
+
+export interface DatasetCoverage {
+  characterSkillCoverage: number | null
+  characterSourceCoverage: number | null
+  equipmentGateCoverage: number | null
+  rotationSourceCoverage: number | null
+  missingFields: string[]
+}
+
+export interface Dataset {
+  meta: DatasetMeta
+  characters: CharacterFact[]
+  equipment: EquipmentFact[]
+  chapters: StoryChapter[]
+  teamPresets: TeamPreset[]
+  rotationPresets: RotationPreset[]
+  sources: SourceRecord[]
+  loadedFiles: string[]
+  missingFiles: string[]
+  errors: string[]
+  coverage: DatasetCoverage
+}
+
+export interface TeamMatch {
+  preset: TeamPreset
+  score: number
+  exact: boolean
+  matchedCharacterIds: string[]
+  missingCharacterIds: string[]
+  extraCharacterIds: string[]
+  sourceBacked: boolean
+}
+
+export type RotationChoiceKind = 'source-backed' | 'rule-generated'
+
+export interface RotationChoice {
+  id: string
+  name: string
+  kind: RotationChoiceKind
+  description: string
+  steps: RotationStep[]
+  warnings: string[]
+  sourceIds: string[]
+  confidence: number | null
+  presetId: string | null
+}
+
+export type UnlockState = 'unlocked' | 'locked' | 'unknown' | 'not-craftable'
+
+export interface EquipmentCandidate {
+  equipment: EquipmentFact
+  score: number
+  unlockState: UnlockState
+  gateLabels: string[]
+  matchNotes: string[]
+}
+
+export interface EquipmentRecommendation {
+  characterId: string
+  bestOverall: EquipmentCandidate | null
+  bestAvailable: EquipmentCandidate | null
+  alternatives: EquipmentCandidate[]
+  warnings: string[]
+}
+
+export interface RecommendationReport {
+  teamMatches: TeamMatch[]
+  exactTeam: TeamMatch | null
+  rotations: RotationChoice[]
+  equipment: EquipmentRecommendation[]
+  teamTags: string[]
+  warnings: string[]
+}

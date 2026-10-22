@@ -1,0 +1,2613 @@
+{
+  "characters": [
+    {
+      "element": "Physical",
+      "id": "chr_0002_endminm",
+      "name": "管理员",
+      "nameEn": "Endministrator",
+      "portraitUrl": null,
+      "profession": "近卫",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：156%；失衡值：10",
+          "energyCost": null,
+          "id": "chr_0002_endminm_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 16,
+          "description": "伤害倍率：45%；击碎结晶伤害倍率：178%；失衡值：10；封印时间（秒）：4；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0002_endminm_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "伤害倍率：356%；额外伤害倍率：267%；失衡值：25",
+          "energyCost": 80,
+          "id": "chr_0002_endminm_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_01",
+        "tag_25"
+      ]
+    },
+    {
+      "element": "Physical",
+      "id": "chr_0003_endminf",
+      "name": "管理员",
+      "nameEn": "Endministrator",
+      "portraitUrl": null,
+      "profession": "近卫",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：156%；失衡值：10",
+          "energyCost": null,
+          "id": "chr_0003_endminf_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 16,
+          "description": "伤害倍率：45%；击碎结晶伤害倍率：178%；失衡值：10；封印时间（秒）：4；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0003_endminf_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "伤害倍率：356%；额外伤害倍率：267%；失衡值：25",
+          "energyCost": 80,
+          "id": "chr_0003_endminf_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_01",
+        "tag_25"
+      ]
+    },
+    {
+      "element": "Pulse",
+      "id": "chr_0004_pelica",
+      "name": "佩丽卡",
+      "nameEn": "Perlica",
+      "portraitUrl": null,
+      "profession": "术师",
+      "rarity": 5,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：178%；失衡值：10",
+          "energyCost": null,
+          "id": "chr_0004_pelica_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "伤害倍率：80%；失衡值：10；导电时长（秒）：5；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0004_pelica_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "伤害倍率：445%；失衡值：20",
+          "energyCost": 80,
+          "id": "chr_0004_pelica_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_02",
+        "tag_12"
+      ]
+    },
+    {
+      "element": "Physical",
+      "id": "chr_0005_chen",
+      "name": "陈千语",
+      "nameEn": "Chen Qianyu",
+      "portraitUrl": null,
+      "profession": "近卫",
+      "rarity": 5,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：169%；失衡值：10；浮空时间（秒）：1",
+          "energyCost": null,
+          "id": "chr_0005_chen_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 16,
+          "description": "伤害倍率：120%；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0005_chen_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "斩击伤害倍率：36%；第一击失衡值：15；终结一击伤害倍率：455%；终结一击失衡值：20",
+          "energyCost": 70,
+          "id": "chr_0005_chen_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_03",
+        "tag_26"
+      ]
+    },
+    {
+      "element": "Fire",
+      "id": "chr_0006_wolfgd",
+      "name": "狼卫",
+      "nameEn": "Wulfgard",
+      "portraitUrl": null,
+      "profession": "术师",
+      "rarity": 5,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：102%；失衡值：5；追加伤害倍率：378%；追加失衡值：5",
+          "energyCost": null,
+          "id": "chr_0006_wolfgd_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "伤害倍率：60%；失衡值：10；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0006_wolfgd_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "每段伤害倍率：32%；失衡值：15",
+          "energyCost": 90,
+          "id": "chr_0006_wolfgd_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_04",
+        "tag_13"
+      ]
+    },
+    {
+      "element": "Pulse",
+      "id": "chr_0007_ikut",
+      "name": "弧光",
+      "nameEn": "Arclight",
+      "portraitUrl": null,
+      "profession": "先锋",
+      "rarity": 5,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "第一段伤害倍率：45%；第二段伤害倍率：45%；第二段失衡值：5；追加伤害倍率：180%；追加失衡值：5；恢复技力：30",
+          "energyCost": null,
+          "id": "chr_0007_ikut_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 3,
+          "description": "伤害倍率：155%；恢复技力：8；失衡值：5；获得终结技能量：5",
+          "energyCost": null,
+          "id": "chr_0007_ikut_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 15,
+          "description": "第一段伤害倍率：156%；第一段失衡值：7；第二段伤害倍率：244%；第二段失衡值：7",
+          "energyCost": 90,
+          "id": "chr_0007_ikut_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_05",
+        "tag_02"
+      ]
+    },
+    {
+      "element": "Fire",
+      "id": "chr_0009_azrila",
+      "name": "余烬",
+      "nameEn": "Ember",
+      "portraitUrl": null,
+      "profession": "重装",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：173%；失衡值：10；受击后额外造成失衡值：10",
+          "energyCost": null,
+          "id": "chr_0009_azrila_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 19,
+          "description": "伤害倍率：102%；失衡值：10；基础治疗值：300；每点意志增加的治疗值：0.7；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0009_azrila_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "伤害倍率：289%；失衡值：25；护盾转化比例（生命值）：18%；护盾持续时间（秒）：10",
+          "energyCost": 100,
+          "id": "chr_0009_azrila_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_08",
+        "tag_06",
+        "tag_22"
+      ]
+    },
+    {
+      "element": "Cryst",
+      "id": "chr_0011_seraph",
+      "name": "赛希",
+      "nameEn": "Xaihi",
+      "portraitUrl": null,
+      "profession": "辅助",
+      "rarity": 5,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "基础治疗值：144；每点意志增加的治疗值：0.34；支援晶体持续时间（秒）：20；法术增幅效果：9%；法术增幅持续时间（秒）：25",
+          "energyCost": null,
+          "id": "chr_0011_seraph_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 8,
+          "description": "伤害倍率：200%；失衡值：10；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0011_seraph_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "基础寒冷增幅效果：11%；基础自然增幅效果：11%；每点智识提升的增幅效果：0.014%；智识提升增幅上限：30%；持续时间（秒）：12",
+          "energyCost": 80,
+          "id": "chr_0011_seraph_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_06",
+        "tag_14",
+        "tag_09"
+      ]
+    },
+    {
+      "element": "Pulse",
+      "id": "chr_0012_avywen",
+      "name": "艾维文娜",
+      "nameEn": "Avywenna",
+      "portraitUrl": null,
+      "profession": "突击",
+      "rarity": 5,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：67%；失衡值：5；雷枪伤害倍率：75%；雷枪失衡值：5；强雷枪伤害倍率：192%；强雷枪失衡值：10",
+          "energyCost": null,
+          "id": "chr_0012_avywen_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 13,
+          "description": "伤害倍率：169%；失衡值：10；雷枪存在时间（秒）：30；获得终结技能量：0",
+          "energyCost": null,
+          "id": "chr_0012_avywen_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "伤害倍率：422%；失衡值：15；强雷枪存在时间（秒）：30",
+          "energyCost": 100,
+          "id": "chr_0012_avywen_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_07",
+        "tag_20"
+      ]
+    },
+    {
+      "element": "Natural",
+      "id": "chr_0013_aglina",
+      "name": "洁尔佩塔",
+      "nameEn": "Gilberta",
+      "portraitUrl": null,
+      "profession": "辅助",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "牵引伤害倍率：97%；爆炸伤害倍率：58%；爆炸失衡值：10",
+          "energyCost": null,
+          "id": "chr_0013_aglina_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "伤害倍率：140%；失衡值：5；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0013_aglina_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "伤害倍率：333%；失衡值：20；力场持续时间（秒）：5；缓速效果：80%；基础法术脆弱效果：18%；每层破防提升法术脆弱：1.8%",
+          "energyCost": 90,
+          "id": "chr_0013_aglina_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_20",
+        "tag_15",
+        "tag_03"
+      ]
+    },
+    {
+      "element": "Cryst",
+      "id": "chr_0014_aurora",
+      "name": "昼雪",
+      "nameEn": "Snowshine",
+      "portraitUrl": null,
+      "profession": "重装",
+      "rarity": 5,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：200%；失衡值：20；庇护效果：90%；返还技力：30",
+          "energyCost": null,
+          "id": "chr_0014_aurora_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 25,
+          "description": "初始治疗基础值：96；每点意志增加的初始治疗值：0.22；持续治疗基础值：24；每点意志增加的持续治疗值：0.06；持续治疗间隔（秒）：0.5；持续时间（秒）：3；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0014_aurora_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "爆炸伤害倍率：200%；失衡值：15；持续伤害倍率：29%；持续伤害间隔（秒）：0.5；持续时间（秒）：5",
+          "energyCost": 80,
+          "id": "chr_0014_aurora_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_19",
+        "tag_06",
+        "tag_14"
+      ]
+    },
+    {
+      "element": "Physical",
+      "id": "chr_0015_lifeng",
+      "name": "黎风",
+      "nameEn": "Lifeng",
+      "portraitUrl": null,
+      "profession": "近卫",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "第一段伤害倍率：38%；第二段伤害倍率：38%；第三段伤害倍率：119%；第三段失衡值：10；物理脆弱效果：5%；物理脆弱持续时间（秒）：12",
+          "energyCost": null,
+          "id": "chr_0015_lifeng_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 16,
+          "description": "第一段伤害倍率：47%；第二段伤害倍率：167%；第二段失衡值：10；连击持续时间（秒）：20；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0015_lifeng_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 15,
+          "description": "第一段伤害倍率：178%；第一段失衡值：5；第二段伤害倍率：178%；第二段失衡值：5；追加伤害倍率：267%；追加失衡值：5",
+          "energyCost": 90,
+          "id": "chr_0015_lifeng_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_08",
+        "tag_17",
+        "tag_18"
+      ]
+    },
+    {
+      "element": "Fire",
+      "id": "chr_0016_laevat",
+      "name": "莱万汀",
+      "nameEn": "Laevatain",
+      "portraitUrl": null,
+      "profession": "突击",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "初始爆炸伤害倍率：62%；初始爆炸失衡值：10；持续伤害每段倍率：6%；追加伤害倍率：342%；追加失衡值：10；燃烧时长（秒）：5；追加攻击获得终结技能量：100",
+          "energyCost": null,
+          "id": "chr_0016_laevat_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "伤害倍率：240%；失衡值：10；命中1个敌人获得终结技能量：25；命中2个敌人获得终结技能量：30；命中3个或以上敌人获得终结技能量：35",
+          "energyCost": null,
+          "id": "chr_0016_laevat_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "持续时间（秒）：15",
+          "energyCost": 300,
+          "id": "chr_0016_laevat_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_07",
+        "tag_13"
+      ]
+    },
+    {
+      "element": "Cryst",
+      "id": "chr_0017_yvonne",
+      "name": "伊冯",
+      "nameEn": "Yvonne",
+      "portraitUrl": null,
+      "profession": "突击",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "基础伤害倍率：111%；施加冻结伤害倍率：67%；消耗每层附着额外伤害倍率：89%；失衡值：10；施加冻结获得终结技能量：10；消耗每层附着额外获得终结技能量：30",
+          "energyCost": null,
+          "id": "chr_0017_yvonne_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "持续时间（秒）：3；施放能量次数：4；能量伤害倍率：45%；爆炸伤害倍率：89%；爆炸失衡值：10；获得终结技能量：10；额外获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0017_yvonne_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "持续时间（秒）：7；普通攻击伤害倍率：8.9%；强力攻击伤害倍率：133%；额外攻击伤害倍率：267%；强力攻击失衡值：20",
+          "energyCost": 220,
+          "id": "chr_0017_yvonne_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_07",
+        "tag_10",
+        "tag_23"
+      ]
+    },
+    {
+      "element": "Physical",
+      "id": "chr_0018_dapan",
+      "name": "大潘",
+      "nameEn": "Da Pan",
+      "portraitUrl": null,
+      "profession": "突击",
+      "rarity": 5,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：133%；失衡值：10；浮空时间（秒）：1.8",
+          "energyCost": null,
+          "id": "chr_0018_dapan_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "伤害倍率：289%；失衡值：15；猛击伤害额外提升：10%；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0018_dapan_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 15,
+          "description": "空中连斩伤害倍率：22%；终结伤害倍率：178%",
+          "energyCost": 90,
+          "id": "chr_0018_dapan_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_07",
+        "tag_03",
+        "tag_01"
+      ]
+    },
+    {
+      "element": "Fire",
+      "id": "chr_0019_karin",
+      "name": "秋栗",
+      "nameEn": "Akekuri",
+      "portraitUrl": null,
+      "profession": "先锋",
+      "rarity": 4,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：142%；失衡值：10",
+          "energyCost": null,
+          "id": "chr_0019_karin_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "每段伤害倍率：80%；每段失衡值：5；每段恢复技力：7.5；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0019_karin_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "恢复技力：58",
+          "energyCost": 120,
+          "id": "chr_0019_karin_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_05",
+        "tag_04",
+        "tag_18"
+      ]
+    },
+    {
+      "element": "Physical",
+      "id": "chr_0020_meurs",
+      "name": "卡契尔",
+      "nameEn": "Catcher",
+      "portraitUrl": null,
+      "profession": "重装",
+      "rarity": 4,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：178%；失衡值：20；庇护效果：90%；返还技力：30",
+          "energyCost": null,
+          "id": "chr_0020_meurs_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 35,
+          "description": "第一段伤害倍率：25%；第二段伤害倍率：100%；失衡值：10；基础值护盾：360；每点防御力提升的护盾值：2.25；护盾持续时间（秒）：10；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0020_meurs_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 15,
+          "description": "第一段伤害倍率：89%；第一段失衡值：5；第二段伤害倍率：120%；第二段失衡值：5；第三段伤害倍率：178%；第三段失衡值：10；虚弱效果：20%；虚弱持续时间（秒）：8",
+          "energyCost": 80,
+          "id": "chr_0020_meurs_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_19",
+        "tag_22",
+        "tag_24"
+      ]
+    },
+    {
+      "element": "Cryst",
+      "id": "chr_0021_whiten",
+      "name": "埃特拉",
+      "nameEn": "Estella",
+      "portraitUrl": null,
+      "profession": "近卫",
+      "rarity": 4,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：156%；失衡值：10",
+          "energyCost": null,
+          "id": "chr_0021_whiten_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 18,
+          "description": "对非冻结敌人的伤害倍率：160%；对冻结敌人的伤害倍率：280%；失衡值：10；物理脆弱倍率：10%；物理脆弱持续时间：6；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0021_whiten_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "伤害倍率：489%；失衡值：15",
+          "energyCost": 70,
+          "id": "chr_0021_whiten_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_14",
+        "tag_03",
+        "tag_17"
+      ]
+    },
+    {
+      "element": "Natural",
+      "id": "chr_0022_bounda",
+      "name": "萤石",
+      "nameEn": "Fluorite",
+      "portraitUrl": null,
+      "profession": "术师",
+      "rarity": 4,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：187%；失衡值：10；缓速效果：30%",
+          "energyCost": null,
+          "id": "chr_0022_bounda_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 40,
+          "description": "伤害倍率：169%；失衡值：10；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0022_bounda_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "第一段伤害倍率：111%；第二段伤害倍率：111%；第三段伤害倍率：111%；第四段伤害倍率：111%；战技范围提升：30%；战技伤害提升：30%；失衡值：20",
+          "energyCost": 100,
+          "id": "chr_0022_bounda_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_15",
+        "tag_14"
+      ]
+    },
+    {
+      "element": "Pulse",
+      "id": "chr_0023_antal",
+      "name": "安塔尔",
+      "nameEn": "Antal",
+      "portraitUrl": null,
+      "profession": "辅助",
+      "rarity": 4,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：89%；持续时间（秒）：60；电磁脆弱效果：5%；灼热脆弱效果：5%",
+          "energyCost": null,
+          "id": "chr_0023_antal_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 25,
+          "description": "伤害倍率：151%；失衡值：10；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0023_antal_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "电磁增幅效果：8%；灼热增幅效果：8%；持续时间（秒）：12",
+          "energyCost": 100,
+          "id": "chr_0023_antal_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_20",
+        "tag_09"
+      ]
+    },
+    {
+      "element": "Cryst",
+      "id": "chr_0024_deepfin",
+      "name": "阿列什",
+      "nameEn": "Alesh",
+      "portraitUrl": null,
+      "profession": "先锋",
+      "rarity": 5,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：200%；消耗一层附着时恢复技力：10；消耗二层附着时恢复技力：20；消耗三层附着时恢复技力：30；消耗四层附着时恢复技力：40；失衡值：10",
+          "energyCost": null,
+          "id": "chr_0024_deepfin_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 9,
+          "description": "伤害倍率：133%；钓起珍鳞概率：10%；强化伤害倍率：213%；技力恢复：10；额外技力恢复：10；失衡值：10；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0024_deepfin_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "终结伤害倍率：436%；基础恢复技力：20；击败目标时额外恢复技力：12；技力恢复上限：100；失衡值：20",
+          "energyCost": 100,
+          "id": "chr_0024_deepfin_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_05",
+        "tag_10"
+      ]
+    },
+    {
+      "element": "Natural",
+      "id": "chr_0025_ardelia",
+      "name": "艾尔黛拉",
+      "nameEn": "Ardelia",
+      "portraitUrl": null,
+      "profession": "辅助",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：142%；失衡值：10；脆弱效果：12%；脆弱持续时间（秒）：30",
+          "energyCost": null,
+          "id": "chr_0025_ardelia_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 18,
+          "description": "伤害倍率：45%；爆炸伤害倍率：111%；失衡值：10；腐蚀持续时间（秒）：7；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0025_ardelia_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 15,
+          "description": "伤害倍率：73%；失衡值：2；持续时间（秒）：3",
+          "energyCost": 90,
+          "id": "chr_0025_ardelia_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_06",
+        "tag_21",
+        "tag_27"
+      ]
+    },
+    {
+      "element": "Cryst",
+      "id": "chr_0026_lastrite",
+      "name": "别礼",
+      "nameEn": "Last Rite",
+      "portraitUrl": null,
+      "profession": "突击",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "幻影追击伤害倍率：142%；返还技力：30；持续时间（秒）：15；获得终结技能量：16",
+          "energyCost": null,
+          "id": "chr_0026_lastrite_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 9,
+          "description": "冰刺伤害倍率：71%；斩击基础伤害倍率：71%；斩击失衡值：15；消耗每层附着额外伤害倍率：107%；基础获得终结技能量：40；消耗每层附着额外获得终结技能量：15",
+          "energyCost": null,
+          "id": "chr_0026_lastrite_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "第一段伤害倍率：178%；第一段失衡值：5；第二段伤害倍率：178%；第二段失衡值：5；第三段伤害倍率：356%；第三段失衡值：10",
+          "energyCost": 240,
+          "id": "chr_0026_lastrite_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_07",
+        "tag_14"
+      ]
+    },
+    {
+      "element": "Physical",
+      "id": "chr_0029_pograni",
+      "name": "骏卫",
+      "nameEn": "Pogranichnik",
+      "portraitUrl": null,
+      "profession": "先锋",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "第一段伤害倍率：86%；第一段失衡值：5；第二段伤害倍率：106%；第二段失衡值：5；消耗一层破防时技力恢复：5；消耗二层破防时技力恢复：10；消耗三层破防时技力恢复：20；消耗四层破防时技力恢复：30",
+          "energyCost": null,
+          "id": "chr_0029_pograni_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 18,
+          "description": "第一段伤害倍率：42%；第一段失衡值：3；第一段技力恢复：5；第二段伤害倍率：54%；第二段失衡值：3；第二段技力恢复：7；第三段伤害倍率：66%；第三段失衡值：4；第三段技力恢复：13；强化第三段伤害倍率：132%；强化第三段失衡值：9；强化第三段技力恢复：23；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0029_pograni_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "铁誓持续时间：30；进军伤害倍率：133%；进军失衡值：10；袭扰伤害倍率：45%；袭扰恢复技力：7.5；决胜伤害倍率：200%；决胜失衡值：15；决胜恢复技力：30",
+          "energyCost": 90,
+          "id": "chr_0029_pograni_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_05",
+        "tag_11"
+      ]
+    },
+    {
+      "element": "Cryst",
+      "id": "chr_0027_tangtang",
+      "name": "汤汤",
+      "nameEn": "Tangtang",
+      "portraitUrl": null,
+      "profession": "术师",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "射击伤害倍率：80%；射击失衡值：10；单个水龙卷伤害倍率：133%；水龙卷持续时间（秒）：3；每处涡流技力返还：20；两个水龙卷法术脆弱：3%；三个水龙卷法术脆弱：6%；法术脆弱持续时间（秒）：15",
+          "energyCost": null,
+          "id": "chr_0027_tangtang_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 14,
+          "description": "伤害倍率：107%；失衡值：10；涡流持续时间（秒）：30；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0027_tangtang_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "持续伤害总倍率：142%；古老图形持续时间（秒）：4；巨浪伤害倍率：178%；提前降下巨浪伤害倍率：311%；巨浪失衡值：15；提前降下巨浪失衡值：20",
+          "energyCost": 90,
+          "id": "chr_0027_tangtang_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_14",
+        "tag_20"
+      ]
+    },
+    {
+      "element": "Physical",
+      "id": "chr_0028_wulfa",
+      "name": "洛茜",
+      "nameEn": "Rossi",
+      "portraitUrl": null,
+      "profession": "近卫",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "第一段伤害倍率：85%；第一段失衡值：5；第二段伤害倍率：128%；第二段失衡值：10",
+          "energyCost": null,
+          "id": "chr_0028_wulfa_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "戳击总伤害倍率：275%；第一段斩击伤害倍率：111%；第二段斩击伤害倍率：333%；失衡值：25；暴击伤害提升：60%",
+          "energyCost": 110,
+          "id": "chr_0028_wulfa_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_03",
+        "tag_23",
+        "tag_07"
+      ]
+    },
+    {
+      "element": "Pulse",
+      "id": "chr_0030_zhuangfy",
+      "name": "庄方宜",
+      "nameEn": "Zhuang Fangyi",
+      "portraitUrl": null,
+      "profession": "突击",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "雷击伤害倍率：20%；总失衡值：15；消耗每级导电额外伤害倍率：3%；每次雷击额外终结技能量：6；青霆剑数量限制：9；青霆剑存在时间（秒）：36",
+          "energyCost": null,
+          "id": "chr_0030_zhuangfy_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 18,
+          "description": "伤害倍率：160%；失衡值：10；获得终结技能量：10；消耗每层附着额外终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0030_zhuangfy_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 15,
+          "description": "持续时间（秒）：25",
+          "energyCost": 240,
+          "id": "chr_0030_zhuangfy_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_07",
+        "tag_12"
+      ]
+    },
+    {
+      "element": "Physical",
+      "id": "chr_0031_mifu",
+      "name": "弭弗",
+      "nameEn": "Mifu",
+      "portraitUrl": null,
+      "profession": "近卫",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 20,
+          "description": "伤害倍率：111%；失衡值：10；物理脆弱效果：5%；物理脆弱持续时间（秒）：16；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0031_mifu_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 15,
+          "description": "伤害倍率：311%；失衡值：20",
+          "energyCost": 80,
+          "id": "chr_0031_mifu_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_01",
+        "tag_17"
+      ]
+    },
+    {
+      "element": "Natural",
+      "id": "chr_0032_lizhiyan",
+      "name": "诀",
+      "nameEn": "Arcane",
+      "portraitUrl": null,
+      "profession": "术师",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：222%；伤害倍率：133%；失衡值：10",
+          "energyCost": null,
+          "id": "chr_0032_lizhiyan_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "基础伤害倍率：35%；基础失衡值：5；囹圄及脆弱持续时间（秒）：4；囹圄及脆弱持续时间（秒）：6；脆弱效果：4%；基础脆弱效果：4%；意志提供最大额外脆弱效果：7%；最大额外脆弱效果对应意志值：560；爆炸伤害倍率：53%；爆炸失衡值：5；额外伤害倍率：222%；额外脆弱持续时间（秒）：2；技力返还：28；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0032_lizhiyan_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "生成破晦阵伤害倍率：80%；生成破晦阵失衡值：10；破晦阵持续时间（秒）：20；强制腐蚀持续时间（秒）：15；集束打击总伤害倍率：160%；集束打击总伤害倍率：160%",
+          "energyCost": 100,
+          "id": "chr_0032_lizhiyan_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_15",
+        "tag_21",
+        "tag_25"
+      ]
+    },
+    {
+      "element": "Fire",
+      "id": "chr_0033_camille",
+      "name": "卡缪",
+      "nameEn": "Camille",
+      "portraitUrl": null,
+      "profession": "先锋",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：89%；失衡值：10；衔火血翼持续时间（秒）：45；虚弱效果：5%；灼热脆弱效果：5%；爆裂伤害倍率：45%",
+          "energyCost": null,
+          "id": "chr_0033_camille_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "伤害倍率：133%；失衡值：10；技力恢复：16",
+          "energyCost": null,
+          "id": "chr_0033_camille_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "伤害倍率：267%；失衡值：15；技力恢复：32；追猎状态持续时间（秒）：15",
+          "energyCost": 130,
+          "id": "chr_0033_camille_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_05",
+        "tag_04",
+        "tag_18"
+      ]
+    },
+    {
+      "element": "Natural",
+      "id": "chr_0034_typhoea",
+      "name": "提弗洛斯",
+      "nameEn": "Typhoeus",
+      "portraitUrl": null,
+      "profession": "突击",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 21,
+          "description": "“猎手的注视”命中伤害：89%；失衡值：10；获得终结技能量：10；区域持续伤害：45%；缓速效果：60%；自然爆发伤害提高：6%",
+          "energyCost": null,
+          "id": "chr_0034_typhoea_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "强力箭爆炸伤害：133%；强化箭雨伤害：89%；常规箭雨伤害：89%；箭矢数量恢复：2",
+          "energyCost": 200,
+          "id": "chr_0034_typhoea_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_07",
+        "tag_28"
+      ]
+    },
+    {
+      "element": "Physical",
+      "id": "chr_0038_purrche",
+      "name": "噗切娜",
+      "nameEn": "Purrchena",
+      "portraitUrl": null,
+      "profession": "重装",
+      "rarity": 5,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "庇护效果：90%；立盾状态持续时间（秒）：3；格挡成功后立盾状态持续时间（秒）：3；头槌撞击伤害倍率：178%；头槌撞击失衡值：20；技力返还：20；额外技力返还：20",
+          "energyCost": null,
+          "id": "chr_0038_purrche_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 24,
+          "description": "治疗基础值：216；每点意志增加的治疗值：0.5；炸弹：伤害倍率：133%；炸弹：失衡值：10；手工作业：伤害倍率：66%；好吃的点心：治疗基础值：144；好吃的点心：每点意志增加的治疗值：0.34；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0038_purrche_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "炸弹：伤害倍率：133%；炸弹：失衡值：10；手工作业：伤害倍率：66%；代言人的特殊赠礼：基础概率：15%；代言人的特殊赠礼：伤害倍率：267%；代言人的特殊赠礼：失衡值：15；脆弱持续时间（秒）：5；脆弱效果：1.5%",
+          "energyCost": 100,
+          "id": "chr_0038_purrche_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_19",
+        "tag_15",
+        "tag_06"
+      ]
+    },
+    {
+      "element": "Pulse",
+      "id": "chr_0035_liino",
+      "name": "梨诺",
+      "nameEn": "Liino",
+      "portraitUrl": null,
+      "profession": "辅助",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "初次伤害倍率：107%；追加攻击伤害倍率：53%；追加攻击间隔时间（秒）：10；歌声间隔时间（秒）：3；演唱姿态持续时间（秒）：60；攻击力提升：6%；基础治疗值：18；每点敏捷增加的治疗值：0.04；失衡值：3",
+          "energyCost": null,
+          "id": "chr_0035_liino_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 25,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 10,
+          "description": "伤害倍率：160%；失衡值：5；获得终结技能量：20；基础治疗值：72；每点敏捷增加的治疗值：0.17",
+          "energyCost": null,
+          "id": "chr_0035_liino_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 20,
+          "description": "舞台焰火伤害倍率：142%；华彩爆点伤害倍率：284%；攻击力提升：10%；每点意志提升的增幅效果：0.018%；意志提升的增幅上限：40%；初次治疗基础治疗值：324；每点敏捷增加的治疗值：0.76；单次歌声伤害倍率：27%；单次基础治疗值：36；每点敏捷增加的治疗值：0.08；歌声间隔时间（秒）：1.5；高歌姿态持续时间（秒）：15；华彩爆点失衡值：20",
+          "energyCost": 160,
+          "id": "chr_0035_liino_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_06",
+        "tag_09"
+      ]
+    },
+    {
+      "element": "Cryst",
+      "id": "chr_0036_jsspsi",
+      "name": "祀",
+      "nameEn": "Si",
+      "portraitUrl": null,
+      "profession": "辅助",
+      "rarity": 6,
+      "roles": [],
+      "skills": [
+        {
+          "cooldownSeconds": 0,
+          "description": "伤害倍率：44%；定身时长（秒）：1；笔意时长（秒）：20；伤害记录比例：8%；失衡值：5；笔意爆发失衡值：5",
+          "energyCost": null,
+          "id": "chr_0036_jsspsi_normal_skill",
+          "name": "战技",
+          "resource": "shared_skill_points",
+          "sharedSkillPointCost": 100,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "shared_skill_points",
+            "team_energy_gain"
+          ],
+          "triggerConditions": [],
+          "type": "battle"
+        },
+        {
+          "cooldownSeconds": 16,
+          "description": "伤害倍率：333%；每消耗或吸收1层提高倍率：44%；失衡值：10；获得终结技能量：10",
+          "energyCost": null,
+          "id": "chr_0036_jsspsi_combo_skill",
+          "name": "连携技",
+          "resource": "none",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "condition_triggered",
+            "caster_energy_gain"
+          ],
+          "triggerConditions": [
+            "由角色满足特定条件后触发；角色专属触发条件尚待逐角色核验。"
+          ],
+          "type": "combo"
+        },
+        {
+          "cooldownSeconds": 30,
+          "description": "伤害倍率：222%；失衡值：20；增幅效果：20%；增幅时长（秒）：12",
+          "energyCost": 80,
+          "id": "chr_0036_jsspsi_ultimate_skill",
+          "name": "终结技",
+          "resource": "energy",
+          "sharedSkillPointCost": null,
+          "sourceIds": [
+            "src_akedatabase",
+            "src_official_battle_tutorial"
+          ],
+          "tags": [
+            "energy_cost",
+            "ultimate"
+          ],
+          "triggerConditions": [],
+          "type": "ultimate"
+        }
+      ],
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "tags": [
+        "tag_09",
+        "tag_07",
+        "tag_14"
+      ]
+    }
+  ]
+}

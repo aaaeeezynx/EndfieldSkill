@@ -1,0 +1,120 @@
+{
+  "coverage": {
+    "charactersWithSourceIds": 34,
+    "equipment": {
+      "total": 276,
+      "withFormula": 276,
+      "withMaterials": 276,
+      "withRecommendation": 35,
+      "withSet": 228,
+      "withWearLevelGate": 276
+    },
+    "missingSkillTypes": [
+      "chr_0028_wulfa:combo",
+      "chr_0031_mifu:battle",
+      "chr_0034_typhoea:battle"
+    ],
+    "partialFields": [
+      "characters.roles",
+      "characters.portraitUrl",
+      "characters.skills[].characterSpecificTrigger",
+      "equipment.roleTags",
+      "equipment.elementTags",
+      "progressions.chapters"
+    ],
+    "playableCharacters": 34,
+    "rotationPresets": 1,
+    "rotationSteps": 8,
+    "skills": {
+      "battle": 32,
+      "combo": 33,
+      "total": 99,
+      "ultimate": 34
+    },
+    "storyChapters": 0,
+    "teamPresets": 2
+  },
+  "dataVersion": "1.6.4@11262943-8",
+  "database": {
+    "gameVersion": "1.6.4",
+    "hotfixVersion": "11262943-8",
+    "manifestId": "1.6.4@11262943-8",
+    "publishedAt": "2026-10-22T19:31:55+08:00",
+    "tableCfgPath": "public/1.6.4/11262943-8/TableCfg"
+  },
+  "gameVersion": "1.6.4",
+  "generatedAt": "2026-10-22T17:53:32Z",
+  "mechanics": {
+    "battleSkill": {
+      "cooldownSeconds": 0,
+      "grantsEnergyTo": "whole_team",
+      "isOfficial": true,
+      "resource": "shared_skill_points",
+      "sourceIds": [
+        "src_official_battle_tutorial"
+      ]
+    },
+    "comboSkill": {
+      "grantsEnergyTo": "caster",
+      "hasCooldown": true,
+      "isOfficial": true,
+      "resource": "none",
+      "sourceIds": [
+        "src_official_battle_tutorial"
+      ],
+      "trigger": "character_condition"
+    },
+    "partySize": {
+      "isOfficial": false,
+      "sourceIds": [
+        "src_prydwen_combat_basics"
+      ],
+      "value": 4
+    },
+    "sharedSkillPoints": {
+      "description": "战技消耗全队共享技力；表内战技 costValue 使用 100 点刻度。",
+      "gaugeBars": 3,
+      "gaugeBarsVerified": false,
+      "isOfficial": true,
+      "sourceIds": [
+        "src_official_battle_tutorial",
+        "src_prydwen_combat_basics"
+      ],
+      "tableScale": 100
+    },
+    "ultimate": {
+      "hasCooldown": true,
+      "isOfficial": true,
+      "resource": "energy",
+      "sourceIds": [
+        "src_official_battle_tutorial"
+      ]
+    }
+  },
+  "notes": [
+    "全部推荐结果由静态 JSON 与确定性规则生成，运行时不调用 AI。",
+    "未知字段保留 null 或省略；未验证的剧情章节映射未写入数据。",
+    "战技、连携技与终结技的中文名采用通用类型名，游戏表未提供角色专属技能名。",
+    "表中战技 costValue 采用 100 点共享技力刻度；三格量表说法仍需游戏内复核。"
+  ],
+  "schemaVersion": "1.0.0",
+  "sourceCount": 7,
+  "unresolved": [
+    {
+      "field": "equipment.recommended-sets",
+      "reason": "No reliable English-to-game-suit ID mapping was verified; recommendation omitted.",
+      "sourceIds": [
+        "src_game8_gear_576118"
+      ],
+      "subject": "Game8 gear set 'Eternal Xiranite'"
+    },
+    {
+      "field": "progressions.chapters",
+      "reason": "No sufficiently authoritative chapter-to-equipment mapping was verified.",
+      "sourceIds": [
+        "src_akedatabase"
+      ],
+      "subject": "Story chapter gates"
+    }
+  ]
+}

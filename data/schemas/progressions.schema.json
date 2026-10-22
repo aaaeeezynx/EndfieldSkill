@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://endfieldskill.local/schemas/progressions.schema.json",
+  "title": "EndfieldSkill progression gates",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["chapters", "chapterGateStatus", "playerLevelGates", "partialCoverage", "notes", "sourceIds"],
+  "properties": {
+    "chapters": {
+      "description": "Verified story-to-equipment gates only. An empty array with chapterGateStatus=unavailable means the mapping is unknown, not that every chapter has no requirement.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "order", "minPlayerLevel", "sourceIds"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "order": { "type": "number" },
+          "minPlayerLevel": { "type": ["number", "null"] },
+          "sourceIds": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+        }
+      }
+    },
+    "chapterGateStatus": {
+      "description": "unavailable tells clients to skip chapter-gate checks and use equipment.unlock.playerLevel directly.",
+      "enum": ["available", "unavailable"]
+    },
+    "playerLevelGates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["level", "kind", "sourceIds"],
+        "properties": {
+          "level": { "type": "number" },
+          "kind": { "const": "equipment_wear_level" },
+          "sourceIds": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+        }
+      }
+    },
+    "partialCoverage": { "type": "boolean" },
+    "notes": { "type": "array", "items": { "type": "string" } },
+    "sourceIds": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+  }
+}

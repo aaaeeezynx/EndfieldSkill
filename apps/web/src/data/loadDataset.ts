@@ -1,0 +1,538 @@
+import type {
+  CharacterFact,
+  Dataset,
+  DatasetCoverage,
+  DatasetMeta,
+  EquipmentFact,
+  RotationPreset,
+  RotationStep,
+  SkillFact,
+  SkillType,
+  SourceRecord,
+  StoryChapter,
+  TeamPreset,
+} from '@/types/domain'
+
+type UnknownRecord = Record<string, unknown>
+
+const DATA_FILES = [
+  'meta.json',
+  'characters.json',
+  'equipment.json',
+  'progressions.json',
+  'team-presets.json',
+  'rotation-presets.json',
+  'sources.json',
+] as const
+
+const asRecord = (value: unknown): UnknownRecord =>
+  value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? (value as UnknownRecord)
+    : {}
+
+const asString = (value: unknown): string | null =>
+  typeof value === 'string' && value.trim() ? value.trim() : null
+
+const asNumber = (value: unknown): number | null => {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number(value)
+    return Number.isFinite(parsed) ? parsed : null
+  }
+  return null
+}
+
+const asBoolean = (value: unknown): boolean | null => {
+  if (typeof value === 'boolean') return value
+  if (value === 'true') return true
+  if (value === 'false') return false
+  return null
+}
+
+const asStringArray = (value: unknown): string[] => {
+  if (!Array.isArray(value)) return []
+  return [...new Set(value.map(asString).filter((item): item is string => Boolean(item)))]
+}
+
+const firstString = (...values: unknown[]): string | null => {
+  for (const value of values) {
+    const stringValue = asString(value)
+    if (stringValue) return stringValue
+  }
+  return null
+}
+
+const firstNumber = (...values: unknown[]): number | null => {
+  for (const value of values) {
+    const numberValue = asNumber(value)
+    if (numberValue !== null) return numberValue
+  }
+  return null
+}
+
+const unwrapList = (raw: unknown, keys: string[]): unknown[] => {
+  if (Array.isArray(raw)) return raw
+  const record = asRecord(raw)
+  for (const key of keys) {
+    if (Array.isArray(record[key])) return record[key] as unknown[]
+  }
+  if (Array.isArray(record.items)) return record.items
+  if (Array.isArray(record.data)) return record.data
+  return []
+}
+
+const collectionMeta = (raw: unknown): UnknownRecord => {
+  const record = asRecord(raw)
+  return asRecord(record.meta ?? record.dataset ?? record)
+}
+
+const normalizeSkillType = (value: unknown): SkillType => {
+  const raw = (asString(value) ?? '').toLowerCase().replaceAll('_', '-').replaceAll(' ', '-')
+  if (['battle', 'combat', 'skill', '战技', '戰鬥技能', 'battle-skill'].includes(raw)) {
+    return 'battle'
+  }
+  if (['combo', 'link', 'chain', '连携', '連攜', 'combo-skill'].includes(raw)) return 'combo'
+  if (['ultimate', 'ult', 'burst', '终结', '終結', 'ultimate-skill'].includes(raw)) {
+    return 'ultimate'
+  }
+  return 'other'
+}
+
+const triggerConditions = (raw: UnknownRecord): string[] => {
+  const trigger = asRecord(raw.trigger)
+  const conditions =
+    raw.triggerConditions ??
+    raw.triggerCondition ??
+    raw.conditions ??
+    trigger.conditions ??
+    raw.condition
+
+  if (Array.isArray(conditions)) return asStringArray(conditions)
+  const condition = asString(conditions)
+  return condition ? [condition] : []
+}
+
+const normalizeSkill = (
+  rawValue: unknown,
+  fallbackType: SkillType,
+  characterId: string,
+  index: number,
+): SkillFact | null => {
+  const raw = asRecord(rawValue)
+  if (Object.keys(raw).length === 0) return null
+
+  const type = normalizeSkillType(raw.type ?? raw.skillType ?? raw.kind ?? fallbackType)
+  const id =
+    firstString(raw.id, raw.skillId, raw.code) ?? `${characterId}-${type}-${index + 1}`
+  const sharedCost =
+    type === 'battle'
+      ? firstNumber(raw.sharedSkillPointCost, raw.skillPointCost, raw.spCost, raw.cost)
+      : null
+  const energyCost =
+    type === 'ultimate'
+      ? firstNumber(raw.energyCost, raw.energy, raw.ultimateEnergy, raw.cost)
+      : null
+  const resource =
+    type === 'battle'
+      ? 'shared_skill_points'
+      : type === 'combo'
+        ? 'none'
+        : type === 'ultimate'
+          ? 'energy'
+          : 'unknown'
+
+  return {
+    id,
+    name: firstString(raw.name, raw.title, raw.displayName) ?? id,
+    type,
+    resource,
+    description: firstString(raw.description, raw.summary, raw.effect),
+    tags: asStringArray(raw.tags ?? raw.effectTags ?? raw.labels),
+    triggerConditions: triggerConditions(raw),
+    cooldownSeconds: firstNumber(raw.cooldownSeconds, raw.cooldown, raw.cd),
+    energyCost,
+    sharedSkillPointCost: sharedCost,
+    sourceIds: asStringArray(raw.sourceIds ?? raw.sources),
+  }
+}
+
+const collectSkills = (raw: UnknownRecord, characterId: string): SkillFact[] => {
+  const skills: SkillFact[] = []
+  const skillContainer = raw.skills ?? raw.skillList ?? raw.abilities
+
+  if (Array.isArray(skillContainer)) {
+    skillContainer.forEach((value, index) => {
+      const skill = normalizeSkill(value, 'other', characterId, index)
+      if (skill) skills.push(skill)
+    })
+  } else {
+    const container = asRecord(skillContainer)
+    for (const [key, value] of Object.entries(container)) {
+      if (value === null || typeof value !== 'object') continue
+      const skill = normalizeSkill(value, normalizeSkillType(key), characterId, skills.length)
+      if (skill) skills.push(skill)
+    }
+  }
+
+  const directSkills = [
+    ['battleSkill', 'battle'],
+    ['comboSkill', 'combo'],
+    ['ultimateSkill', 'ultimate'],
+  ] as const
+  for (const [key, type] of directSkills) {
+    const skill = normalizeSkill(raw[key], type, characterId, skills.length)
+    if (skill) skills.push(skill)
+  }
+
+  return [...new Map(skills.map((skill) => [`${skill.id}:${skill.type}`, skill])).values()]
+}
+
+const normalizeCharacter = (rawValue: unknown, index: number): CharacterFact | null => {
+  const raw = asRecord(rawValue)
+  const id = firstString(raw.id, raw.characterId, raw.slug, raw.code)
+  if (!id) return null
+  const names = asRecord(raw.names)
+  const name = firstString(raw.name, raw.displayName, names.zhHans, names.zhHant, names.zh, id)
+  if (!name) return null
+
+  return {
+    id,
+    name,
+    nameEn: firstString(raw.nameEn, raw.englishName, names.en),
+    rarity: firstNumber(raw.rarity, raw.stars),
+    profession: firstString(raw.profession, raw.class, raw.role, raw.position),
+    element: firstString(raw.element, raw.attribute, raw.damageType),
+    roles: asStringArray(raw.roles ?? raw.roleTags ?? raw.positions),
+    tags: asStringArray(raw.tags ?? raw.labels),
+    portraitUrl: firstString(raw.portraitUrl, raw.avatar, raw.avatarUrl, raw.image),
+    skills: collectSkills(raw, id),
+    sourceIds: asStringArray(raw.sourceIds ?? raw.sources),
+  }
+}
+
+const normalizeTeamPreset = (rawValue: unknown, index: number): TeamPreset | null => {
+  const raw = asRecord(rawValue)
+  const id = firstString(raw.id, raw.teamId, raw.presetId) ?? `team-${index + 1}`
+
+  const slotRecords = Array.isArray(raw.slots)
+    ? raw.slots.map(asRecord)
+    : Array.isArray(raw.members)
+      ? raw.members.map(asRecord)
+      : []
+  const fromSlots = slotRecords
+    .map((slot) => firstString(slot.characterId, slot.id, slot.character))
+    .filter((value): value is string => Boolean(value))
+  const characterIds = asStringArray(raw.characterIds ?? raw.characters ?? raw.memberIds)
+  const resolvedIds = characterIds.length ? characterIds : fromSlots
+  if (!resolvedIds.length) return null
+
+  const alternativesRecord = asRecord(raw.alternatives)
+  const alternatives: Record<string, string[]> = {}
+  for (const [characterId, values] of Object.entries(alternativesRecord)) {
+    alternatives[characterId] = asStringArray(values)
+  }
+  for (const slot of slotRecords) {
+    const characterId = firstString(slot.characterId, slot.id, slot.character)
+    if (characterId) alternatives[characterId] = asStringArray(slot.alternatives)
+  }
+
+  return {
+    id,
+    name: firstString(raw.name, raw.title, raw.label) ?? id,
+    description: firstString(raw.description, raw.summary, raw.notes),
+    characterIds: [...new Set(resolvedIds)],
+    alternatives,
+    tags: asStringArray(raw.tags ?? raw.teamTags ?? raw.labels),
+    sourceIds: asStringArray(raw.sourceIds ?? raw.sources),
+    confidence: firstNumber(raw.confidence, raw.score),
+  }
+}
+
+const normalizeRotationStep = (rawValue: unknown, index: number, rotationId: string): RotationStep | null => {
+  const raw = asRecord(rawValue)
+  const characterId = firstString(raw.characterId, raw.character, raw.memberId)
+  const skillName = firstString(raw.skillName, raw.name, raw.action, raw.title)
+  if (!characterId || !skillName) return null
+
+  return {
+    id: firstString(raw.id, raw.stepId) ?? `${rotationId}-step-${index + 1}`,
+    order: firstNumber(raw.order, raw.index) ?? index + 1,
+    phase: firstString(raw.phase, raw.stage, raw.section),
+    characterId,
+    skillId: firstString(raw.skillId, raw.skill),
+    skillName,
+    skillType: normalizeSkillType(raw.skillType ?? raw.type ?? raw.skill),
+    triggerCondition: firstString(
+      raw.triggerCondition,
+      raw.trigger,
+      raw.condition,
+      Array.isArray(raw.conditions) ? raw.conditions.map(String).join(' / ') : null,
+      raw.timing,
+    ),
+    waitFor: firstString(raw.waitFor, raw.waitCondition, raw.wait, raw.precondition),
+    comboWindowSeconds: firstNumber(raw.comboWindowSeconds, raw.comboWindow, raw.windowSeconds),
+    sharedSkillPointCost: firstNumber(raw.sharedSkillPointCost, raw.skillPointCost, raw.spCost),
+    energyCost: firstNumber(raw.energyCost, raw.energy),
+    cooldownSeconds: firstNumber(raw.cooldownSeconds, raw.cooldown, raw.cd),
+    warnings: asStringArray(raw.warnings ?? raw.caveats),
+    note: firstString(raw.note, raw.notes, raw.description),
+  }
+}
+
+const normalizeRotation = (rawValue: unknown, index: number): RotationPreset | null => {
+  const raw = asRecord(rawValue)
+  const id = firstString(raw.id, raw.rotationId) ?? `rotation-${index + 1}`
+  const steps = (Array.isArray(raw.steps) ? raw.steps : [])
+    .map((step, stepIndex) => normalizeRotationStep(step, stepIndex, id))
+    .filter((step): step is RotationStep => Boolean(step))
+    .sort((a, b) => a.order - b.order)
+  if (!steps.length) return null
+
+  return {
+    id,
+    name: firstString(raw.name, raw.title, raw.label) ?? id,
+    teamPresetId: firstString(raw.teamPresetId, raw.teamId, raw.presetId),
+    characterIds: asStringArray(raw.characterIds ?? raw.characters ?? raw.members),
+    scenario: firstString(raw.scenario, raw.mode, raw.content),
+    description: firstString(raw.description, raw.summary, raw.notes),
+    steps,
+    sourceIds: asStringArray(raw.sourceIds ?? raw.sources),
+    confidence: firstNumber(raw.confidence, raw.score),
+  }
+}
+
+const normalizeEquipment = (rawValue: unknown, index: number): EquipmentFact | null => {
+  const raw = asRecord(rawValue)
+  const id = firstString(raw.id, raw.equipmentId, raw.slug, raw.code)
+  if (!id) return null
+  const unlock = asRecord(raw.unlock ?? raw.unlockRequirement ?? raw.requirements)
+  const unlockDetails = asRecord(
+    raw.unlockDetails ?? raw.recipeUnlock ?? raw.formulaUnlock ?? raw.formula,
+  )
+  const statsRecord = asRecord(raw.stats ?? raw.attributes)
+  const stats: Record<string, string | number> = {}
+  for (const [key, value] of Object.entries(statsRecord)) {
+    if (typeof value === 'string' || typeof value === 'number') stats[key] = value
+  }
+
+  return {
+    id,
+    name: firstString(raw.name, raw.displayName, raw.title) ?? id,
+    slot: firstString(raw.slot, raw.type, raw.category),
+    rarity: firstNumber(raw.rarity, raw.stars),
+    setName: firstString(raw.setName, raw.set, asRecord(raw.set).name),
+    craftable: asBoolean(raw.craftable ?? raw.canCraft ?? raw.craftableAt),
+    unlock: {
+      playerLevel: firstNumber(unlock.playerLevel, unlock.level, raw.playerLevel),
+      playerLevelKind: firstString(unlock.playerLevelKind, raw.playerLevelKind),
+      chapterId: firstString(unlock.chapterId, unlock.chapter, raw.chapterId),
+      chapterOrder: firstNumber(unlock.chapterOrder, uncoverOrder(raw)),
+      materials: asStringArray(unlock.materials ?? raw.materials),
+    },
+    formulaAuthorityRank: firstNumber(
+      unlockDetails.authorityRank,
+      raw.authorityRank,
+      raw.formulaAuthorityRank,
+    ),
+    recipeTier: firstString(unlockDetails.recipeTier, raw.recipeTier),
+    formulaId: firstString(unlockDetails.formulaId, raw.formulaId),
+    domainName: firstString(unlockDetails.domainName, raw.domainName),
+    recommendedFor: asStringArray(
+      raw.recommendedFor ?? raw.characterIds ?? raw.suitableFor ?? raw.recommendedCharacters,
+    ),
+    roleTags: asStringArray(raw.roleTags ?? raw.roles ?? raw.suitableRoles),
+    elementTags: asStringArray(raw.elementTags ?? raw.elements ?? raw.suitableElements),
+    stats,
+    description: firstString(raw.description, raw.effect, raw.summary),
+    sourceIds: asStringArray(raw.sourceIds ?? raw.sources),
+  }
+}
+
+const uncoverOrder = (raw: UnknownRecord): unknown => {
+  const unlock = asRecord(raw.unlock ?? raw.unlockRequirement ?? raw.requirements)
+  return unlock.order ?? unlock.chapterOrder
+}
+
+const normalizeChapter = (rawValue: unknown, index: number): StoryChapter | null => {
+  const raw = asRecord(rawValue)
+  const id = firstString(raw.id, raw.chapterId, raw.slug)
+  if (!id) return null
+  return {
+    id,
+    name: firstString(raw.name, raw.title, raw.label) ?? id,
+    order: firstNumber(raw.order, raw.index, raw.sequence) ?? index + 1,
+    minPlayerLevel: firstNumber(raw.minPlayerLevel, raw.playerLevel, raw.requiredLevel),
+    sourceIds: asStringArray(raw.sourceIds ?? raw.sources),
+  }
+}
+
+const normalizeSource = (rawValue: unknown, index: number): SourceRecord | null => {
+  const raw = asRecord(rawValue)
+  const id = firstString(raw.id, raw.sourceId, raw.slug)
+  if (!id) return null
+  return {
+    id,
+    title: firstString(raw.title, raw.name, raw.publisher) ?? id,
+    publisher: firstString(raw.publisher, raw.site, raw.author),
+    url: firstString(raw.url, raw.link, raw.href),
+    fetchedAt: firstString(raw.fetchedAt, raw.scrapedAt, raw.retrievedAt),
+    fields: asStringArray(raw.fields ?? raw.extractedFields),
+  }
+}
+
+const normalizeMeta = (raw: unknown): DatasetMeta => {
+  const record = asRecord(raw)
+  const meta = asRecord(record.meta)
+  const source = Object.keys(meta).length ? meta : record
+  return {
+    schemaVersion: firstString(source.schemaVersion, source.schema, source.contractVersion),
+    dataVersion: firstString(source.dataVersion, source.version),
+    gameVersion: firstString(source.gameVersion, source.game),
+    generatedAt: firstString(source.generatedAt, source.fetchedAt, source.updatedAt),
+    sourceCount: firstNumber(source.sourceCount, source.sources),
+    notes: asStringArray(source.notes ?? source.warnings),
+    coverage: asRecord(source.coverage),
+  }
+}
+
+const percentage = (value: number, total: number): number | null =>
+  total === 0 ? null : Math.round((value / total) * 100)
+
+const calculateCoverage = (
+  characters: CharacterFact[],
+  equipment: EquipmentFact[],
+  rotations: RotationPreset[],
+): DatasetCoverage => {
+  const missingFields = new Set<string>()
+  let completeSkills = 0
+  let sourcedCharacters = 0
+  for (const character of characters) {
+    if (character.skills.some((skill) => skill.name && skill.type !== 'other')) completeSkills += 1
+    else missingFields.add('characters.skills')
+    if (character.sourceIds.length) sourcedCharacters += 1
+    else missingFields.add('characters.sourceIds')
+    if (!character.element) missingFields.add('characters.element')
+    if (!character.profession) missingFields.add('characters.profession')
+  }
+
+  const gatedEquipment = equipment.filter(
+    (item) => item.unlock.playerLevel !== null || item.unlock.chapterId !== null,
+  ).length
+  if (gatedEquipment < equipment.length) missingFields.add('equipment.unlock')
+  const sourcedRotations = rotations.filter((rotation) => rotation.sourceIds.length).length
+  if (sourcedRotations < rotations.length) missingFields.add('rotation-presets.sourceIds')
+
+  return {
+    characterSkillCoverage: percentage(completeSkills, characters.length),
+    characterSourceCoverage: percentage(sourcedCharacters, characters.length),
+    equipmentGateCoverage: percentage(gatedEquipment, equipment.length),
+    rotationSourceCoverage: percentage(sourcedRotations, rotations.length),
+    missingFields: [...missingFields].sort(),
+  }
+}
+
+export interface RawDatasetFiles {
+  'meta.json'?: unknown
+  'characters.json'?: unknown
+  'equipment.json'?: unknown
+  'progressions.json'?: unknown
+  'team-presets.json'?: unknown
+  'rotation-presets.json'?: unknown
+  'sources.json'?: unknown
+}
+
+export const parseDataset = (
+  files: RawDatasetFiles,
+  missingFiles: string[] = [],
+  errors: string[] = [],
+): Dataset => {
+  const characters = unwrapList(files['characters.json'], ['characters', 'items'])
+    .map(normalizeCharacter)
+    .filter((item): item is CharacterFact => Boolean(item))
+
+  const equipment = unwrapList(files['equipment.json'], ['equipment', 'items'])
+    .map(normalizeEquipment)
+    .filter((item): item is EquipmentFact => Boolean(item))
+
+  const chapters = unwrapList(files['progressions.json'], ['chapters', 'progressions', 'items'])
+    .map(normalizeChapter)
+    .filter((item): item is StoryChapter => Boolean(item))
+
+  const teamPresets = unwrapList(files['team-presets.json'], ['teams', 'presets', 'items'])
+    .map(normalizeTeamPreset)
+    .filter((item): item is TeamPreset => Boolean(item))
+
+  const rotationPresets = unwrapList(files['rotation-presets.json'], ['rotations', 'presets', 'items'])
+    .map(normalizeRotation)
+    .filter((item): item is RotationPreset => Boolean(item))
+
+  const sources = unwrapList(files['sources.json'], ['sources', 'items'])
+    .map(normalizeSource)
+    .filter((item): item is SourceRecord => Boolean(item))
+
+  const meta = normalizeMeta(files['meta.json'])
+  const metaCoverage = asRecord(meta.coverage)
+  const computedCoverage = calculateCoverage(characters, equipment, rotationPresets)
+  if (metaCoverage.characterSkillCoverage !== undefined) {
+    computedCoverage.characterSkillCoverage =
+      asNumber(metaCoverage.characterSkillCoverage) ?? computedCoverage.characterSkillCoverage
+  }
+
+  return {
+    meta,
+    characters,
+    equipment,
+    chapters,
+    teamPresets,
+    rotationPresets,
+    sources,
+    loadedFiles: DATA_FILES.filter((file) => files[file] !== undefined),
+    missingFiles: [...new Set(missingFiles)],
+    errors,
+    coverage: computedCoverage,
+  }
+}
+
+const resolveDataUrl = (file: string): string => {
+  const base = import.meta.env.BASE_URL.endsWith('/')
+    ? import.meta.env.BASE_URL
+    : `${import.meta.env.BASE_URL}/`
+  return `${base}data/v1/${file}`
+}
+
+const fetchJson = async (file: string, fetcher: typeof fetch): Promise<unknown> => {
+  const response = await fetcher(resolveDataUrl(file), {
+    headers: { Accept: 'application/json' },
+  })
+  if (!response.ok) throw new Error(`${file}: HTTP ${response.status}`)
+  return response.json()
+}
+
+export const loadDataset = async (fetcher: typeof fetch = fetch): Promise<Dataset> => {
+  const entries = await Promise.all(
+    DATA_FILES.map(async (file) => {
+      try {
+        return [file, await fetchJson(file, fetcher), null] as const
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        return [file, undefined, message] as const
+      }
+    }),
+  )
+
+  const files: RawDatasetFiles = {}
+  const missingFiles: string[] = []
+  const errors: string[] = []
+  for (const [file, value, error] of entries) {
+    if (value === undefined) {
+      missingFiles.push(file)
+      if (error) errors.push(error)
+    } else {
+      files[file] = value
+    }
+  }
+
+  return parseDataset(files, missingFiles, errors)
+}
+
+export { DATA_FILES }

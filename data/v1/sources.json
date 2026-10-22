@@ -1,0 +1,289 @@
+{
+  "sources": [
+    {
+      "bytes": 4427,
+      "contentType": "application/json",
+      "fetchError": null,
+      "fetchStatus": "cache",
+      "fetchedAt": "2026-10-22T17:27:40Z",
+      "fields": [
+        "characters",
+        "character.skills",
+        "equipment",
+        "equipment.unlock.materials",
+        "equipment.stats"
+      ],
+      "finalUrl": "https://data.akedata.wiki/manifest.json",
+      "fromCache": true,
+      "httpStatus": 200,
+      "id": "src_akedatabase",
+      "isOfficial": false,
+      "notes": [
+        "Game table mirror. Treat names, costs and recipe values as structured secondary data.",
+        "The pipeline records the exact manifest version, raw response hash and fetch time."
+      ],
+      "publisher": "AKEDatabase contributors",
+      "sha256": "8df3881718654e298169e980cc26d8df1dded363a1ffed210914a2ec94eadfa3",
+      "sourceType": "structured-community-database",
+      "tableFetch": {
+        "CharProfessionTable": {
+          "bytes": 1377,
+          "fetchedAt": "2026-10-22T17:27:46Z",
+          "fromCache": true,
+          "sha256": "c6c414d758599ec735c2ca9808f207086e0885e8d17b2a46d5ca296440fff6cc",
+          "status": 200,
+          "url": "https://data.akedata.wiki/public/1.6.4/11262943-8/TableCfg/CharProfessionTable.json"
+        },
+        "CharacterTable": {
+          "bytes": 10978089,
+          "fetchedAt": "2026-10-22T17:27:43Z",
+          "fromCache": true,
+          "sha256": "9d8a1d8036a833c8f8cd47039b155422c9ab48a18b84270f68d03bdd8516dde6",
+          "status": 200,
+          "url": "https://data.akedata.wiki/public/1.6.4/11262943-8/TableCfg/CharacterTable.json"
+        },
+        "DomainDataTable": {
+          "bytes": 178136,
+          "fetchedAt": "2026-10-22T17:28:10Z",
+          "fromCache": true,
+          "sha256": "94ced27a2cd0e896ce9bb86a75c9fbb6815b045b1873b78405144e91e37b00cc",
+          "status": 200,
+          "url": "https://data.akedata.wiki/public/1.6.4/11262943-8/TableCfg/DomainDataTable.json"
+        },
+        "EquipFormulaChainTable": {
+          "bytes": 6333,
+          "fetchedAt": "2026-10-22T17:28:08Z",
+          "fromCache": true,
+          "sha256": "0bf8ed61a51fdbe14887e531ceda68d9aa585bfdff43143a539ceed6a466c092",
+          "status": 200,
+          "url": "https://data.akedata.wiki/public/1.6.4/11262943-8/TableCfg/EquipFormulaChainTable.json"
+        },
+        "EquipFormulaReverseTable": {
+          "bytes": 21540,
+          "fetchedAt": "2026-10-22T17:28:07Z",
+          "fromCache": true,
+          "sha256": "c3f2cc97b3dc6e26f0c7b75880b8ddac9da2d3c94d60de3cc5484558484be200",
+          "status": 200,
+          "url": "https://data.akedata.wiki/public/1.6.4/11262943-8/TableCfg/EquipFormulaReverseTable.json"
+        },
+        "EquipFormulaTable": {
+          "bytes": 89751,
+          "fetchedAt": "2026-10-22T17:28:05Z",
+          "fromCache": true,
+          "sha256": "0e1a24816d8e04085e0a268d3f606a86160e610406c4498e6b7c625e640b8bea",
+          "status": 200,
+          "url": "https://data.akedata.wiki/public/1.6.4/11262943-8/TableCfg/EquipFormulaTable.json"
+        },
+        "EquipSuitTable": {
+          "bytes": 18711,
+          "fetchedAt": "2026-10-22T17:28:03Z",
+          "fromCache": true,
+          "sha256": "3d7839399ee1d1221b4873446c098e4e86714e10f1860ccec3f032e8efe14776",
+          "status": 200,
+          "url": "https://data.akedata.wiki/public/1.6.4/11262943-8/TableCfg/EquipSuitTable.json"
+        },
+        "EquipTable": {
+          "bytes": 690562,
+          "fetchedAt": "2026-10-22T17:27:58Z",
+          "fromCache": true,
+          "sha256": "d28771da670c3a3dca9f5a8ca2d0ec55b0c451d042dc49dcbd8f595a7e1e6455",
+          "status": 200,
+          "url": "https://data.akedata.wiki/public/1.6.4/11262943-8/TableCfg/EquipTable.json"
+        },
+        "I18nTextTable_CN": {
+          "bytes": 13059654,
+          "fetchedAt": "2026-10-22T17:27:56Z",
+          "fromCache": true,
+          "sha256": "84bc67165390c0bb89feb108cbf725ed4921c176bd197e5595a7042cbdf5cf52",
+          "status": 200,
+          "url": "https://data.akedata.wiki/public/1.6.4/11262943-8/TableCfg/I18nTextTable_CN.json"
+        },
+        "ItemTable": {
+          "bytes": 3051649,
+          "fetchedAt": "2026-10-22T17:28:00Z",
+          "fromCache": true,
+          "sha256": "f1bc4576941eeee90fd33413a397c2855266369a2c7acf55dc828f414558d494",
+          "status": 200,
+          "url": "https://data.akedata.wiki/public/1.6.4/11262943-8/TableCfg/ItemTable.json"
+        },
+        "SkillPatchTable": {
+          "bytes": 7157395,
+          "fetchedAt": "2026-10-22T17:27:48Z",
+          "fromCache": true,
+          "sha256": "8962192053ce7b5281a408915c1df35f6deb5749b1f3c5325c2a3fc9fa967ac6",
+          "status": 200,
+          "url": "https://data.akedata.wiki/public/1.6.4/11262943-8/TableCfg/SkillPatchTable.json"
+        }
+      },
+      "title": "AKEDatabase game data tables",
+      "trustLevel": "structured-secondary",
+      "url": "https://data.akedata.wiki/manifest.json"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": "Offline cache miss for optional source https://endfield.games/zh-Hans/tutorials/battle/",
+      "fetchStatus": "unavailable",
+      "fetchedAt": null,
+      "fields": [
+        "mechanics.shared-skill-points",
+        "mechanics.combo-trigger",
+        "mechanics.energy-generation",
+        "mechanics.ultimate-cooldown"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_official_battle_tutorial",
+      "isOfficial": true,
+      "notes": [
+        "Battle skills spend shared skill points and have no cooldown.",
+        "Combo skills are condition-triggered, spend no skill points and have cooldowns.",
+        "Battle skills grant energy to the whole team; combo skills grant energy to the caster.",
+        "Ultimates consume energy and enter a short cooldown."
+      ],
+      "publisher": "Hypergryph / Gryphline",
+      "sha256": null,
+      "sourceType": "official-guide",
+      "tableFetch": null,
+      "title": "Official battle tutorials",
+      "trustLevel": "official-primary",
+      "url": "https://endfield.games/zh-Hans/tutorials/battle/"
+    },
+    {
+      "bytes": 134839,
+      "contentType": "text/html; charset=utf-8",
+      "fetchError": null,
+      "fetchStatus": "cached",
+      "fetchedAt": "2026-10-22T17:28:18Z",
+      "fields": [
+        "mechanics.party-size",
+        "mechanics.shared-skill-point-cap",
+        "mechanics.approximate-energy-gain"
+      ],
+      "finalUrl": "https://www.prydwen.gg/arknights-endfield/guides/combat-basics",
+      "fromCache": true,
+      "httpStatus": 200,
+      "id": "src_prydwen_combat_basics",
+      "isOfficial": false,
+      "notes": [
+        "Corroborates a four-character party and three shared skill points.",
+        "Approximate energy values are not used as exact simulation constants."
+      ],
+      "publisher": "Prydwen",
+      "sha256": "809c3bbf8a64abd0010ead567abae711e31c857a2042b12a7a4acf882adfd6ff",
+      "sourceType": "editorial-guide",
+      "tableFetch": null,
+      "title": "Combat Basics",
+      "trustLevel": "editorial-secondary",
+      "url": "https://www.prydwen.gg/arknights-endfield/guides/combat-basics"
+    },
+    {
+      "bytes": 202232,
+      "contentType": "text/html; charset=utf-8",
+      "fetchError": null,
+      "fetchStatus": "cached",
+      "fetchedAt": "2026-10-22T17:28:21Z",
+      "fields": [
+        "equipment.authority-rank-gates"
+      ],
+      "finalUrl": "https://endfield.hypergryph.com/news/2674",
+      "fromCache": true,
+      "httpStatus": 200,
+      "id": "src_official_rnd_2674",
+      "isOfficial": true,
+      "notes": [
+        "Authority ranks 16/17/18 unlock blue equipment originium components.",
+        "Authority ranks 28/29/30 unlock purple equipment originium components."
+      ],
+      "publisher": "Hypergryph",
+      "sha256": "4e43b9ccff6eae5887779e4e36c7cb22a94939b78ef981997bb0a072c365b022",
+      "sourceType": "official-news",
+      "tableFetch": null,
+      "title": "Development newsletter 2674",
+      "trustLevel": "official-primary",
+      "url": "https://endfield.hypergryph.com/news/2674"
+    },
+    {
+      "bytes": 231099,
+      "contentType": "text/html; charset=UTF-8",
+      "fetchError": null,
+      "fetchStatus": "cached",
+      "fetchedAt": "2026-10-22T17:28:24Z",
+      "fields": [
+        "teams.pulse-four-character-preset",
+        "teams.character-synergy-notes"
+      ],
+      "finalUrl": "https://gamewith.net/akendfield/72598",
+      "fromCache": true,
+      "httpStatus": 200,
+      "id": "src_gamewith_team_72598",
+      "isOfficial": false,
+      "notes": [
+        "Curated team extract: Zhuang Fangyi, Perlica, Arclight and Antal.",
+        "Antal's battle skill is positioned before Zhuang Fangyi's ultimate window."
+      ],
+      "publisher": "GameWith",
+      "sha256": "e9cc6033303ea2303c65e78585a6c10a20060b002dda62c89c938bc4052bd67a",
+      "sourceType": "editorial-guide",
+      "tableFetch": null,
+      "title": "Best Team Comps | Arknights: Endfield",
+      "trustLevel": "editorial-secondary",
+      "url": "https://gamewith.net/akendfield/72598"
+    },
+    {
+      "bytes": 347410,
+      "contentType": "text/html; charset=utf-8",
+      "fetchError": null,
+      "fetchStatus": "cached",
+      "fetchedAt": "2026-10-22T17:28:26Z",
+      "fields": [
+        "teams.fire-four-character-preset",
+        "rotations.camille-wulfgard-laevatain-ardelia"
+      ],
+      "finalUrl": "https://game8.co/games/Arknights-Endfield/archives/577071",
+      "fromCache": true,
+      "httpStatus": 200,
+      "id": "src_game8_rotation_577071",
+      "isOfficial": false,
+      "notes": [
+        "Curated extract assumes a single enemy.",
+        "Place Ardelia before Camille so the intended trigger order is preserved.",
+        "The source label 'Final Strike' is mapped to Laevatain's ultimate and retained as a note."
+      ],
+      "publisher": "Game8",
+      "sha256": "9204b21533b9fd5e983e894b2fe1d5c32ce2b9f85e98844683b094b38002c630",
+      "sourceType": "editorial-guide",
+      "tableFetch": null,
+      "title": "Laevatain Best Team Comps | Arknights: Endfield | Game8",
+      "trustLevel": "editorial-secondary",
+      "url": "https://game8.co/games/Arknights-Endfield/archives/577071"
+    },
+    {
+      "bytes": 413322,
+      "contentType": "text/html; charset=utf-8",
+      "fetchError": null,
+      "fetchStatus": "cached",
+      "fetchedAt": "2026-10-22T17:28:27Z",
+      "fields": [
+        "equipment.recommended-sets"
+      ],
+      "finalUrl": "https://game8.co/games/Arknights-Endfield/archives/576118",
+      "fromCache": true,
+      "httpStatus": 200,
+      "id": "src_game8_gear_576118",
+      "isOfficial": false,
+      "notes": [
+        "Only unambiguous English-to-game-suit mappings are emitted as recommendations.",
+        "Eternal Xiranite remains unmapped and is not guessed."
+      ],
+      "publisher": "Game8",
+      "sha256": "7758b0a03884597929e50a724924be8862ded78a447ef3d6d05e4ebb53165ba0",
+      "sourceType": "editorial-guide",
+      "tableFetch": null,
+      "title": "Best Gear and Gear Sets for Each Character | Arknights: Endfield | Game8",
+      "trustLevel": "editorial-secondary",
+      "url": "https://game8.co/games/Arknights-Endfield/archives/576118"
+    }
+  ]
+}
