@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, reactive } from 'vue'
 import type { CharacterFact } from '@/types/domain'
 import { getCharacterPortrait } from '@/data/portraitLoader'
 
@@ -15,6 +15,7 @@ const emit = defineEmits<{
 const search = ref('')
 const elementFilter = ref('')
 const roleFilter = ref('')
+const imageErrors = reactive<Set<string>>(new Set())
 
 const elements = computed(() =>
   [
@@ -71,6 +72,14 @@ const monogram = (character: CharacterFact): string =>
 
 const getPortraitUrl = (character: CharacterFact): string | null => {
   return getCharacterPortrait(character.id)
+}
+
+const handleImageError = (characterId: string): void => {
+  imageErrors.add(characterId)
+}
+
+const shouldShowFallback = (character: CharacterFact): boolean => {
+  return !getPortraitUrl(character) || imageErrors.has(character.id)
 }
 </script>
 
@@ -131,11 +140,11 @@ const getPortraitUrl = (character: CharacterFact): string | null => {
 
         <span class="portrait">
           <img
-            v-if="getPortraitUrl(character)"
+            v-if="!shouldShowFallback(character)"
             :src="getPortraitUrl(character)!"
             :alt="`${character.name} 角色立繪`"
             loading="lazy"
-            @error="(e) => ((e.target as HTMLImageElement).style.display = 'none')"
+            @error="handleImageError(character.id)"
           />
           <span v-else class="portrait-fallback">{{ monogram(character) }}</span>
         </span>

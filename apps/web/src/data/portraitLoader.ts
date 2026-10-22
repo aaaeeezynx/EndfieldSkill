@@ -8,5 +8,5 @@ import portraitMap from './characterPortraitMap.json'
 export function getCharacterPortrait(characterId: string): string | null {
   const filename = (portraitMap as Record<string, string>)[characterId]
   if (!filename) return null
-  return `/assets/character_portraits/${filename}.png`
+  return `${import.meta.env.BASE_URL}assets/character_portraits/${filename}.png`
 }
