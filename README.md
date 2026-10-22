@@ -127,6 +127,20 @@ npm audit --audit-level=low
 - `data/v1/sources.json`：URL、抓取时间、哈希与撷取字段。
 - `data/v1/meta.json`：版本、覆盖率、限制与未解决项目。
 
+
+## UI/UX 设计
+
+前端界面参考《终末地》官方网站的工业科幻风格，采用以下设计系统：
+
+- **字体**: Rajdhani（标题、编号、代码）+ IBM Plex Sans（正文、列表）
+- **色彩**: 深色背景 + 酸黄强调色 + 青色交互提示 + 暖橙警告
+- **动效**: 入场渐显、扫描线、呼吸灯与细微悬停反馈
+- **网格**: 56px 网格底纹 + 切角面板 + 渐变光晕
+- **角色图**: 35 张官方角色立绘从官方 CDN 下载至本地，配备 lazy loading 与错误回退
+
+所有角色图片资产来源、原始 URL 与使用注意事项记录在 [`apps/web/ASSET_SOURCES.md`](apps/web/ASSET_SOURCES.md)。
+本项目明确标示为非官方第三方攻略工具，不宣称官方授权或关联。
+
 ## 主要资料来源
 
 - [AKEDatabase 游戏表格镜像](https://data.akedata.wiki/manifest.json)：角色、技能、装备、配方与属性；视为结构化二手资料。
@@ -173,3 +187,4 @@ npm audit --audit-level=low
 - 未经验证的攻略内容自动转成「最佳答案」。
 
 本项目为非官方玩家工具，与 Hypergryph / Gryphline 无隶属关系。游戏名称、角色与素材权利归原权利人所有。
+
