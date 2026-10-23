@@ -1,66 +1,66 @@
-# EndfieldSkill：终末地四人战术编排台
+# EndfieldSkill：終末地四人戰術編排台
 
-一款针对《明日方舟：终末地》的确定性队伍与技能循环辅助工具。玩家选择自己实际拥有的四名角色、玩家等级与剧情进度后，页面会从版本化资料库中匹配队伍、输出技能释放顺序与触发条件，并列出配装候选及已知门槛。
+一款針對《明日方舟：終末地》的確定性隊伍與技能循環輔助工具。玩家選擇自己實際擁有的四名角色、玩家等級與劇情進度後，頁面會從版本化資料庫中匹配隊伍、輸出技能釋放順序與觸發條件，並列出配裝候選及已知門檻。
 
 MVP 线上测试站：[https://aaaeeezynx.github.io/EndfieldSkill/](https://aaaeeezynx.github.io/EndfieldSkill/)
 
-## 解决的问题
+## 解決的問題
 
-网上攻略通常围绕一套固定四人队展开。玩家若缺少其中一名角色，视频或文章里的整套循环往往无法直接照抄。
+網上攻略通常圍繞一套固定四人隊展開。玩家若缺少其中一名角色，影片或文章裡的整套循環往往無法直接照抄。
 
-本项目采用「先整理可信资料，再用确定性规则排列组合」的方式：
+本專案採用「先整理可信資料，再用確定性規則排列組合」的方式：
 
-- 使用玩家已有的四名角色，而不是要求玩家先凑出攻略固定队。
-- 对完全匹配的来源队伍展示经过整理的攻略循环。
-- 对其他四人组合展示明确标注的规则回退，不把推导结果伪装成实测攻略。
-- 按装备穿戴等级、角色定位、元素和推荐关系筛选配装候选。
-- 运行时不调用 AI，不生成没有资料依据的答案。
+- 使用玩家已有的四名角色，而不是要求玩家先湊出攻略固定隊。
+- 對完全匹配的来源队伍展示經過整理的攻略循環。
+- 對其他四人組合展示明確標註的規則回退，不把推導結果偽裝成實測攻略。
+- 按裝備穿戴等級、角色定位、元素和推薦關係篩選配裝候選。
+- 執行時不呼叫 AI，不生成沒有資料依據的答案。
 
-## 当前 MVP
+## 當前 MVP
 
-- 必须恰好选择 4 名不同角色。
-- 输入玩家等级；章节选择会在有已核验章节资料时启用。
-- 展示技能顺序、触发条件、共享技力、能量、冷却与注意事项。
-- 展示每名角色的最佳候选、当前候选与替代装备，并显示已知解锁门槛。
-- 不保存队伍或玩家资料，刷新后重新选择。
-- 不读取游戏账号，不提供账号联动或自动同步。
-- 响应式支持桌面与 390 px 行动端。
+ - 必須恰好選擇 4 名不同角色。
+- 輸入玩家等級；章節選擇會在有已核驗章節資料時啟用。
+- 展示技能順序、觸發條件、共享技力、能量、冷卻與注意事項。
+- 展示每名角色的最佳候選、目前候選與替代裝備，並顯示已知解鎖門檻。
+- 不保存隊伍或玩家資料，刷新後重新選擇。
+- 不讀取遊戲帳號，不提供帳號聯動或自動同步。
+- 響應式支援桌面與 390 px 行動端。
 
-目前资料库包含：
+目前資料庫包含：
 
-- 34 名可玩角色、99 个技能
-- 276 件装备
-- 2 套来源队伍
-- 1 套来源攻略循环
-- 7 个资料或攻略来源
-- 游戏资料版本：`1.6.4`，表版本 `11262943-8`
+ - 34 名可玩角色、99 個技能
+- 276 件裝備（其中 258 件有本地官方圖，18 件缺圖並以「來源缺圖」標示）
+- 2 套來源隊伍
+- 1 套來源攻略循環
+- 7 個資料或攻略來源
+- 遊戲資料版本：`1.6.4`，表版本 `11262943-8`
 
-## 重要资料边界
+## 重要資料邊界
 
-这是 MVP 测试版，不是完整战斗模拟器。以下限制会直接反映在界面中：
+這是 MVP 測試版，不是完整戰鬥模擬器。以下限制會直接反映在介面中：
 
-- 唯一已整理的来源攻略循环是「莱万汀 / 卡缪 / 狼卫 / 艾尔黛拉」四人单目标循环。
-- 其他四人组合使用标签与技能类型规则生成回退顺序，并标记为「规则生成，待人工核对」。
-- 来源循环是条件式顺序，不声称帧级或秒级最优轴。
-- 角色专属技能中文名、部分连携触发条件与定位标签仍待补齐。
-- 章节到装备／配方权限的映射尚未核验，因此当前不会声称装备「已经可以制造」。
-- 装备门槛中的 `minWearLv` 只代表装备穿戴等级，不等同玩家等级、剧情进度或配方权限。
-- 配方权限、剧情章节与制造状态未确认时会显示为未知，而不是当作已解锁。
+ - 唯一已整理的來源攻略循環是「萊萬汀 / 卡繆 / 狼衛 / 艾爾黛拉」四人單目標循環。
+- 其他四人組合使用標籤與技能類型規則生成回退順序，並標記為「規則生成，待人工核對」。
+- 來源循環是條件式順序，不聲稱幀級或秒級最優軸。
+- 角色專屬技能中文名、部分連攜觸發條件與定位標籤仍待補齊。
+- 章節到裝備／配方權限的映射尚未核驗，因此目前不會聲稱裝備「已經可以製造」。
+- 裝備門檻中的 `minWearLv` 只代表裝備穿戴等級，不等同玩家等級、劇情進度或配方權限。
+- 配方權限、劇情章節與製造狀態未確認時會顯示為未知，而不是當作已解鎖。
 
-## 技术栈
+## 技術棧
 
-- 前端：Vue 3、TypeScript、Vite、Pinia、Vue Router、Tailwind CSS
-- 前端测试：Vitest
-- 资料管线：Python 标准库，无第三方运行时依赖
-- 资料来源：JSON 表格镜像、官方教学／公告与人工核验的攻略摘录
+ - 前端：Vue 3、TypeScript、Vite、Pinia、Vue Router、Tailwind CSS
+- 前端測試：Vitest
+- 資料管線：Python 標準函式庫，無第三方執行期依賴
+- 資料來源：JSON 表格鏡像、官方教學／公告與人工核驗的攻略摘錄
 - 部署：GitHub Actions + GitHub Pages
-- 路由：Hash History，适配 GitHub Pages 项目子路径 `/EndfieldSkill/`
+- 路由：Hash History，適配 GitHub Pages 專案子路徑 `/EndfieldSkill/`
 
-## 本地启动
+## 本地啟動
 
-环境建议：
+環境建議：
 
-- Node.js 22 或更新版本
+ - Node.js 22 或更新版本
 - npm 10 或更新版本
 - Python 3.11 或更新版本
 
@@ -72,18 +72,18 @@ npm ci
 npm run dev
 ```
 
-默认开发地址由 Vite 输出。正式构建：
+預設開發位址由 Vite 輸出。正式建構：
 
 ```powershell
 npm run build
 npm run preview
 ```
 
-`npm run build` 会先执行 `scripts/sync-data.mjs`，把 `data/v1/` 同步到 `apps/web/public/data/v1/`。同步出的 JSON 是构建产物，不提交到 Git；canonical 资料仍保存在根目录 `data/v1/`。
+`npm run build` 會先執行 `scripts/sync-data.mjs`，把 `data/v1/` 同步到 `apps/web/public/data/v1/`。同步出的 JSON 是建構產物，不提交到 Git；canonical 資料仍保存在根目錄 `data/v1/`。
 
-### 资料管线与测试
+### 資料管線與測試
 
-首次在线更新资料：
+首次線上更新資料：
 
 ```powershell
 cd A:\EndfieldSkill
@@ -92,13 +92,13 @@ python -m crawler validate
 python -m unittest discover -s crawler\tests -v
 ```
 
-已有通过校验的本机快取时，可做离线重建：
+已有通過校驗的本機快取時，可做離線重建：
 
 ```powershell
 python -m crawler update --source all --offline
 ```
 
-完整前端验收：
+完整前端驗收：
 
 ```powershell
 cd A:\EndfieldSkill\apps\web
@@ -107,65 +107,66 @@ npm run build
 npm audit --audit-level=low
 ```
 
-## 资料更新流程
+## 資料更新流程
 
-游戏新增角色或调整装备后，按以下流程发布新版本：
+遊戲新增角色或調整裝備後，按以下流程發布新版本：
 
-1. 执行 `python -m crawler update --source all`，取得最新版本化游戏表格。
-2. 检查 `data/v1/meta.json` 的版本、覆盖率、缺失技能和 unresolved 项目。
-3. 仅在有可信来源时，更新 `crawler/sources.py` 中的人工核验队伍、循环与配装摘录。
-4. 执行资料校验、Python 测试、前端测试与生产构建。
-5. 提交并推送 `main`，由 GitHub Actions 重新部署 Pages。
+1. 執行 `python -m crawler update --source all`，取得最新版本化遊戲表格。
+2. 檢查 `data/v1/meta.json` 的版本、覆蓋率、缺失技能和 unresolved 項目。
+3. 僅在有可信來源時，更新 `crawler/sources.py` 中的人工核驗隊伍、循環與配裝摘錄。
+4. 執行資料校驗、Python 測試、前端測試與生產建構。
+5. 提交並推送 `main`，由 GitHub Actions 重新部署 Pages。
 
-资料文件：
+資料檔案：
 
-- `data/v1/characters.json`：角色、定位、元素与技能。
-- `data/v1/equipment.json`：装备、属性、配方及已知门槛。
-- `data/v1/progressions.json`：章节进度；未核验时不写入猜测。
-- `data/v1/team-presets.json`：来源队伍。
-- `data/v1/rotation-presets.json`：来源技能循环。
-- `data/v1/sources.json`：URL、抓取时间、哈希与撷取字段。
-- `data/v1/meta.json`：版本、覆盖率、限制与未解决项目。
+ - `data/v1/characters.json`：角色、定位、元素與技能。
+- `data/v1/equipment.json`：裝備、屬性、配方及已知門檻。
+- `data/v1/progressions.json`：章節進度；未核驗時不寫入猜測。
+- `data/v1/team-presets.json`：來源隊伍。
+- `data/v1/rotation-presets.json`：來源技能循環。
+- `data/v1/sources.json`：URL、抓取時間、雜湊與擷取欄位。
+- `data/v1/meta.json`：版本、覆蓋率、限制與未解決項目。
 
 
-## UI/UX 设计
+## UI/UX 設計
 
-前端界面参考《终末地》官方网站的工业科幻风格，采用以下设计系统：
+前端介面參考《終末地》官方網站的工業科幻風格，採用以下設計系統：
 
-- **字体**: Rajdhani（标题、编号、代码）+ IBM Plex Sans（正文、列表）
-- **色彩**: 深色背景 + 酸黄强调色 + 青色交互提示 + 暖橙警告
-- **动效**: 入场渐显、扫描线、呼吸灯与细微悬停反馈
-- **网格**: 56px 网格底纹 + 切角面板 + 渐变光晕
-- **角色图**: 35 张官方角色立绘从官方 CDN 下载至本地，配备 lazy loading 与错误回退
+- **字體**：Rajdhani（標題、編號、代碼）＋ IBM Plex Sans（正文、清單）
+- **色彩**：白底工業編輯風，黑色粗體標題、黃色 `#fffa00` 切角色塊、藍色 `#2257d6` 重點、橘色 `#ff6b00` 警告
+- **動效**：入場漸顯、掃描線、狀態點呼吸與細微懸停回饋
+- **網格**：細線網格底紋、硬邊切角面板、黑色 footer
+- **角色圖**：35 張官方角色立繪從官方 CDN 下載至本地，配備 lazy loading 與錯誤回退
+- **裝備圖**：258 張官方裝備圖，配備五級稀有度色框（灰／綠／藍／紫／金）與 18 筆缺圖 fallback
 
-所有角色图片资产来源、原始 URL 与使用注意事项记录在 [`apps/web/ASSET_SOURCES.md`](apps/web/ASSET_SOURCES.md)。
+所有角色圖片資產來源、原始 URL 與使用注意事項記錄在 [`apps/web/ASSET_SOURCES.md`](apps/web/ASSET_SOURCES.md)。
 本项目明确标示为非官方第三方攻略工具，不宣称官方授权或关联。
 
-## 主要资料来源
+## 主要資料來源
 
-- [AKEDatabase 游戏表格镜像](https://data.akedata.wiki/manifest.json)：角色、技能、装备、配方与属性；视为结构化二手资料。
-- [官方战斗教学](https://endfield.games/zh-Hans/tutorials/battle/)：共享技力、连携、能量与终结技机制。
-- [官方开发通讯 2674](https://endfield.hypergryph.com/news/2674)：装备材料与权限等级门槛。
-- [Prydwen Combat Basics](https://www.prydwen.gg/arknights-endfield/guides/combat-basics)：四人队伍与共享技力交叉核对。
-- [GameWith 队伍攻略](https://gamewith.net/akendfield/72598)：Pulse 四人队人工摘录。
-- [Game8 莱万汀队伍循环](https://game8.co/games/Arknights-Endfield/archives/577071)：单目标循环人工摘录。
-- [Game8 装备攻略](https://game8.co/games/Arknights-Endfield/archives/576118)：明确可映射的套装推荐。
+ - [AKEDatabase 遊戲表格鏡像](https://data.akedata.wiki/manifest.json)：角色、技能、裝備、配方與屬性；視為結構化二手資料。
+- [官方網站](https://endfield.gryphline.com/zh-tw#home)：共享技力、連攜、能量與終結技機制與官方視覺參考。
+- [官方開發通訊 2674](https://endfield.hypergryph.com/news/2674)：裝備材料與權限等級門檻。
+- [Prydwen Combat Basics](https://www.prydwen.gg/arknights-endfield/guides/combat-basics)：四人隊伍與共享技力交叉核對。
+- [GameWith 隊伍攻略](https://gamewith.net/akendfield/72598)：Pulse 四人隊人工摘錄。
+- [Game8 萊萬汀隊伍循環](https://game8.co/games/Arknights-Endfield/archives/577071)：單目標循環人工摘錄。
+- [Game8 裝備攻略](https://game8.co/games/Arknights-Endfield/archives/576118)：明確可映射的套裝推薦。
 
-来源冲突、无法映射或无法核验的字段会保留在 `meta.json` 的 `unresolved` 中，不会用猜测填补。本项目只保存结构化事实与短摘录，不复制完整第三方文章。
+來源衝突、無法映射或無法核驗的欄位會保留在 `meta.json` 的 `unresolved` 中，不會用猜測填補。本專案只保存結構化事實與短摘錄，不複製完整第三方文章。
 
 ## GitHub Pages 部署
 
-推送 `main` 会自动触发 [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)：
+推送 `main` 會自動觸發 [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)：
 
-1. 安装前端依赖并执行 Vitest。
-2. 以 `VITE_BASE=/EndfieldSkill/` 构建。
-3. 上传 `apps/web/dist` 并由 GitHub Pages 部署。
+1. 安裝前端依賴並執行 Vitest。
+2. 以 `VITE_BASE=/EndfieldSkill/` 建構。
+3. 上傳 `apps/web/dist` 並由 GitHub Pages 部署。
 
-也可以在 GitHub Actions 页面手动执行 `workflow_dispatch`。
+也可以在 GitHub Actions 頁面手動執行 `workflow_dispatch`。
 
-若仓库首次部署后仍显示 404，请到仓库 `Settings > Pages`，确认 Source 设为 `GitHub Actions`。
+若倉庫首次部署後仍顯示 404，請到倉庫 `Settings > Pages`，確認 Source 設為 `GitHub Actions`。
 
-## 专案结构
+## 專案結構
 
 ```text
 .
@@ -175,16 +176,16 @@ npm audit --audit-level=low
 |-- data/schemas/              # JSON Schema
 |-- docs/                      # 产品规划与架构文件
 |-- .github/workflows/         # GitHub Pages 部署
-`-- README.md
+ `-- README.md
 ```
 
-## 非目标
+## 非目標
 
-- 运行时 AI 问答或生成式配队。
-- 自动读取玩家游戏账号、角色库存或养成进度。
-- 装备掉落率与完整材料库存管理。
-- 逐帧战斗模拟或自动操作游戏。
-- 未经验证的攻略内容自动转成「最佳答案」。
+ - 執行時 AI 問答或生成式配隊。
+- 自動讀取玩家遊戲帳號、角色庫存或養成進度。
+- 裝備掉落率與完整材料庫存管理。
+- 逐幀戰鬥模擬或自動操作遊戲。
+- 未經驗證的攻略內容自動轉成「最佳答案」。
 
-本项目为非官方玩家工具，与 Hypergryph / Gryphline 无隶属关系。游戏名称、角色与素材权利归原权利人所有。
+本專案為非官方玩家工具，與 Hypergryph / Gryphline 無隸屬關係。遊戲名稱、角色與素材權利歸原權利人所有。
 

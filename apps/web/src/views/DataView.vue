@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { DATA_FILES } from '@/data/loadDataset'
+import equipmentImageMap from '@/data/equipmentImageMap.json'
 import { usePlannerStore } from '@/stores/planner'
 
 const planner = usePlannerStore()
@@ -14,22 +15,47 @@ const coverageItems = computed(() => {
   const coverage = dataset.value?.coverage
   if (!coverage) return []
   return [
-    { label: '角色技能字段', value: coverage.characterSkillCoverage },
-    { label: '角色来源覆盖', value: coverage.characterSourceCoverage },
-    { label: '装备门槛覆盖', value: coverage.equipmentGateCoverage },
-    { label: '循环来源覆盖', value: coverage.rotationSourceCoverage },
+    { label: '角色技能欄位', value: coverage.characterSkillCoverage },
+    { label: '角色來源覆蓋', value: coverage.characterSourceCoverage },
+    { label: '裝備門檻覆蓋', value: coverage.equipmentGateCoverage },
+    { label: '循環來源覆蓋', value: coverage.rotationSourceCoverage },
   ]
 })
 
 const statusLabel = computed(() => {
-  if (planner.dataState === 'loading') return '链路检测中'
-  if (planner.dataState === 'error') return '链路错误'
-  if (planner.dataState === 'empty') return '等待数据管线'
+  if (planner.dataState === 'loading') return '鏈路檢測中'
+  if (planner.dataState === 'error') return '鏈路錯誤'
+  if (planner.dataState === 'empty') return '等待資料管線'
   if (planner.dataState === 'ready') {
-    return dataset.value?.missingFiles.length ? '部分数据可用' : '数据在线'
+    return dataset.value?.missingFiles.length ? '部分資料可用' : '資料在線'
   }
-  return '尚未检测'
+  return '尚未檢測'
 })
+
+const missingEquipmentImages = computed(() => {
+  const imageIds = new Set(Object.keys(equipmentImageMap))
+  return (dataset.value?.equipment ?? []).filter((item) => !imageIds.has(item.id))
+})
+
+const missingSkillCharacters = computed(() => {
+  const missingTypes = new Set(dataset.value?.meta.missingSkillTypes ?? [])
+  return (dataset.value?.characters ?? [])
+    .map((character) => ({
+      id: character.id,
+      name: character.name,
+      types: [...missingTypes]
+        .filter((entry) => entry.startsWith(`${character.id}:`))
+        .map((entry) => entry.slice(character.id.length + 1)),
+    }))
+    .filter((item) => item.types.length)
+})
+
+const missingSkillLabel = (type: string): string => {
+  if (type === 'battle') return '戰技'
+  if (type === 'combo') return '連攜技'
+  if (type === 'ultimate') return '終結技'
+  return type
+}
 
 const safeUrl = (url: string | null): string | null => {
   if (!url) return null
@@ -52,9 +78,13 @@ const fileStatus = (file: string): string => {
 <template>
   <div class="container-shell data-page">
     <section class="data-hero reveal">
-      <div>
+      <div class="data-title">
         <p class="eyebrow">DATA LINK // TRACEABILITY</p>
-        <h1 class="display-title">资料链路与<br /><span>可验证边界。</span></h1>
+        <h1 class="display-title">資料鏈路與<br /><span>可驗證邊界。</span></h1>
+        <p>
+          本頁保留資料版本、來源、欄位覆蓋與所有已知缺漏。推薦結果只使用可追溯的靜態資料，
+          執行期不呼叫 AI，也不以猜測補齊遊戲內容。
+        </p>
       </div>
       <div class="status-block">
         <span class="status-light" :class="planner.dataState"></span>
@@ -70,45 +100,47 @@ const fileStatus = (file: string): string => {
         <div class="panel-heading">
           <div>
             <p class="eyebrow">DATASET MANIFEST</p>
-            <h2>数据集版本</h2>
+            <h2>資料集版本</h2>
           </div>
-          <span class="schema-chip">{{ dataset?.meta.schemaVersion ?? 'SCHEMA PENDING' }}</span>
+          <span class="schema-chip">
+            Schema 版本：{{ dataset?.meta.schemaVersion ?? 'SCHEMA PENDING' }}
+          </span>
         </div>
 
         <dl class="meta-grid">
           <div>
-            <dt>数据版本</dt>
-            <dd>{{ dataset?.meta.dataVersion ?? '等待数据代理提供' }}</dd>
+            <dt>資料版本</dt>
+            <dd>{{ dataset?.meta.dataVersion ?? '等待資料代理提供' }}</dd>
           </div>
           <div>
-            <dt>游戏版本</dt>
-            <dd>{{ dataset?.meta.gameVersion ?? '未标注' }}</dd>
+            <dt>遊戲版本</dt>
+            <dd>{{ dataset?.meta.gameVersion ?? '未標註' }}</dd>
           </div>
           <div>
-            <dt>生成时间</dt>
-            <dd>{{ dataset?.meta.generatedAt ?? '未标注' }}</dd>
+            <dt>生成時間</dt>
+            <dd>{{ dataset?.meta.generatedAt ?? '未標註' }}</dd>
           </div>
           <div>
-            <dt>来源数量</dt>
+            <dt>來源數量</dt>
             <dd>{{ dataset?.meta.sourceCount ?? dataset?.sources.length ?? 0 }}</dd>
           </div>
         </dl>
 
         <div class="count-grid">
-          <div><strong>{{ dataset?.characters.length ?? 0 }}</strong><span>CHARACTERS</span></div>
-          <div><strong>{{ dataset?.equipment.length ?? 0 }}</strong><span>EQUIPMENT</span></div>
+          <div><strong>{{ dataset?.characters.length ?? 0 }}</strong><span>角色</span></div>
+          <div><strong>{{ dataset?.equipment.length ?? 0 }}</strong><span>裝備</span></div>
           <div :class="{ partial: hasUnverifiedProgressData }">
             <strong>{{ dataset?.chapters.length ?? 0 }}</strong>
-            <span>{{ hasUnverifiedProgressData ? 'CHAPTERS / UNVERIFIED' : 'CHAPTERS' }}</span>
+            <span>{{ hasUnverifiedProgressData ? '章節／未核驗' : '章節' }}</span>
           </div>
-          <div><strong>{{ dataset?.rotationPresets.length ?? 0 }}</strong><span>ROTATIONS</span></div>
+          <div><strong>{{ dataset?.rotationPresets.length ?? 0 }}</strong><span>循環預設</span></div>
         </div>
 
         <div v-if="hasUnverifiedProgressData" class="progress-limits">
           <span>PROGRESS DATA UNVERIFIED</span>
           <p>
-            章节资料为空，配方权限也尚未由剧情或权限进度自动核验。角色选择、技能循环与装备穿戴等级推荐仍可使用，
-            但本页不会把章节门槛或“当前可制造”状态宣称为完整结论。
+            章節資料為空，配方權限也尚未由劇情或權限進度自動核驗。角色選擇、技能循環與裝備穿戴等級推薦仍可使用，
+            但本頁不會把章節門檻或「目前可製造」狀態宣稱為完整結論。
           </p>
         </div>
 
@@ -117,7 +149,7 @@ const fileStatus = (file: string): string => {
           <p v-for="note in dataset.meta.notes" :key="note">{{ note }}</p>
         </div>
         <div v-else-if="!dataset" class="empty-line">
-          尚未读取到 `public/data/v1/`。页面不会生成示例角色、循环或装备数据冒充已验证资料。
+          尚未讀取到 `public/data/v1/`。頁面不會生成示例角色、循環或裝備資料冒充已驗證資料。
         </div>
       </section>
 
@@ -125,7 +157,7 @@ const fileStatus = (file: string): string => {
         <div class="panel-heading">
           <div>
             <p class="eyebrow">FIELD COVERAGE</p>
-            <h2>字段覆盖率</h2>
+            <h2>欄位覆蓋率</h2>
           </div>
         </div>
 
@@ -140,15 +172,18 @@ const fileStatus = (file: string): string => {
             </div>
           </div>
         </div>
-        <p v-else class="coverage-empty">等待数据管线后计算覆盖率。</p>
+        <p v-else class="coverage-empty">等待資料管線後計算覆蓋率。</p>
 
         <div class="missing-fields">
           <span>MISSING / PARTIAL FIELDS</span>
-          <div v-if="dataset?.coverage.missingFields.length">
+          <div v-if="dataset?.meta.partialFields.length">
+            <code v-for="field in dataset.meta.partialFields" :key="field">{{ field }}</code>
+          </div>
+          <div v-else-if="dataset?.coverage.missingFields.length">
             <code v-for="field in dataset.coverage.missingFields" :key="field">{{ field }}</code>
           </div>
-          <p v-else-if="dataset">当前未发现可计算的缺失字段，或数据集为空。</p>
-          <p v-else>尚无数据。</p>
+          <p v-else-if="dataset">目前未發現可計算的缺失欄位，或資料集為空。</p>
+          <p v-else>尚無資料。</p>
         </div>
 
         <div v-if="dataset?.errors.length" class="load-errors">
@@ -158,12 +193,54 @@ const fileStatus = (file: string): string => {
       </section>
     </div>
 
+    <section class="gap-panel panel reveal reveal-delay-2">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">COVERAGE GAPS</p>
+          <h2>缺資料與缺圖明細</h2>
+        </div>
+        <span class="gap-total">
+          {{ missingSkillCharacters.length }} 技能缺口 · {{ missingEquipmentImages.length }} 裝備缺圖
+        </span>
+      </div>
+
+      <div class="gap-grid">
+        <div>
+          <h3>技能資料缺口</h3>
+          <div v-if="missingSkillCharacters.length" class="gap-list">
+            <article v-for="character in missingSkillCharacters" :key="character.id">
+              <div>
+                <strong>{{ character.name }}</strong>
+                <code>{{ character.id }}</code>
+              </div>
+              <span>
+                缺少 {{ character.types.map(missingSkillLabel).join('、') }}
+              </span>
+            </article>
+          </div>
+          <p v-else class="gap-empty">目前沒有列出的技能型別缺口。</p>
+        </div>
+
+        <div>
+          <h3>裝備圖片缺口</h3>
+          <div v-if="missingEquipmentImages.length" class="image-gap-list">
+            <article v-for="item in missingEquipmentImages" :key="item.id">
+              <strong>{{ item.name }}</strong>
+              <code>{{ item.id }}</code>
+              <span>來源缺圖；介面顯示替代標記，不捏造圖像。</span>
+            </article>
+          </div>
+          <p v-else class="gap-empty">目前裝備資料均有本地圖片映射。</p>
+        </div>
+      </div>
+    </section>
+
     <div class="lower-grid">
       <section class="contract-panel panel reveal reveal-delay-2">
         <div class="panel-heading">
           <div>
             <p class="eyebrow">FILE CONTRACT</p>
-            <h2>数据文件</h2>
+            <h2>資料檔案</h2>
           </div>
           <span class="contract-path">public/data/v1</span>
         </div>
@@ -175,8 +252,8 @@ const fileStatus = (file: string): string => {
           </div>
         </div>
         <p class="contract-note">
-          规范数据保存在仓库根 `data/v1/`；构建前由同步脚本复制至前端静态目录。前端只读取规范化契约，
-          不在浏览器中抓取第三方页面。
+          規範資料保存在倉庫根 `data/v1/`；建置前由同步腳本複製至前端靜態目錄。前端只讀取規範化契約，
+          不在瀏覽器中抓取第三方頁面。
         </p>
       </section>
 
@@ -184,7 +261,7 @@ const fileStatus = (file: string): string => {
         <div class="panel-heading">
           <div>
             <p class="eyebrow">SOURCE REGISTER</p>
-            <h2>来源索引</h2>
+            <h2>來源索引</h2>
           </div>
           <span class="source-count">{{ dataset?.sources.length ?? 0 }} ENTRIES</span>
         </div>
@@ -199,12 +276,12 @@ const fileStatus = (file: string): string => {
                 target="_blank"
                 rel="noreferrer"
               >
-                OPEN ↗
+                開啟 ↗
               </a>
-              <span v-else class="source-unlinked">NO SAFE URL</span>
+              <span v-else class="source-unlinked">無安全連結</span>
             </div>
             <h3>{{ source.title }}</h3>
-            <p>{{ source.publisher || '发布者未标注' }} · {{ source.fetchedAt || '抓取时间未标注' }}</p>
+            <p>{{ source.publisher || '發佈者未標註' }} · {{ source.fetchedAt || '抓取時間未標註' }}</p>
             <div v-if="source.fields.length" class="source-fields">
               <span v-for="field in source.fields.slice(0, 8)" :key="field">{{ field }}</span>
             </div>
@@ -212,19 +289,36 @@ const fileStatus = (file: string): string => {
         </div>
         <div v-else class="source-empty">
           <strong>AWAITING SOURCE REGISTER</strong>
-          <p>数据代理尚未提供 `sources.json`，因此当前没有可核验的抓取来源。</p>
+          <p>資料代理尚未提供 `sources.json`，因此目前沒有可核驗的抓取來源。</p>
         </div>
       </section>
     </div>
 
+    <section v-if="dataset?.meta.unresolved.length" class="unresolved-panel panel reveal">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">UNRESOLVED FIELDS</p>
+          <h2>未解問題</h2>
+        </div>
+      </div>
+      <div class="unresolved-list">
+        <article v-for="item in dataset.meta.unresolved" :key="`${item.field}:${item.subject}`">
+          <span>{{ item.field || 'FIELD UNSPECIFIED' }}</span>
+          <strong>{{ item.subject || '未命名項目' }}</strong>
+          <p>{{ item.reason || '未提供原因。' }}</p>
+          <small>{{ item.sourceIds.length ? `來源：${item.sourceIds.join(' / ')}` : '未標註來源' }}</small>
+        </article>
+      </div>
+    </section>
+
     <section class="method-note reveal">
       <span>METHOD / 01</span>
       <p>
-        推荐采用“来源预设优先，标签规则回退”的确定性流程。共享技力、连携触发条件与终结技能量分别建模，
-        不以普通秒表时间轴替代战斗机制。任何规则生成内容均明确标注待人工核对。
+        推薦採用「來源預設優先，標籤規則回退」的確定性流程。共享技力、連攜觸發條件與終結技能量分別建模，
+        不以普通秒錶時間軸替代戰鬥機制。任何規則生成內容均明確標註待人工核對。
       </p>
-      <a href="https://endfield.games/zh-Hans/tutorials/battle/" target="_blank" rel="noreferrer">
-        官方战斗机制 ↗
+      <a href="https://endfield.gryphline.com/zh-tw#home" target="_blank" rel="noreferrer">
+        官方網站 ↗
       </a>
     </section>
   </div>
@@ -243,43 +337,59 @@ const fileStatus = (file: string): string => {
   padding-bottom: clamp(2rem, 4vw, 3.2rem);
 }
 
+.data-title {
+  max-width: 900px;
+}
+
 .data-hero h1 {
   margin-top: 0.7rem;
   font-size: clamp(3rem, 6.5vw, 6.2rem);
 }
 
 .data-hero h1 span {
-  color: var(--cyan);
+  display: inline-block;
+  background: var(--color-accent-primary);
+  padding: 0 0.08em;
+}
+
+.data-title > p:last-child {
+  max-width: 680px;
+  margin-top: 1.25rem;
+  color: var(--color-text-secondary);
+  font-size: 0.92rem;
+  line-height: 1.8;
 }
 
 .status-block {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
-  gap: 0.65rem;
-  border: 1px solid var(--line);
-  background: rgba(16, 19, 15, 0.6);
-  padding: 0.7rem 0.9rem;
+  gap: 0.7rem;
+  border: 1px solid var(--color-border-primary);
+  background: #fff;
+  padding: 0.8rem 1rem;
 }
 
 .status-light {
-  width: 8px;
-  height: 8px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: #777e70;
+  background: #9b9b9b;
 }
 
 .status-light.ready {
-  background: var(--cyan);
-  box-shadow: 0 0 12px var(--cyan);
+  background: var(--color-accent-blue);
+  box-shadow: 0 0 0 4px rgba(34, 87, 214, 0.1);
 }
 
 .status-light.loading {
-  background: var(--acid);
+  background: var(--color-accent-primary);
+  box-shadow: 0 0 0 4px rgba(255, 250, 0, 0.2);
   animation: beacon-pulse 1.2s ease-in-out infinite;
 }
 
 .status-light.error {
-  background: var(--danger);
+  background: var(--color-danger);
 }
 
 .status-block div {
@@ -288,31 +398,33 @@ const fileStatus = (file: string): string => {
 }
 
 .status-block small {
-  color: #676e60;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.52rem;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-display);
+  font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.1em;
 }
 
 .status-block strong {
-  color: var(--paper);
-  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 0.88rem;
-  font-weight: 600;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 
 .data-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
-  gap: 0.8rem;
+  gap: 0.9rem;
 }
 
 .dataset-panel,
 .coverage-panel,
 .contract-panel,
-.sources-panel {
-  padding: 1.2rem;
+.sources-panel,
+.gap-panel,
+.unresolved-panel {
+  padding: 1.3rem;
 }
 
 .panel-heading {
@@ -320,237 +432,317 @@ const fileStatus = (file: string): string => {
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-border-primary);
+  padding-bottom: 0.8rem;
 }
 
 .panel-heading h2 {
-  margin-top: 0.18rem;
-  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 1.3rem;
-  font-weight: 600;
+  margin-top: 0.2rem;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
 }
 
 .schema-chip,
 .contract-path,
-.source-count {
-  color: #767d6f;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.56rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+.source-count,
+.gap-total {
+  color: var(--color-text-tertiary);
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-align: right;
 }
 
 .meta-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
-  margin-top: 0.8rem;
-  border: 1px solid #343b2e;
-  background: #343b2e;
+  margin-top: 0.9rem;
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-border-primary);
 }
 
 .meta-grid div {
   min-width: 0;
-  background: #191d17;
-  padding: 0.6rem;
+  background: #fff;
+  padding: 0.7rem;
 }
 
 .meta-grid dt {
-  color: #71786b;
-  font-size: 0.56rem;
+  color: var(--color-text-tertiary);
+  font-size: 0.66rem;
 }
 
 .meta-grid dd {
   margin: 0.15rem 0 0;
   overflow-wrap: anywhere;
-  color: #bdc1b5;
-  font-size: 0.66rem;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
 }
 
 .count-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.35rem;
-  margin-top: 0.7rem;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
 }
 
 .count-grid div {
-  border: 1px solid #343b2e;
-  padding: 0.55rem;
+  border: 1px solid var(--color-border-primary);
+  background: #fafafa;
+  padding: 0.65rem;
 }
 
 .count-grid strong {
   display: block;
-  color: var(--acid);
-  font-family: "Rajdhani", sans-serif;
-  font-size: 1.4rem;
-  font-weight: 600;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 1.65rem;
+  font-weight: 700;
   line-height: 1;
 }
 
 .count-grid span {
   display: block;
-  margin-top: 0.2rem;
-  color: #6f7668;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.49rem;
-  font-weight: 600;
-  letter-spacing: 0.07em;
+  margin-top: 0.3rem;
+  color: var(--color-text-secondary);
+  font-size: 0.64rem;
 }
 
 .count-grid div.partial {
-  border-color: rgba(255, 156, 102, 0.5);
-  background: rgba(255, 156, 102, 0.045);
+  border-color: #e4a368;
+  background: #fff7ef;
 }
 
 .count-grid div.partial strong,
 .count-grid div.partial span {
-  color: var(--ember);
+  color: #9c4709;
 }
 
 .progress-limits {
-  margin-top: 0.7rem;
-  border-left: 2px solid var(--ember);
-  background: rgba(255, 156, 102, 0.055);
-  padding: 0.55rem 0.65rem;
+  margin-top: 0.8rem;
+  border: 1px solid #f0c9a7;
+  border-left: 5px solid var(--color-accent-orange);
+  background: #fff8f1;
+  padding: 0.65rem 0.75rem;
 }
 
-.progress-limits > span {
-  color: var(--ember);
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.54rem;
+.progress-limits > span,
+.meta-notes > span,
+.load-errors > span,
+.missing-fields > span {
+  color: #a94b00;
+  font-family: var(--font-display);
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.09em;
 }
 
 .progress-limits p {
-  margin-top: 0.25rem;
-  color: #ad9787;
-  font-size: 0.61rem;
-  line-height: 1.55;
+  margin-top: 0.3rem;
+  color: #694b36;
+  font-size: 0.72rem;
+  line-height: 1.6;
 }
 
 .meta-notes,
 .load-errors {
   display: grid;
-  gap: 0.25rem;
-  margin-top: 0.7rem;
-  border-left: 1px solid var(--ember);
-  padding-left: 0.55rem;
-}
-
-.meta-notes > span,
-.load-errors > span,
-.missing-fields > span {
-  color: var(--ember);
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.54rem;
-  font-weight: 700;
-  letter-spacing: 0.09em;
+  gap: 0.3rem;
+  margin-top: 0.8rem;
+  border-left: 3px solid var(--color-accent-orange);
+  padding-left: 0.65rem;
 }
 
 .meta-notes p,
 .load-errors p {
-  color: #a48e7f;
-  font-size: 0.6rem;
-  line-height: 1.45;
   overflow-wrap: anywhere;
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
+  line-height: 1.55;
 }
 
 .empty-line {
-  margin-top: 0.7rem;
-  color: #958474;
-  font-size: 0.62rem;
-  line-height: 1.55;
+  margin-top: 0.8rem;
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+  line-height: 1.6;
 }
 
 .coverage-list {
   display: grid;
-  gap: 0.7rem;
-  margin-top: 0.9rem;
+  gap: 0.8rem;
+  margin-top: 1rem;
 }
 
 .coverage-label {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  color: #8e9587;
-  font-size: 0.61rem;
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
 }
 
 .coverage-label strong {
-  color: var(--cyan);
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.65rem;
-  font-weight: 600;
+  color: var(--color-accent-blue);
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 700;
 }
 
 .coverage-track {
-  height: 4px;
-  margin-top: 0.28rem;
-  background: #2d3329;
+  height: 5px;
+  margin-top: 0.3rem;
+  background: #e6e6e6;
 }
 
 .coverage-track i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, var(--cyan), var(--acid));
+  background: linear-gradient(90deg, var(--color-accent-blue), var(--color-accent-primary));
 }
 
-.coverage-empty {
+.coverage-empty,
+.gap-empty {
   margin-top: 1rem;
-  color: #817d70;
-  font-size: 0.64rem;
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
 }
 
 .missing-fields {
   margin-top: 1rem;
-  border-top: 1px solid var(--line);
-  padding-top: 0.7rem;
+  border-top: 1px solid var(--color-border-primary);
+  padding-top: 0.8rem;
 }
 
 .missing-fields > div {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem;
-  margin-top: 0.45rem;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
 }
 
 .missing-fields code {
-  background: rgba(238, 233, 220, 0.045);
-  padding: 0.15rem 0.3rem;
-  color: #9a9f94;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.53rem;
+  background: #f0f0f0;
+  padding: 0.18rem 0.35rem;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
 }
 
 .missing-fields p {
-  margin-top: 0.4rem;
-  color: #858c7e;
-  font-size: 0.6rem;
+  margin-top: 0.45rem;
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
+}
+
+.gap-panel {
+  margin-top: 0.9rem;
+}
+
+.gap-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 1rem;
+  margin-top: 0.9rem;
+}
+
+.gap-grid h3 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.gap-list {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.55rem;
+}
+
+.gap-list article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  border: 1px solid #f0c9a7;
+  background: #fff8f1;
+  padding: 0.55rem 0.65rem;
+}
+
+.gap-list article > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+}
+
+.gap-list strong,
+.image-gap-list strong {
+  font-size: 0.78rem;
+}
+
+.gap-list code,
+.image-gap-list code {
+  margin-top: 0.12rem;
+  overflow-wrap: anywhere;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+}
+
+.gap-list article > span {
+  flex: 0 0 auto;
+  color: #9c4709;
+  font-size: 0.68rem;
+}
+
+.image-gap-list {
+  display: grid;
+  max-height: 410px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.image-gap-list article {
+  min-width: 0;
+  border: 1px solid var(--color-border-primary);
+  background: #fafafa;
+  padding: 0.5rem 0.6rem;
+}
+
+.image-gap-list span {
+  display: block;
+  margin-top: 0.25rem;
+  color: #9c4709;
+  font-size: 0.63rem;
+  line-height: 1.45;
 }
 
 .lower-grid {
   display: grid;
   grid-template-columns: minmax(300px, 0.75fr) minmax(0, 1.25fr);
-  gap: 0.8rem;
-  margin-top: 0.8rem;
+  gap: 0.9rem;
+  margin-top: 0.9rem;
 }
 
 .file-table {
-  margin-top: 0.75rem;
-  border: 1px solid #343b2e;
+  margin-top: 0.8rem;
+  border: 1px solid var(--color-border-primary);
 }
 
 .file-row {
   display: grid;
-  grid-template-columns: 7px 1fr auto;
+  grid-template-columns: 7px minmax(0, 1fr) auto;
   align-items: center;
-  gap: 0.55rem;
+  gap: 0.6rem;
   min-width: 0;
-  border-bottom: 1px solid #30372b;
-  padding: 0.48rem 0.55rem;
+  border-bottom: 1px solid var(--color-border-primary);
+  padding: 0.55rem 0.65rem;
 }
 
 .file-row:last-child {
@@ -558,51 +750,52 @@ const fileStatus = (file: string): string => {
 }
 
 .file-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: #61685a;
+  background: #9b9b9b;
 }
 
 .file-dot.loaded {
-  background: var(--cyan);
+  background: var(--color-accent-blue);
 }
 
 .file-dot.missing {
-  background: var(--ember);
+  background: var(--color-accent-orange);
 }
 
 .file-row code {
   overflow: hidden;
-  color: #a9afa1;
-  font-size: 0.58rem;
+  color: var(--color-text-primary);
+  font-size: 0.64rem;
   text-overflow: ellipsis;
 }
 
 .file-row > span:last-child {
-  color: #6d7466;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.53rem;
-  font-weight: 600;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  font-weight: 700;
   letter-spacing: 0.07em;
 }
 
 .contract-note {
-  margin-top: 0.7rem;
-  color: #797f72;
-  font-size: 0.6rem;
-  line-height: 1.6;
+  margin-top: 0.8rem;
+  color: var(--color-text-secondary);
+  font-size: 0.68rem;
+  line-height: 1.65;
 }
 
 .source-list {
   display: grid;
-  gap: 0.4rem;
-  margin-top: 0.75rem;
+  gap: 0.45rem;
+  margin-top: 0.8rem;
 }
 
 .source-list article {
-  border: 1px solid #343b2e;
-  padding: 0.65rem;
+  border: 1px solid var(--color-border-primary);
+  background: #fafafa;
+  padding: 0.7rem;
 }
 
 .source-head {
@@ -612,103 +805,150 @@ const fileStatus = (file: string): string => {
 }
 
 .source-head > span:first-child {
-  color: #6e7567;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.53rem;
   overflow-wrap: anywhere;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-display);
+  font-size: 0.58rem;
 }
 
 .source-head a {
   flex: 0 0 auto;
-  color: var(--cyan);
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.54rem;
+  color: var(--color-accent-blue);
+  font-size: 0.62rem;
   text-decoration: none;
 }
 
 .source-unlinked {
-  color: #806e61;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.52rem;
+  color: var(--color-text-tertiary);
+  font-size: 0.6rem;
 }
 
 .source-list h3 {
-  margin-top: 0.28rem;
-  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 0.82rem;
-  font-weight: 600;
+  margin-top: 0.3rem;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
 }
 
 .source-list article > p {
-  margin-top: 0.18rem;
-  color: #71786b;
-  font-size: 0.56rem;
+  margin-top: 0.2rem;
+  color: var(--color-text-secondary);
+  font-size: 0.63rem;
 }
 
 .source-fields {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.22rem;
-  margin-top: 0.4rem;
+  gap: 0.25rem;
+  margin-top: 0.45rem;
 }
 
 .source-fields span {
-  background: rgba(238, 233, 220, 0.045);
-  padding: 0.12rem 0.26rem;
-  color: #878e80;
-  font-size: 0.5rem;
+  background: #ededed;
+  padding: 0.15rem 0.3rem;
+  color: var(--color-text-secondary);
+  font-size: 0.56rem;
 }
 
 .source-empty {
-  margin-top: 0.75rem;
-  border: 1px dashed #3d4537;
+  margin-top: 0.8rem;
+  border: 1px dashed var(--color-border-primary);
   padding: 2rem 1rem;
   text-align: center;
 }
 
 .source-empty strong {
-  color: var(--ember);
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.65rem;
+  color: #9c4709;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
   letter-spacing: 0.1em;
 }
 
 .source-empty p {
-  margin-top: 0.35rem;
-  color: #817d70;
-  font-size: 0.62rem;
+  margin-top: 0.4rem;
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
+}
+
+.unresolved-panel {
+  margin-top: 0.9rem;
+}
+
+.unresolved-list {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.unresolved-list article {
+  border-left: 5px solid var(--color-accent-orange);
+  background: #fafafa;
+  padding: 0.7rem 0.8rem;
+}
+
+.unresolved-list span {
+  display: block;
+  color: #9c4709;
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.unresolved-list strong {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.82rem;
+}
+
+.unresolved-list p {
+  margin-top: 0.25rem;
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
+  line-height: 1.6;
+}
+
+.unresolved-list small {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  overflow-wrap: anywhere;
 }
 
 .method-note {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  margin-top: 0.8rem;
-  border: 1px solid var(--line);
-  background: rgba(16, 19, 15, 0.5);
-  padding: 0.8rem;
+  gap: 0.9rem;
+  margin-top: 0.9rem;
+  border: 1px solid var(--color-text-primary);
+  background: #fff;
+  padding: 0.9rem;
 }
 
 .method-note > span {
   flex: 0 0 auto;
-  color: var(--acid);
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.58rem;
+  background: var(--color-accent-primary);
+  padding: 0.25rem 0.4rem;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.09em;
 }
 
 .method-note p {
   flex: 1;
-  color: #8b9284;
-  font-size: 0.62rem;
-  line-height: 1.6;
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
+  line-height: 1.65;
 }
 
 .method-note a {
   flex: 0 0 auto;
-  color: var(--cyan);
-  font-size: 0.58rem;
+  color: var(--color-accent-blue);
+  font-size: 0.68rem;
   text-decoration: none;
 }
 
@@ -720,7 +960,8 @@ const fileStatus = (file: string): string => {
 
 @media (max-width: 880px) {
   .data-grid,
-  .lower-grid {
+  .lower-grid,
+  .gap-grid {
     grid-template-columns: 1fr;
   }
 
@@ -732,12 +973,48 @@ const fileStatus = (file: string): string => {
 }
 
 @media (max-width: 540px) {
+  .data-page {
+    padding-top: 1.5rem;
+  }
+
+  .data-hero h1 {
+    font-size: clamp(2.6rem, 13vw, 4rem);
+  }
+
+  .dataset-panel,
+  .coverage-panel,
+  .contract-panel,
+  .sources-panel,
+  .gap-panel,
+  .unresolved-panel {
+    padding: 1rem;
+  }
+
+  .panel-heading {
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .schema-chip,
+  .contract-path,
+  .source-count,
+  .gap-total {
+    text-align: left;
+  }
+
   .count-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .meta-grid {
+  .meta-grid,
+  .image-gap-list {
     grid-template-columns: 1fr;
+  }
+
+  .gap-list article {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.3rem;
   }
 
   .method-note {

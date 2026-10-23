@@ -76,7 +76,7 @@ export const makeEquipment = (
 ): EquipmentFact => ({
   id,
   name: id,
-  slot: 'weapon',
+  slot: 'body',
   rarity: 3,
   setName: null,
   craftable: true,
@@ -108,6 +108,9 @@ const emptyMeta: DatasetMeta = {
   generatedAt: null,
   sourceCount: null,
   notes: [],
+  missingSkillTypes: [],
+  partialFields: [],
+  unresolved: [],
   coverage: {},
 }
 

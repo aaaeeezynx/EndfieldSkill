@@ -13,6 +13,8 @@ const files = computed(() => [
   'rotation-presets.json',
   'sources.json',
 ])
+
+const hasError = computed(() => planner.dataState === 'error')
 </script>
 
 <template>
@@ -22,24 +24,26 @@ const files = computed(() => [
       <span>DATA_LINK</span>
       <span class="blink">_</span>
     </div>
+
     <div class="pipeline-body">
-      <p class="eyebrow">
-        {{ planner.dataState === 'error' ? 'LINK FAILURE' : 'WAITING FOR DATA PIPELINE' }}
-      </p>
+      <p class="eyebrow">{{ hasError ? 'LINK FAILURE' : 'WAITING FOR DATA PIPELINE' }}</p>
       <h1 class="display-title pipeline-title">
-        {{ planner.dataState === 'error' ? '数据链路中断。' : '等待数据管线接入。' }}
+        {{ hasError ? '資料鏈路中斷。' : '等待資料管線接入。' }}
       </h1>
       <p class="pipeline-copy">
         {{
-          planner.dataState === 'error'
+          hasError
             ? planner.dataError
-            : '前端已经就位，但尚未发现可验证的 /data/v1 数据集。这里不会用示例角色冒充游戏资料。'
+            : '前端已就位，但尚未發現可驗證的 /data/v1 資料集。本頁不會以示例角色冒充遊戲資料。'
         }}
       </p>
 
       <div class="file-grid">
         <div v-for="file in files" :key="file" class="file-row">
-          <span class="file-status" :class="{ missing: planner.dataset?.missingFiles.includes(file) }"></span>
+          <span
+            class="file-status"
+            :class="{ missing: planner.dataset?.missingFiles.includes(file) }"
+          ></span>
           <code>data/v1/{{ file }}</code>
           <span class="file-note">
             {{ planner.dataset?.missingFiles.includes(file) ? 'MISSING' : 'PENDING' }}
@@ -49,9 +53,9 @@ const files = computed(() => [
 
       <div class="pipeline-actions">
         <button class="action-button" type="button" @click="planner.initialize(true)">
-          [ 重新检测数据链路 ]
+          重新檢測資料鏈路
         </button>
-        <RouterLink class="text-link" to="/data">查看数据契约 →</RouterLink>
+        <RouterLink class="text-link" to="/data">查看資料契約 →</RouterLink>
       </div>
     </div>
   </section>
@@ -64,69 +68,72 @@ const files = computed(() => [
   grid-template-columns: minmax(90px, 150px) 1fr;
   min-height: 500px;
   margin-top: 2rem;
-  border: 1px solid var(--line);
-  background:
-    linear-gradient(120deg, rgba(216, 244, 91, 0.055), transparent 34%),
-    rgba(23, 26, 21, 0.92);
-  box-shadow: var(--shadow-terminal, 0 18px 70px rgba(0, 0, 0, 0.34));
+  overflow: hidden;
+  border: 1px solid var(--color-border-primary);
+  border-top: 6px solid var(--color-text-primary);
+  background: var(--color-bg-panel);
+  box-shadow: 0 20px 60px rgba(25, 25, 25, 0.08);
 }
 
 .pipeline-shell::after {
-  content: "";
   position: absolute;
   top: 0;
   right: 0;
   width: 24%;
   height: 100%;
-  opacity: 0.08;
   background: repeating-linear-gradient(
     -45deg,
-    var(--acid) 0,
-    var(--acid) 1px,
+    var(--color-accent-primary) 0,
+    var(--color-accent-primary) 1px,
     transparent 1px,
-    transparent 10px
+    transparent 12px
   );
+  content: "";
+  opacity: 0.32;
   pointer-events: none;
 }
 
 .pipeline-code {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.1rem;
+  border-right: 1px solid var(--color-border-primary);
+  background: var(--color-text-primary);
   padding: 2rem 0.7rem;
-  border-right: 1px solid var(--line);
-  color: #69705f;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.68rem;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   writing-mode: vertical-rl;
 }
 
 .blink {
-  color: var(--acid);
+  color: var(--color-accent-primary);
   animation: blink 1s steps(1) infinite;
 }
 
 .pipeline-body {
   position: relative;
   z-index: 1;
-  max-width: 850px;
+  max-width: 900px;
   padding: clamp(2rem, 7vw, 5rem);
 }
 
 .pipeline-title {
   max-width: 720px;
   margin-top: 1.1rem;
+  color: var(--color-text-primary);
   font-size: clamp(3rem, 8vw, 7.4rem);
-  color: var(--paper);
 }
 
 .pipeline-copy {
   max-width: 630px;
   margin-top: 1.4rem;
-  color: var(--muted);
+  color: var(--color-text-secondary);
   font-size: 0.95rem;
   line-height: 1.8;
 }
@@ -136,43 +143,44 @@ const files = computed(() => [
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
   margin-top: 2.2rem;
-  border: 1px solid var(--line);
-  background: var(--line);
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-border-primary);
 }
 
 .file-row {
   display: grid;
-  grid-template-columns: 7px 1fr auto;
+  grid-template-columns: 7px minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.65rem;
   min-width: 0;
+  background: #fff;
   padding: 0.72rem 0.8rem;
-  background: #171a15;
 }
 
 .file-row code {
   overflow: hidden;
-  color: #c8cabb;
-  font-family: "IBM Plex Mono", "SFMono-Regular", monospace;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   text-overflow: ellipsis;
 }
 
 .file-status {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--acid);
+  background: var(--color-accent-primary);
+  box-shadow: 0 0 0 1px var(--color-text-primary);
 }
 
 .file-status.missing {
-  background: var(--ember);
+  background: var(--color-accent-orange);
 }
 
 .file-note {
-  color: #737a6c;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.63rem;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-display);
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.1em;
 }
@@ -186,31 +194,31 @@ const files = computed(() => [
 }
 
 .action-button {
-  min-height: 42px;
-  border: 1px solid var(--acid);
-  background: transparent;
+  min-height: 46px;
+  border: 1px solid var(--color-text-primary);
+  background: var(--color-text-primary);
   padding: 0 1rem;
-  color: var(--acid);
-  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 0.8rem;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.84rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   cursor: pointer;
 }
 
 .action-button:hover {
-  background: var(--acid);
-  color: var(--ink);
+  background: var(--color-accent-primary);
+  color: var(--color-text-primary);
 }
 
 .text-link {
-  color: var(--muted);
-  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
   text-decoration: none;
 }
 
 .text-link:hover {
-  color: var(--paper);
+  color: var(--color-text-primary);
 }
 
 @keyframes blink {
@@ -228,18 +236,18 @@ const files = computed(() => [
   .pipeline-code {
     flex-direction: row;
     justify-content: flex-start;
-    padding: 0.65rem 1rem;
     border-right: 0;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--color-border-primary);
+    padding: 0.65rem 1rem;
     writing-mode: horizontal-tb;
   }
 
   .pipeline-body {
-    padding: 2rem 1.2rem;
+    padding: 2rem 1rem;
   }
 
   .pipeline-title {
-    font-size: clamp(2.65rem, 17vw, 4.6rem);
+    font-size: clamp(2.65rem, 15vw, 4.3rem);
   }
 
   .file-grid {

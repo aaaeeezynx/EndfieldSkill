@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, reactive } from 'vue'
 import { usePlannerStore } from '@/stores/planner'
 import { getCharacterPortrait } from '@/data/portraitLoader'
 
 const planner = usePlannerStore()
+
+const imageErrors = reactive<Set<string>>(new Set())
 
 const selectedSlots = computed(() =>
   Array.from({ length: 4 }, (_, index) => planner.selectedCharacters[index] ?? null),
@@ -12,6 +14,24 @@ const selectedSlots = computed(() =>
 const selectedChapter = computed(() =>
   planner.chapters.find((chapter) => chapter.id === planner.chapterId),
 )
+
+const getPortraitUrl = (characterId: string): string | null =>
+  getCharacterPortrait(characterId)
+
+const shouldShowFallback = (characterId: string): boolean =>
+  !getPortraitUrl(characterId) || imageErrors.has(characterId)
+
+const handleImageError = (characterId: string): void => {
+  imageErrors.add(characterId)
+}
+
+const monogram = (name: string): string => name.slice(0, 1)
+
+const displayName = (characterId: string, name: string): string => {
+  if (characterId === 'chr_0002_endminm') return '管理員（A 形態）'
+  if (characterId === 'chr_0003_endminf') return '管理員（B 形態）'
+  return name
+}
 
 const submit = async (): Promise<void> => {
   if (!planner.validation.valid || planner.isGenerating) return
@@ -32,7 +52,7 @@ const submit = async (): Promise<void> => {
     <div class="dock-head">
       <div>
         <p class="eyebrow">02 / SQUAD LOCK</p>
-        <h2>四人编成</h2>
+        <h2>四人編成</h2>
       </div>
       <button
         v-if="planner.selectedCharacters.length"
@@ -54,17 +74,23 @@ const submit = async (): Promise<void> => {
         <span class="slot-number">0{{ index + 1 }}</span>
         <template v-if="character">
           <span class="slot-avatar">
-            <img v-if="getCharacterPortrait(character.id)" :src="getCharacterPortrait(character.id)!" :alt="character.name" loading="lazy" />
-            <span v-else>{{ character.name.slice(0, 1) }}</span>
+            <img
+              v-if="!shouldShowFallback(character.id)"
+              :src="getPortraitUrl(character.id)!"
+              :alt="displayName(character.id, character.name)"
+              loading="lazy"
+              @error="handleImageError(character.id)"
+            />
+            <span v-else class="avatar-fallback">{{ monogram(character.name) }}</span>
           </span>
           <span class="slot-copy">
-            <strong>{{ character.name }}</strong>
-            <small>{{ character.profession || '职业未标注' }} · {{ character.element || '元素未标注' }}</small>
+            <strong>{{ displayName(character.id, character.name) }}</strong>
+            <small>{{ character.profession || '職業未標註' }} · {{ character.element || '元素未標註' }}</small>
           </span>
           <button
             type="button"
             class="remove-button"
-            :aria-label="`移除 ${character.name}`"
+            :aria-label="`移除 ${displayName(character.id, character.name)}`"
             @click="planner.removeCharacter(character.id)"
           >
             ×
@@ -74,7 +100,7 @@ const submit = async (): Promise<void> => {
           <span class="empty-cross" aria-hidden="true">+</span>
           <span class="slot-copy empty-copy">
             <strong>等待席位</strong>
-            <small>从角色矩阵选择</small>
+            <small>從角色矩陣選擇</small>
           </span>
         </template>
       </div>
@@ -90,7 +116,7 @@ const submit = async (): Promise<void> => {
         <i></i>
       </div>
 
-      <label class="field-label" for="player-level">玩家等级</label>
+      <label class="field-label" for="player-level">玩家等級</label>
       <div class="level-field">
         <span>LV.</span>
         <input
@@ -105,7 +131,7 @@ const submit = async (): Promise<void> => {
         />
       </div>
 
-      <label class="field-label" for="chapter">剧情进度（可选）</label>
+      <label class="field-label" for="chapter">劇情進度（可選）</label>
       <select
         id="chapter"
         class="chapter-select"
@@ -114,12 +140,12 @@ const submit = async (): Promise<void> => {
         @change="planner.setChapter(($event.target as HTMLSelectElement).value)"
       >
         <template v-if="planner.hasChapterData">
-          <option value="">不指定章节（仅用已知等级条件）</option>
+          <option value="">不指定章節（僅用已知等級條件）</option>
           <option v-for="chapter in planner.chapters" :key="chapter.id" :value="chapter.id">
             {{ chapter.name }}{{ chapter.minPlayerLevel ? ` · Lv.${chapter.minPlayerLevel}` : '' }}
           </option>
         </template>
-        <option v-else value="">章节资料尚未核验（不阻塞生成）</option>
+        <option v-else value="">章節資料尚未核驗（不阻塞生成）</option>
       </select>
 
       <p v-if="selectedChapter" class="chapter-meta">
@@ -130,7 +156,7 @@ const submit = async (): Promise<void> => {
       </p>
       <p v-else-if="!planner.hasChapterData" class="chapter-meta unverified">
         CHAPTER / AUTHORITY DATA UNVERIFIED
-        <span>本次只按装备穿戴等级与已知配方资料筛选，不判定剧情或配方权限。</span>
+        <span>本次只按裝備穿戴等級與已知配方資料篩選，不判定劇情或配方權限。</span>
       </p>
     </div>
 
@@ -146,7 +172,7 @@ const submit = async (): Promise<void> => {
     >
       <span class="generate-icon" aria-hidden="true"></span>
       <span>
-        <strong>{{ planner.isGenerating ? '正在编排…' : '生成战术方案' }}</strong>
+        <strong>{{ planner.isGenerating ? '正在編排…' : '生成戰術方案' }}</strong>
         <small>DETERMINISTIC · NO AI</small>
       </span>
       <span class="generate-arrow">→</span>
@@ -154,8 +180,8 @@ const submit = async (): Promise<void> => {
 
     <div class="dock-footnote">
       <span class="pulse-dot"></span>
-      <p v-if="planner.selectedCharacters.length === 4">队伍席位已锁定，可以生成。</p>
-      <p v-else>还需 {{ 4 - planner.selectedCharacters.length }} 名角色。</p>
+      <p v-if="planner.selectedCharacters.length === 4">隊伍席位已鎖定，可以生成。</p>
+      <p v-else>還需 {{ 4 - planner.selectedCharacters.length }} 名角色。</p>
     </div>
   </aside>
 </template>
@@ -165,6 +191,9 @@ const submit = async (): Promise<void> => {
   position: sticky;
   top: 1rem;
   padding: 1.2rem;
+  background: #ffffff;
+  border: 1px solid var(--color-border-primary);
+  color: var(--color-text-primary);
 }
 
 .dock-head {
@@ -173,6 +202,8 @@ const submit = async (): Promise<void> => {
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border-primary);
 }
 
 .dock-head h2 {
@@ -180,13 +211,14 @@ const submit = async (): Promise<void> => {
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
   font-size: 1.55rem;
   font-weight: 700;
+  color: var(--color-text-primary);
 }
 
 .clear-button {
   border: 0;
   background: transparent;
   padding: 0.25rem 0;
-  color: #7e8577;
+  color: var(--color-text-secondary);
   font-size: 0.65rem;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -194,7 +226,7 @@ const submit = async (): Promise<void> => {
 }
 
 .clear-button:hover {
-  color: var(--paper);
+  color: var(--color-text-primary);
 }
 
 .slot-stack {
@@ -208,26 +240,26 @@ const submit = async (): Promise<void> => {
   align-items: center;
   gap: 0.55rem;
   min-height: 60px;
-  border: 1px dashed #3b4334;
-  background: rgba(16, 19, 15, 0.46);
+  border: 1px dashed var(--color-border-primary);
+  background: #fafafa;
   padding: 0.4rem 0.45rem;
 }
 
 .squad-slot.filled {
   border-style: solid;
-  border-color: #4a533f;
-  background: linear-gradient(90deg, rgba(216, 244, 91, 0.055), transparent);
+  border-color: var(--color-border-strong);
+  background: linear-gradient(90deg, rgba(255, 250, 0, 0.08), transparent);
 }
 
 .slot-number {
-  color: #62695b;
+  color: var(--color-text-tertiary);
   font-family: "Rajdhani", sans-serif;
   font-size: 0.65rem;
   font-weight: 600;
 }
 
 .filled .slot-number {
-  color: var(--acid);
+  color: var(--color-text-primary);
 }
 
 .slot-avatar {
@@ -236,8 +268,9 @@ const submit = async (): Promise<void> => {
   height: 42px;
   place-items: center;
   overflow: hidden;
-  border: 1px solid #4a533f;
-  background: #252b22;
+  border: 1px solid var(--color-border-primary);
+  background: #f0f0f0;
+  color: var(--color-text-primary);
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
   font-size: 1.1rem;
 }
@@ -246,6 +279,15 @@ const submit = async (): Promise<void> => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  opacity: 0.7;
 }
 
 .slot-copy {
@@ -261,19 +303,20 @@ const submit = async (): Promise<void> => {
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--color-text-primary);
 }
 
 .slot-copy small {
   overflow: hidden;
   margin-top: 0.12rem;
-  color: #767d70;
+  color: var(--color-text-secondary);
   font-size: 0.6rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .empty-copy strong {
-  color: #7b8274;
+  color: var(--color-text-tertiary);
   font-weight: 500;
 }
 
@@ -282,7 +325,7 @@ const submit = async (): Promise<void> => {
   width: 42px;
   height: 42px;
   place-items: center;
-  color: #555d4e;
+  color: var(--color-text-tertiary);
   font-family: "Rajdhani", sans-serif;
   font-size: 1.1rem;
 }
@@ -294,14 +337,14 @@ const submit = async (): Promise<void> => {
   place-items: center;
   border: 1px solid transparent;
   background: transparent;
-  color: #7c8375;
+  color: var(--color-text-secondary);
   font-size: 1rem;
   cursor: pointer;
 }
 
 .remove-button:hover {
-  border-color: var(--danger);
-  color: var(--danger);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
 }
 
 .dock-notice {
@@ -309,15 +352,15 @@ const submit = async (): Promise<void> => {
   align-items: center;
   gap: 0.4rem;
   margin-top: 0.6rem;
-  border-left: 2px solid var(--ember);
-  background: rgba(255, 156, 102, 0.08);
+  border-left: 2px solid var(--color-accent-orange);
+  background: #fff8ec;
   padding: 0.48rem 0.6rem;
-  color: #d9b59e;
+  color: #8a5a1c;
   font-size: 0.68rem;
 }
 
 .dock-notice span {
-  color: var(--ember);
+  color: var(--color-accent-orange);
   font-family: "Rajdhani", sans-serif;
   font-weight: 700;
 }
@@ -331,7 +374,7 @@ const submit = async (): Promise<void> => {
   align-items: center;
   gap: 0.7rem;
   margin-bottom: 0.9rem;
-  color: #767d6f;
+  color: var(--color-text-secondary);
   font-family: "Rajdhani", sans-serif;
   font-size: 0.65rem;
   font-weight: 600;
@@ -341,13 +384,13 @@ const submit = async (): Promise<void> => {
 .section-rule i {
   height: 1px;
   flex: 1;
-  background: var(--line);
+  background: var(--color-border-primary);
 }
 
 .field-label {
   display: block;
   margin: 0.7rem 0 0.35rem;
-  color: #939a8c;
+  color: var(--color-text-secondary);
   font-size: 0.66rem;
   font-weight: 500;
 }
@@ -356,17 +399,17 @@ const submit = async (): Promise<void> => {
   display: flex;
   align-items: center;
   height: 43px;
-  border: 1px solid #414a39;
-  background: #141712;
+  border: 1px solid var(--color-border-primary);
+  background: #ffffff;
 }
 
 .level-field:focus-within {
-  border-color: var(--acid);
+  border-color: var(--color-accent-primary);
 }
 
 .level-field span {
   padding-left: 0.75rem;
-  color: var(--acid);
+  color: var(--color-text-primary);
   font-family: "Rajdhani", sans-serif;
   font-size: 0.72rem;
   font-weight: 600;
@@ -379,7 +422,7 @@ const submit = async (): Promise<void> => {
   outline: 0;
   background: transparent;
   padding: 0 0.7rem;
-  color: var(--paper);
+  color: var(--color-text-primary);
   font-family: "Rajdhani", sans-serif;
   font-size: 1.05rem;
   font-weight: 500;
@@ -388,32 +431,32 @@ const submit = async (): Promise<void> => {
 .chapter-select {
   width: 100%;
   height: 43px;
-  border: 1px solid #414a39;
+  border: 1px solid var(--color-border-primary);
   outline: 0;
-  background: #141712;
+  background: #ffffff;
   padding: 0 0.7rem;
-  color: var(--paper);
+  color: var(--color-text-primary);
   font-size: 0.76rem;
 }
 
 .chapter-select:focus {
-  border-color: var(--acid);
+  border-color: var(--color-accent-primary);
 }
 
 .chapter-select option {
-  background: var(--carbon);
+  background: #ffffff;
 }
 
 .chapter-meta {
   margin-top: 0.42rem;
-  color: #6f7668;
+  color: var(--color-text-tertiary);
   font-family: "Rajdhani", sans-serif;
   font-size: 0.59rem;
   letter-spacing: 0.08em;
 }
 
 .chapter-meta.unverified {
-  color: #b8a46d;
+  color: #8a6f1c;
   line-height: 1.45;
 }
 
@@ -429,9 +472,9 @@ const submit = async (): Promise<void> => {
   display: grid;
   gap: 0.2rem;
   margin: 0.85rem 0 0;
-  border-left: 2px solid var(--danger);
+  border-left: 2px solid var(--color-danger);
   padding: 0.35rem 0 0.35rem 0.6rem;
-  color: #d9a297;
+  color: #9e332a;
   font-size: 0.65rem;
   line-height: 1.45;
   list-style: none;
@@ -444,10 +487,10 @@ const submit = async (): Promise<void> => {
   align-items: center;
   gap: 0.7rem;
   margin-top: 1rem;
-  border: 1px solid var(--acid);
-  background: var(--acid);
+  border: 1px solid var(--color-accent-primary);
+  background: var(--color-accent-primary);
   padding: 0 0.8rem;
-  color: var(--ink);
+  color: #191919;
   text-align: left;
   cursor: pointer;
   transition:
@@ -461,9 +504,9 @@ const submit = async (): Promise<void> => {
 }
 
 .generate-button:disabled {
-  border-color: #3b4334;
-  background: #252a21;
-  color: #6e7567;
+  border-color: var(--color-border-primary);
+  background: #f0f0f0;
+  color: var(--color-text-tertiary);
   cursor: not-allowed;
 }
 
@@ -527,7 +570,7 @@ const submit = async (): Promise<void> => {
   align-items: center;
   gap: 0.45rem;
   margin-top: 0.7rem;
-  color: #70776a;
+  color: var(--color-text-secondary);
   font-size: 0.62rem;
 }
 
@@ -535,8 +578,8 @@ const submit = async (): Promise<void> => {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--cyan);
-  box-shadow: 0 0 9px var(--cyan);
+  background: var(--color-accent-blue);
+  box-shadow: 0 0 9px var(--color-accent-blue);
 }
 
 @media (max-width: 960px) {
@@ -586,5 +629,19 @@ const submit = async (): Promise<void> => {
   .validation-list {
     grid-column: 1 / -1;
   }
+}
+
+@media (max-width: 390px) {
+  .team-dock { padding: 0.75rem; }
+  .squad-slot {
+    grid-template-columns: 1.1rem 32px minmax(0, 1fr) auto;
+    gap: 0.3rem;
+    min-height: 52px;
+    padding: 0.35rem 0.4rem;
+  }
+  .slot-avatar, .empty-cross { width: 30px; height: 34px; }
+  .slot-copy strong { font-size: 0.72rem; }
+  .slot-copy small { font-size: 0.48rem; }
+  .generate-button { min-height: 58px; }
 }
 </style>

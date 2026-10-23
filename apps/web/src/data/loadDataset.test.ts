@@ -49,7 +49,7 @@ describe('dataset parsing', () => {
       'equipment.json': [
         {
           id: 'gear-a',
-          name: '测试装备',
+          name: '測試裝備',
           unlock: {
             playerLevel: 18,
             playerLevelKind: 'equipment_wear_level',
@@ -58,7 +58,7 @@ describe('dataset parsing', () => {
             authorityRank: 6,
             recipeTier: 'III',
             formulaId: 'formula-a',
-            domainName: '测试领域',
+            domainName: '測試領域',
           },
         },
       ],
@@ -73,7 +73,7 @@ describe('dataset parsing', () => {
       formulaAuthorityRank: 6,
       recipeTier: 'III',
       formulaId: 'formula-a',
-      domainName: '测试领域',
+      domainName: '測試領域',
     })
   })
 })

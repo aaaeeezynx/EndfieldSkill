@@ -6,6 +6,7 @@ import {
   matchTeamPresets,
   recommendEquipmentForCharacter,
 } from '@/lib/recommendation'
+import type { RotationPreset } from '@/types/domain'
 import {
   makeChapter,
   makeCharacter,
@@ -16,6 +17,39 @@ import {
 } from '@/test/fixtures'
 
 const roster = ['a', 'b', 'c', 'd'].map((id) => makeCharacter(id))
+
+const makeRotation = (
+  id: string,
+  characterIds: string[],
+  overrides: Partial<RotationPreset> = {},
+): RotationPreset => ({
+  id,
+  name: id,
+  teamPresetId: null,
+  characterIds,
+  scenario: null,
+  description: null,
+  steps: characterIds.map((characterId, index) => ({
+    id: `${id}-step-${index + 1}`,
+    order: index + 1,
+    phase: '攻略窗口',
+    characterId,
+    skillId: `${characterId}-battle`,
+    skillName: `${characterId} 戰技`,
+    skillType: 'battle',
+    triggerCondition: null,
+    waitFor: null,
+    comboWindowSeconds: null,
+    sharedSkillPointCost: 1,
+    energyCost: null,
+    cooldownSeconds: null,
+    warnings: [],
+    note: null,
+  })),
+  sourceIds: ['source-guide'],
+  confidence: 0.8,
+  ...overrides,
+})
 
 describe('team matching', () => {
   it('ranks an exact source team above a partial team deterministically', () => {
@@ -37,45 +71,74 @@ describe('team matching', () => {
     })
   })
 
-  it('uses a clearly labelled rule fallback when no exact rotation exists', () => {
-    const dataset = makeDataset({ characters: roster })
-    const report = buildRecommendationReport(dataset, ['a', 'b', 'c', 'd'], {
+  it('prefers a verified exact-team rotation and otherwise labels the rule fallback', () => {
+    const team = makeTeamPreset('team-exact', ['a', 'b', 'c', 'd'])
+    const rotation = makeRotation('rotation-exact', ['a', 'b', 'c', 'd'], {
+      teamPresetId: team.id,
+    })
+    const verified = makeDataset({
+      characters: roster,
+      teamPresets: [team],
+      rotationPresets: [rotation],
+    })
+    const verifiedReport = buildRecommendationReport(verified, ['a', 'b', 'c', 'd'], {
       playerLevel: 20,
-      chapterId: 'chapter-1',
+      chapterId: null,
     })
 
-    expect(report.exactTeam).toBeNull()
-    expect(report.rotations).toHaveLength(1)
-    expect(report.rotations[0].kind).toBe('rule-generated')
-    expect(report.rotations[0].warnings).toContain('规则生成，待人工核对')
-    expect(report.warnings).toContain('沿用标签规则回退循环，不能视为已验证攻略。')
-    expect(buildRotationChoices(dataset, ['a'], null)[0].kind).toBe('rule-generated')
+    expect(verifiedReport.exactTeam?.preset.id).toBe(team.id)
+    expect(verifiedReport.rotations[0]).toMatchObject({
+      id: rotation.id,
+      kind: 'source-backed',
+      sourceIds: ['source-guide'],
+    })
+
+    const fallbackReport = buildRecommendationReport(makeDataset({ characters: roster }), [
+      'a',
+      'b',
+      'c',
+      'd',
+    ], {
+      playerLevel: 20,
+      chapterId: null,
+    })
+
+    expect(fallbackReport.exactTeam).toBeNull()
+    expect(fallbackReport.rotations).toHaveLength(1)
+    expect(fallbackReport.rotations[0].kind).toBe('rule-generated')
+    expect(fallbackReport.rotations[0].warnings).toContain('規則生成，待人工核對')
+    expect(fallbackReport.warnings).toContain(
+      '沿用標籤規則回退循環，不能視為已驗證攻略。',
+    )
+    expect(buildRotationChoices(makeDataset({ characters: roster }), ['a'], null)[0].kind).toBe(
+      'rule-generated',
+    )
   })
 })
 
 describe('rule rotation battle mechanics', () => {
   it('keeps shared SP, combo trigger/window, and ultimate energy as distinct constraints', () => {
     const hero = makeCharacter('a', {
-      name: '测试干员',
+      name: '測試幹員',
       skills: [
         makeSkill('battle', {
-          name: '战术战技',
+          name: '戰術戰技',
           type: 'battle',
           resource: 'shared_skill_points',
           sharedSkillPointCost: 2,
           tags: ['debuff-enemy'],
         }),
         makeSkill('combo', {
-          name: '条件连携',
+          name: '條件連攜',
           type: 'combo',
           resource: 'none',
           sharedSkillPointCost: null,
-          triggerConditions: ['目标处于失衡'],
+          triggerConditions: ['目標處於失衡'],
           cooldownSeconds: 14,
           tags: ['break-shield'],
         }),
         makeSkill('ultimate', {
-          name: '终结打击',
+          name: '終結打擊',
           type: 'ultimate',
           resource: 'energy',
           energyCost: 80,
@@ -92,20 +155,66 @@ describe('rule rotation battle mechanics', () => {
     expect(battle?.sharedSkillPointCost).toBe(2)
     expect(combo).toMatchObject({
       sharedSkillPointCost: null,
-      triggerCondition: '目标处于失衡',
+      triggerCondition: '目標處於失衡',
       comboWindowSeconds: null,
       cooldownSeconds: 14,
     })
-    expect(combo?.waitFor).toBe('目标处于失衡')
-    expect(combo?.warnings).toContain('规则生成，待人工核对')
+    expect(combo?.waitFor).toBe('目標處於失衡')
+    expect(combo?.warnings).toContain('規則生成，待人工核對')
     expect(ultimate).toMatchObject({
       energyCost: 80,
       sharedSkillPointCost: null,
     })
   })
+
+  it('deduplicates only identical character-skill records and keeps duplicate ids across characters', () => {
+    const first = makeCharacter('a', {
+      skills: [
+        makeSkill('shared-id', { type: 'battle' }),
+        makeSkill('shared-id', { type: 'battle' }),
+      ],
+    })
+    const second = makeCharacter('b', {
+      skills: [makeSkill('shared-id', { type: 'battle' })],
+    })
+
+    const rotation = buildRuleRotation([first, second])
+
+    expect(rotation.steps).toHaveLength(2)
+    expect(rotation.steps.map((step) => step.characterId)).toEqual(['a', 'b'])
+  })
+
+  it('caps rule output at 12 steps while preserving ultimate skills', () => {
+    const characters = Array.from({ length: 14 }, (_, index) =>
+      makeCharacter(`hero-${index + 1}`, {
+        skills: [
+          makeSkill(`battle-${index + 1}`, { type: 'battle' }),
+          makeSkill(`combo-${index + 1}`, {
+            type: 'combo',
+            resource: 'none',
+            sharedSkillPointCost: null,
+            triggerConditions: ['條件成立'],
+          }),
+          makeSkill(`ultimate-${index + 1}`, {
+            type: 'ultimate',
+            resource: 'energy',
+            sharedSkillPointCost: null,
+            energyCost: 80,
+          }),
+        ],
+      }),
+    )
+
+    const rotation = buildRuleRotation(characters)
+    const ultimateCount = rotation.steps.filter((step) => step.skillType === 'ultimate').length
+
+    expect(rotation.steps).toHaveLength(12)
+    expect(ultimateCount).toBe(12)
+    expect(new Set(rotation.steps.map((step) => step.characterId)).size).toBe(12)
+  })
 })
 
-describe('equipment gates', () => {
+describe('three-slot equipment gates', () => {
   const hero = makeCharacter('a', {
     roles: ['dps'],
     element: 'cold',
@@ -116,7 +225,46 @@ describe('equipment gates', () => {
     makeChapter('chapter-3', { order: 3 }),
   ]
 
-  it('shows the best locked item separately from an unlocked craftable alternative', () => {
+  it('always returns body, hand, and edc slots without crossing equipment categories', () => {
+    const dataset = makeDataset({
+      characters: [hero],
+      chapters,
+      equipment: [
+        makeEquipment('body-a', {
+          slot: 'body',
+          rarity: 4,
+          recommendedFor: [hero.id],
+        }),
+        makeEquipment('hand-a', {
+          slot: 'hand',
+          rarity: 5,
+          recommendedFor: [hero.id],
+        }),
+        makeEquipment('edc-a', {
+          slot: 'edc',
+          rarity: 3,
+          recommendedFor: [hero.id],
+        }),
+        makeEquipment('slot-unknown', {
+          slot: null,
+          rarity: 6,
+          recommendedFor: [hero.id],
+        }),
+      ],
+    })
+
+    const loadout = recommendEquipmentForCharacter(dataset, hero, {
+      playerLevel: 25,
+      chapterId: 'chapter-2',
+    })
+
+    expect(Object.keys(loadout.slots)).toEqual(['body', 'hand', 'edc'])
+    expect(loadout.slots.body.target?.equipment.id).toBe('body-a')
+    expect(loadout.slots.hand.target?.equipment.id).toBe('hand-a')
+    expect(loadout.slots.edc.target?.equipment.id).toBe('edc-a')
+  })
+
+  it('shows a high-score locked target separately from the best unlocked item', () => {
     const dataset = makeDataset({
       characters: [hero],
       chapters,
@@ -159,19 +307,17 @@ describe('equipment gates', () => {
       ],
     })
 
-    const recommendation = recommendEquipmentForCharacter(dataset, hero, {
+    const body = recommendEquipmentForCharacter(dataset, hero, {
       playerLevel: 25,
       chapterId: 'chapter-2',
-    })
+    }).slots.body
 
-    expect(recommendation.bestOverall?.equipment.id).toBe('best-locked')
-    expect(recommendation.bestOverall?.unlockState).toBe('locked')
-    expect(recommendation.bestAvailable?.equipment.id).toBe('craftable-now')
-    expect(recommendation.bestAvailable?.unlockState).toBe('unlocked')
-    expect(recommendation.alternatives.map((item) => item.equipment.id)).toEqual([
-      'fallback-now',
-    ])
-    expect(recommendation.warnings).toContain('最佳装备尚未达到已知解锁门槛')
+    expect(body.target?.equipment.id).toBe('best-locked')
+    expect(body.target?.unlockState).toBe('locked')
+    expect(body.available?.equipment.id).toBe('craftable-now')
+    expect(body.available?.unlockState).toBe('unlocked')
+    expect(body.alternatives.map((item) => item.equipment.id)).toEqual(['fallback-now'])
+    expect(body.warnings).toContain('此部位最高分裝備尚未達到已知穿戴門檻')
   })
 
   it('never counts an unknown equipment gate as currently available', () => {
@@ -193,35 +339,48 @@ describe('equipment gates', () => {
       ],
     })
 
-    const recommendation = recommendEquipmentForCharacter(dataset, hero, {
+    const body = recommendEquipmentForCharacter(dataset, hero, {
       playerLevel: 99,
       chapterId: 'chapter-3',
-    })
+    }).slots.body
 
-    expect(recommendation.bestOverall?.unlockState).toBe('unknown')
-    expect(recommendation.bestAvailable).toBeNull()
-    expect(recommendation.warnings).toContain(
-      '当前装备穿戴等级与已知章节条件下，没有可确认通过已知门槛的装备',
-    )
+    expect(body.target?.unlockState).toBe('unknown')
+    expect(body.available).toBeNull()
+    expect(body.alternatives).toEqual([])
+    expect(body.warnings).toContain('此部位目前沒有可確認通過已知穿戴門檻的裝備')
   })
 
-  it('builds four character plans without chapter records and labels authority limits', () => {
+  it('does not duplicate target as available and caps alternatives at two items', () => {
     const dataset = makeDataset({
-      characters: roster,
+      characters: [hero],
+      chapters,
+      equipment: Array.from({ length: 5 }, (_, index) =>
+        makeEquipment(`unlocked-${index + 1}`, {
+          rarity: 6 - index,
+          recommendedFor: [hero.id],
+        }),
+      ),
+    })
+
+    const body = recommendEquipmentForCharacter(dataset, hero, {
+      playerLevel: 25,
+      chapterId: 'chapter-2',
+    }).slots.body
+
+    expect(body.target?.equipment.id).toBe('unlocked-1')
+    expect(body.target?.unlockState).toBe('unlocked')
+    expect(body.available).toBeNull()
+    expect(body.alternatives.map((item) => item.equipment.id)).toEqual([
+      'unlocked-2',
+      'unlocked-3',
+    ])
+  })
+
+  it('labels formula authority and chapter limits without claiming verified crafting access', () => {
+    const dataset = makeDataset({
+      characters: [hero],
       chapters: [],
       equipment: [
-        makeEquipment('ceiling-locked', {
-          rarity: 6,
-          formulaAuthorityRank: 10,
-          recipeTier: 'IV',
-          unlock: {
-            playerLevel: 40,
-            playerLevelKind: 'equipment_wear_level',
-            chapterId: null,
-            chapterOrder: null,
-            materials: ['material-rare'],
-          },
-        }),
         makeEquipment('wear-gated-gear', {
           rarity: 4,
           formulaAuthorityRank: 7,
@@ -234,49 +393,30 @@ describe('equipment gates', () => {
             materials: ['material-a'],
           },
         }),
-        makeEquipment('lower-tier-gear', {
-          rarity: 3,
-          formulaAuthorityRank: 5,
-          recipeTier: 'II',
-          unlock: {
-            playerLevel: 10,
-            playerLevelKind: 'equipment_wear_level',
-            chapterId: null,
-            chapterOrder: null,
-            materials: [],
-          },
-        }),
       ],
     })
 
-    const report = buildRecommendationReport(dataset, ['a', 'b', 'c', 'd'], {
+    const loadout = recommendEquipmentForCharacter(dataset, hero, {
       playerLevel: 25,
       chapterId: null,
     })
+    const body = loadout.slots.body
 
-    expect(report.exactTeam).toBeNull()
-    expect(report.rotations).toHaveLength(1)
-    expect(report.rotations[0].kind).toBe('rule-generated')
-    expect(report.rotations[0].steps).toHaveLength(4)
-    expect(report.equipment).toHaveLength(4)
-    expect(report.equipment.every((item) => item.bestOverall !== null)).toBe(true)
-    expect(report.equipment.every((item) => item.bestAvailable !== null)).toBe(true)
-    expect(report.warnings).toContain(
-      '章节与权限解锁资料尚未核验；装备结果仅按装备穿戴等级生成。',
-    )
-
-    const firstRecommendation = report.equipment[0]
-    expect(firstRecommendation.bestAvailable?.gateLabels).toEqual([
-      '装备穿戴等级 Lv.15',
-      '配方权限要求 Rank 7',
-      '配方阶级 III',
+    expect(body.target?.gateLabels).toEqual([
+      '裝備穿戴等級 Lv.15',
+      '配方權限要求 Rank 7',
+      '配方階級 III',
     ])
-    expect(firstRecommendation.warnings).toContain(
-      '配方权限要求尚未由剧情或权限进度自动判定，请进入游戏核对',
+    expect(body.available).toBeNull()
+    expect(body.warnings).toContain(
+      '配方權限要求尚未由劇情或權限進度自動判定，請進入遊戲核對',
+    )
+    expect(loadout.warnings).toContain(
+      '章節與權限解鎖資料尚未核驗；本次僅確認已知裝備穿戴等級',
     )
   })
 
-  it('labels only role and element tags that actually intersect the character', () => {
+  it('labels only role and element tags that intersect the character', () => {
     const dataset = makeDataset({
       characters: [hero],
       chapters,
@@ -330,48 +470,16 @@ describe('equipment gates', () => {
       ],
     })
 
-    const recommendation = recommendEquipmentForCharacter(dataset, hero, {
+    const body = recommendEquipmentForCharacter(dataset, hero, {
       playerLevel: 25,
       chapterId: 'chapter-2',
-    })
+    }).slots.body
 
-    expect(recommendation.bestAvailable?.equipment.id).toBe('matching-dps')
-    expect(recommendation.bestAvailable?.matchNotes).toEqual([
+    expect(body.available?.equipment.id).toBe('matching-dps')
+    expect(body.available?.matchNotes).toEqual([
       '定位匹配 · dps',
       '元素匹配 · cold',
     ])
-    expect(
-      recommendation.bestAvailable?.matchNotes.some((note) => note === '定位匹配'),
-    ).toBe(false)
-  })
-
-  it('does not duplicate bestOverall in bestAvailable when already unlocked', () => {
-    const dataset = makeDataset({
-      characters: [hero],
-      chapters,
-      equipment: [
-        makeEquipment('only-unlocked', {
-          rarity: 5,
-          recommendedFor: [hero.id],
-          unlock: {
-            playerLevel: 10,
-            playerLevelKind: 'equipment_wear_level',
-            chapterId: 'chapter-1',
-            chapterOrder: 1,
-            materials: [],
-          },
-        }),
-      ],
-    })
-
-    const recommendation = recommendEquipmentForCharacter(dataset, hero, {
-      playerLevel: 25,
-      chapterId: 'chapter-2',
-    })
-
-    expect(recommendation.bestOverall?.equipment.id).toBe('only-unlocked')
-    expect(recommendation.bestOverall?.unlockState).toBe('unlocked')
-    expect(recommendation.bestAvailable).toBeNull()
-    expect(recommendation.alternatives).toHaveLength(0)
+    expect(body.available?.matchNotes.some((note) => note === '定位匹配')).toBe(false)
   })
 })

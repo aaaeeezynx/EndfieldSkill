@@ -9,6 +9,10 @@ import TeamSummary from '@/components/TeamSummary.vue'
 import { usePlannerStore } from '@/stores/planner'
 
 const planner = usePlannerStore()
+const baseUrl = import.meta.env.BASE_URL
+const heroDesktop = `${baseUrl}assets/official/hero-desktop.webp`
+const heroTablet = `${baseUrl}assets/official/hero-tablet.webp`
+const heroMobile = `${baseUrl}assets/official/hero-mobile.webp`
 
 const showPipelineState = computed(
   () =>
@@ -30,51 +34,61 @@ const hasUnverifiedProgressData = computed(
 
     <template v-else>
       <section class="hero reveal">
+        <picture class="hero-visual">
+          <source media="(max-width: 620px)" :srcset="heroMobile" />
+          <source media="(max-width: 1100px)" :srcset="heroTablet" />
+          <img :src="heroDesktop" alt="終末地官方主視覺角色插畫" fetchpriority="high" />
+        </picture>
+
         <div class="hero-copy">
           <p class="eyebrow">ENDFIELD // OWNED-ROSTER ORCHESTRATOR</p>
           <h1 class="display-title">
             你的四人，<br />
-            <span>才是指令起点。</span>
+            <span>才是指令起點。</span>
           </h1>
           <p class="hero-lede">
-            不再照抄固定队伍视频。锁定你实际拥有的四名角色，输入等级与剧情进度，
-            取得确定性的技能释放条件、共享资源约束，以及通过装备穿戴等级筛选的配装方向。
+            不必再照抄固定隊伍攻略。鎖定你實際擁有的四名角色，輸入等級與劇情進度，
+            取得可追溯的技能釋放條件、共享資源約束，以及依裝備穿戴門檻篩選的配裝方向。
           </p>
-          <div class="hero-tags">
+          <div class="hero-tags" aria-label="分析範圍">
             <span>共享技力</span>
-            <span>连携触发窗口</span>
-            <span>终结技能量</span>
-            <span>装备穿戴等级</span>
-            <span>章节 / 配方权限待核验</span>
+            <span>連攜觸發窗口</span>
+            <span>終結技能量</span>
+            <span>裝備穿戴等級</span>
+            <span>章節／配方權限待核驗</span>
           </div>
+          <a class="hero-action" href="#recommendation-output">
+            <span>建立我的四人編成</span>
+            <b aria-hidden="true">↓</b>
+          </a>
         </div>
 
         <div class="hero-matrix" aria-label="使用流程">
-          <div><span>01</span><strong>锁定四人</strong><small>OWNED ROSTER</small></div>
+          <div><span>01</span><strong>鎖定四人</strong><small>OWNED ROSTER</small></div>
           <i></i>
-          <div><span>02</span><strong>输入进度</strong><small>LEVEL / CHAPTER</small></div>
+          <div><span>02</span><strong>輸入進度</strong><small>LEVEL / CHAPTER</small></div>
           <i></i>
-          <div><span>03</span><strong>读取循环</strong><small>TRIGGER / WINDOW</small></div>
+          <div><span>03</span><strong>讀取循環</strong><small>TRIGGER / WINDOW</small></div>
           <i></i>
-          <div><span>04</span><strong>过滤装备</strong><small>FABRICATION GATE</small></div>
+          <div><span>04</span><strong>篩選裝備</strong><small>FABRICATION GATE</small></div>
         </div>
       </section>
 
       <div v-if="partialFiles.length" class="partial-banner reveal">
         <span>PARTIAL DATA</span>
         <p>
-          数据链路部分缺失：{{ partialFiles.join(' / ') }}。可用资料仍会渲染，缺失字段不会被补造。
+          資料鏈路部分缺失：{{ partialFiles.join(' / ') }}。可用資料仍會呈現，缺失欄位不會被補造。
         </p>
-        <RouterLink to="/data">查看覆盖率 →</RouterLink>
+        <RouterLink to="/data">查看覆蓋率 →</RouterLink>
       </div>
 
       <div v-if="hasUnverifiedProgressData" class="partial-banner progress-warning reveal">
         <span>PROGRESS UNVERIFIED</span>
         <p>
-          章节与权限解锁资料尚未核验。你仍可选择四人并依装备穿戴等级生成结果；
-          剧情章节、配方权限与“当前能否制造”不会被假装为已确认。
+          章節與權限解鎖資料尚未核驗。你仍可選擇四人並依裝備穿戴等級產生結果；
+          劇情章節、配方權限與「目前能否製造」不會被標示為已確認。
         </p>
-        <RouterLink to="/data">查看资料边界 →</RouterLink>
+        <RouterLink to="/data">查看資料邊界 →</RouterLink>
       </div>
 
       <div class="planner-layout">
@@ -94,7 +108,7 @@ const hasUnverifiedProgressData = computed(
             :characters="planner.characters"
           />
           <EquipmentBoard
-            :recommendations="planner.report.equipment"
+            :loadouts="planner.report.equipment"
             :characters="planner.characters"
           />
         </template>
@@ -103,10 +117,10 @@ const hasUnverifiedProgressData = computed(
           <div class="awaiting-code">OUTPUT//LOCKED</div>
           <div class="awaiting-body">
             <p class="eyebrow">TACTICAL PAYLOAD</p>
-            <h2>等待四人编成与进度门槛。</h2>
+            <h2>等待四人編成與進度門檻。</h2>
             <p>
-              结果将分为队伍匹配、技能序列、装备门槛三段。没有完整攻略时仅显示明确标注的规则回退，
-              不会把推导结果包装成来源原文。
+              結果將分為隊伍匹配、技能序列、裝備門檻三段。沒有完整攻略時僅顯示明確標註的規則回退，
+              不會把推導結果包裝成來源原文。
             </p>
             <div class="output-preview">
               <span><i>04</i> SQUAD MATCH</span>
@@ -122,240 +136,343 @@ const hasUnverifiedProgressData = computed(
 
 <style scoped>
 .planner-page {
-  padding-top: clamp(2rem, 5vw, 4.5rem);
+  padding-top: clamp(1rem, 3vw, 2.2rem);
 }
 
 .hero {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) minmax(330px, 0.8fr);
-  align-items: end;
-  gap: clamp(2rem, 6vw, 6rem);
-  padding: 0.5rem 0 clamp(2rem, 4vw, 3.5rem);
+  grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
+  grid-template-rows: minmax(360px, 31vw) auto;
+  overflow: hidden;
+  border: 1px solid var(--color-border-primary);
+  border-top: 6px solid var(--color-text-primary);
+  background: #ffffff;
+}
+
+.hero-visual {
+  position: relative;
+  grid-column: 1 / -1;
+  min-height: 0;
+  overflow: hidden;
+  background: #f5f3ea;
+}
+
+.hero-visual::after {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0) 45%, #fff 100%),
+    linear-gradient(0deg, #fff 0, transparent 38%);
+  content: "";
+  pointer-events: none;
+}
+
+.hero-visual img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 2;
+  align-self: end;
+  margin-top: -5rem;
+  padding: clamp(1.5rem, 3.5vw, 3.4rem);
+}
+
+.hero-copy::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 88px;
+  height: 8px;
+  background: var(--color-accent-primary);
+  content: "";
 }
 
 .hero h1 {
   max-width: 850px;
-  margin-top: 0.75rem;
-  font-size: clamp(3.2rem, 7.2vw, 7rem);
+  margin-top: 0.8rem;
+  color: var(--color-text-primary);
+  font-size: clamp(3.4rem, 7.6vw, 7.4rem);
 }
 
 .hero h1 span {
-  color: var(--acid);
+  position: relative;
+  display: inline-block;
+  z-index: 0;
+}
+
+.hero h1 span::before {
+  position: absolute;
+  z-index: -1;
+  right: -0.12em;
+  bottom: 0.02em;
+  left: -0.08em;
+  height: 0.45em;
+  background: var(--color-accent-primary);
+  content: "";
+  transform: skewX(-8deg);
 }
 
 .hero-lede {
-  max-width: 650px;
+  max-width: 680px;
   margin-top: 1.4rem;
-  color: #a8ae9f;
-  font-size: clamp(0.78rem, 1.2vw, 0.92rem);
+  color: var(--color-text-secondary);
+  font-size: clamp(0.92rem, 1.25vw, 1.06rem);
   line-height: 1.85;
 }
 
 .hero-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.35rem;
+  gap: 0.4rem;
   margin-top: 1.2rem;
 }
 
 .hero-tags span {
-  border: 1px solid #3b4334;
-  background: rgba(16, 19, 15, 0.5);
-  padding: 0.25rem 0.45rem;
-  color: #8d9486;
-  font-size: 0.6rem;
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-bg-secondary);
+  padding: 0.3rem 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+}
+
+.hero-tags span:last-child {
+  border-color: #f0b77e;
+  background: #fff7ef;
+  color: #9c4709;
+}
+
+.hero-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+  border: 1px solid var(--color-text-primary);
+  background: var(--color-text-primary);
+  padding: 0.7rem 0.85rem 0.7rem 1rem;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.hero-action b {
+  display: grid;
+  width: 1.7rem;
+  height: 1.7rem;
+  place-items: center;
+  background: var(--color-accent-primary);
+  color: var(--color-text-primary);
 }
 
 .hero-matrix {
   position: relative;
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0;
-  border: 1px solid var(--line);
-  background:
-    linear-gradient(120deg, rgba(124, 230, 212, 0.06), transparent 46%),
-    rgba(16, 19, 15, 0.56);
-  padding: 0.7rem 1rem;
+  align-self: end;
+  margin: 0 clamp(1.5rem, 3.5vw, 3.4rem) clamp(1.5rem, 3.5vw, 3.4rem);
+  border: 1px solid var(--color-text-primary);
+  border-top: 5px solid var(--color-accent-blue);
+  background: #fff;
 }
 
 .hero-matrix::before {
-  content: "PROCESS MAP";
   position: absolute;
-  top: -1.45rem;
+  top: -1.7rem;
   right: 0;
-  color: #646b5e;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.56rem;
-  letter-spacing: 0.12em;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-display);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  content: "PROCESS MAP";
 }
 
 .hero-matrix div {
   display: grid;
-  grid-template-columns: 2rem 1fr auto;
+  min-height: 57px;
+  grid-template-columns: 2.2rem 1fr auto;
   align-items: center;
-  min-height: 49px;
-  gap: 0.5rem;
+  gap: 0.55rem;
+  padding: 0 0.8rem;
 }
 
 .hero-matrix span {
-  color: var(--acid);
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.68rem;
-  font-weight: 600;
+  display: grid;
+  width: 1.65rem;
+  height: 1.65rem;
+  place-items: center;
+  background: var(--color-accent-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .hero-matrix strong {
-  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-size: 0.94rem;
+  font-weight: 700;
 }
 
 .hero-matrix small {
-  color: #686f61;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.52rem;
+  color: var(--color-text-tertiary);
+  font-family: var(--font-display);
+  font-size: 0.58rem;
+  font-weight: 700;
   letter-spacing: 0.08em;
 }
 
 .hero-matrix i {
+  display: block;
   height: 1px;
-  background: linear-gradient(90deg, var(--line), transparent);
+  background: var(--color-border-primary);
 }
 
 .partial-banner {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  margin-bottom: 1rem;
-  border-left: 2px solid var(--ember);
-  background: rgba(255, 156, 102, 0.06);
-  padding: 0.65rem 0.8rem;
+  gap: 0.8rem;
+  margin-top: 0.9rem;
+  border: 1px solid #f0c9a7;
+  border-left: 5px solid var(--color-accent-orange);
+  background: #fff8f1;
+  padding: 0.72rem 0.9rem;
 }
 
 .partial-banner > span {
   flex: 0 0 auto;
-  color: var(--ember);
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.58rem;
+  color: #a94b00;
+  font-family: var(--font-display);
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.1em;
 }
 
 .partial-banner p {
   flex: 1;
-  color: #b7a08f;
-  font-size: 0.62rem;
-  line-height: 1.5;
+  color: #694b36;
+  font-size: 0.78rem;
+  line-height: 1.6;
 }
 
 .partial-banner a {
   flex: 0 0 auto;
-  color: #c9b6a8;
-  font-size: 0.6rem;
+  color: #82410d;
+  font-size: 0.76rem;
   text-decoration: none;
 }
 
 .partial-banner.progress-warning {
-  border-left-color: var(--acid);
-  background: rgba(216, 244, 91, 0.055);
+  border-color: #ded74a;
+  border-left-color: var(--color-accent-primary);
+  background: #fffde7;
 }
 
-.partial-banner.progress-warning > span {
-  color: var(--acid);
+.partial-banner.progress-warning > span,
+.partial-banner.progress-warning a {
+  color: #625e00;
 }
 
 .partial-banner.progress-warning p {
-  color: #aeb79f;
-}
-
-.partial-banner.progress-warning a {
-  color: #b6bea6;
+  color: #5f5b2a;
 }
 
 .planner-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 350px);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
   align-items: start;
-  gap: 0.8rem;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
 .output-stack {
   display: grid;
-  gap: 0.8rem;
-  margin-top: 1.25rem;
+  gap: 1rem;
+  margin-top: 1.4rem;
   scroll-margin-top: 1rem;
 }
 
 .awaiting-output {
   display: grid;
-  grid-template-columns: 110px minmax(0, 1fr);
-  min-height: 245px;
+  grid-template-columns: 120px minmax(0, 1fr);
+  min-height: 270px;
   overflow: hidden;
 }
 
 .awaiting-code {
   display: grid;
   place-items: center;
-  border-right: 1px solid var(--line);
-  color: #596052;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.6rem;
+  background: var(--color-text-primary);
+  color: var(--color-accent-primary);
+  font-family: var(--font-display);
+  font-size: 0.67rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   writing-mode: vertical-rl;
 }
 
 .awaiting-body {
-  padding: clamp(1.4rem, 4vw, 2.5rem);
+  padding: clamp(1.5rem, 4vw, 2.8rem);
 }
 
 .awaiting-body h2 {
-  margin-top: 0.6rem;
-  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: clamp(1.6rem, 3.5vw, 2.6rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  margin-top: 0.65rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.8vw, 2.9rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
 }
 
 .awaiting-body > p {
-  max-width: 670px;
-  margin-top: 0.7rem;
-  color: #858c7e;
-  font-size: 0.72rem;
-  line-height: 1.7;
+  max-width: 700px;
+  margin-top: 0.8rem;
+  color: var(--color-text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.75;
 }
 
 .output-preview {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-top: 1.2rem;
+  gap: 0.45rem;
+  margin-top: 1.3rem;
 }
 
 .output-preview span {
-  border: 1px solid #343b2e;
-  padding: 0.35rem 0.5rem;
-  color: #7e8577;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.58rem;
-  font-weight: 600;
+  border: 1px solid var(--color-border-primary);
+  padding: 0.38rem 0.55rem;
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  font-weight: 700;
   letter-spacing: 0.07em;
 }
 
 .output-preview i {
-  margin-right: 0.25rem;
-  color: var(--acid);
+  margin-right: 0.3rem;
+  color: var(--color-accent-blue);
   font-style: normal;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
   .hero {
     grid-template-columns: 1fr;
-    gap: 2.2rem;
+    grid-template-rows: minmax(280px, 42vw) auto auto;
+  }
+
+  .hero-copy {
+    margin-top: -3.5rem;
   }
 
   .hero-matrix {
-    max-width: 620px;
+    max-width: none;
+    margin-top: 0;
   }
 
   .planner-layout {
@@ -365,24 +482,65 @@ const hasUnverifiedProgressData = computed(
 
 @media (max-width: 640px) {
   .planner-page {
-    padding-top: 1.5rem;
+    padding-top: 0.75rem;
   }
 
   .hero {
-    gap: 2rem;
-    padding-top: 0;
+    grid-template-rows: 245px auto auto;
+    border-top-width: 4px;
+  }
+
+  .hero-visual img {
+    object-position: 55% center;
+  }
+
+  .hero-copy {
+    margin-top: -2.5rem;
+    padding: 1.15rem 1rem 1.25rem;
+  }
+
+  .hero-copy::before {
+    width: 58px;
+    height: 6px;
   }
 
   .hero h1 {
-    font-size: clamp(2.8rem, 15.5vw, 4.3rem);
+    margin-top: 0.6rem;
+    font-size: clamp(2.65rem, 14.6vw, 4.1rem);
+  }
+
+  .hero-lede {
+    margin-top: 0.9rem;
+    font-size: 0.86rem;
+    line-height: 1.72;
+  }
+
+  .hero-tags {
+    margin-top: 0.9rem;
+  }
+
+  .hero-tags span {
+    font-size: 0.68rem;
+  }
+
+  .hero-action {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 1rem;
   }
 
   .hero-matrix {
-    padding: 0.55rem 0.7rem;
+    margin: 0 1rem 1rem;
+  }
+
+  .hero-matrix::before {
+    display: none;
   }
 
   .hero-matrix div {
-    grid-template-columns: 1.7rem 1fr;
+    min-height: 50px;
+    grid-template-columns: 2rem 1fr;
+    padding: 0 0.65rem;
   }
 
   .hero-matrix small {
@@ -392,10 +550,11 @@ const hasUnverifiedProgressData = computed(
   .partial-banner {
     align-items: flex-start;
     flex-wrap: wrap;
+    gap: 0.45rem;
   }
 
   .partial-banner p {
-    flex-basis: calc(100% - 5.8rem);
+    flex-basis: 100%;
   }
 
   .awaiting-output {
@@ -403,9 +562,7 @@ const hasUnverifiedProgressData = computed(
   }
 
   .awaiting-code {
-    padding: 0.55rem 0.8rem;
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
+    padding: 0.65rem 0.9rem;
     writing-mode: horizontal-tb;
   }
 }

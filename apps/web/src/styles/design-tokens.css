@@ -1,82 +1,90 @@
-/* Endfield Official Website Visual Language - Design Tokens */
-/* 終末地官方網站視覺語言設計 tokens */
+/* Endfield reference language: white industrial editorial UI. */
 
 :root {
-  /* Colors - 工業科幻色彩系統 */
-  --color-bg-primary: #0d0f0c;
-  --color-bg-secondary: #10130f;
-  --color-bg-panel: rgba(16, 19, 15, 0.85);
-  --color-bg-panel-hover: rgba(22, 26, 21, 0.9);
-  
-  --color-text-primary: #e8ebe6;
-  --color-text-secondary: #a8ae9f;
-  --color-text-tertiary: #686f61;
-  --color-text-dim: #4a4f46;
-  
-  --color-accent-acid: #7ce6d4;
-  --color-accent-ember: #ff9c66;
-  --color-accent-warning: #d8f45b;
-  
-  --color-border-primary: #2a2f27;
-  --color-border-secondary: #1e221c;
-  --color-border-accent: #3b4334;
-  
-  --color-overlay: rgba(0, 0, 0, 0.7);
-  --color-gradient-primary: linear-gradient(135deg, rgba(124, 230, 212, 0.08), transparent 60%);
-  --color-gradient-secondary: linear-gradient(120deg, rgba(124, 230, 212, 0.06), transparent 46%);
-  
-  /* Typography - 字體系統 */
-  --font-primary: 'Rajdhani', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Consolas', monospace;
-  
-  --font-size-xs: clamp(0.56rem, 0.8vw, 0.65rem);
-  --font-size-sm: clamp(0.68rem, 1vw, 0.78rem);
-  --font-size-base: clamp(0.82rem, 1.2vw, 0.92rem);
-  --font-size-lg: clamp(1.1rem, 1.8vw, 1.4rem);
-  --font-size-xl: clamp(1.6rem, 3.5vw, 2.6rem);
-  --font-size-display: clamp(3.2rem, 7.2vw, 7rem);
-  
-  --line-height-tight: 1.2;
-  --line-height-base: 1.6;
+  color-scheme: light;
+
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f0f0f0;
+  --color-bg-panel: #ffffff;
+  --color-bg-panel-hover: #f7f7f7;
+  --color-bg-inverse: #191919;
+
+  --color-text-primary: #191919;
+  --color-text-secondary: #595959;
+  --color-text-tertiary: #828282;
+  --color-text-inverse: #ffffff;
+
+  --color-accent-primary: #fffa00;
+  --color-accent-blue: #2257d6;
+  --color-accent-orange: #ff6b00;
+  --color-danger: #c83b2e;
+  --color-success: #19864b;
+
+  --color-border-primary: #d9d9d9;
+  --color-border-strong: #191919;
+  --color-grid-line: rgba(25, 25, 25, 0.055);
+
+  /* Compatibility aliases kept for existing components. */
+  --ink: #ffffff;
+  --carbon: #f0f0f0;
+  --panel: #ffffff;
+  --line: #d9d9d9;
+  --paper: #191919;
+  --muted: #5f5f5f;
+  --acid: #fffa00;
+  --cyan: #2257d6;
+  --ember: #e96500;
+  --danger: #c83b2e;
+  --steel: #777777;
+  --surface-glass: #ffffff;
+
+  --font-display: "Rajdhani", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  --font-body: "IBM Plex Sans", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  --font-mono: "IBM Plex Mono", "Consolas", monospace;
+
+  --font-size-xs: 0.78rem;
+  --font-size-sm: 0.9rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.22rem;
+  --font-size-xl: clamp(1.7rem, 3vw, 2.5rem);
+  --font-size-display: clamp(3.25rem, 7vw, 7.5rem);
+
+  --line-height-tight: 1.08;
+  --line-height-base: 1.65;
   --line-height-loose: 1.85;
-  
-  /* Spacing - 間距系統 */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
+
+  --space-2xs: 0.35rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
   --space-md: 1rem;
   --space-lg: 1.5rem;
   --space-xl: 2rem;
   --space-2xl: 3rem;
-  
-  /* Layout - 網格與容器 */
-  --container-max: 1400px;
-  --container-padding: clamp(1rem, 4vw, 3rem);
-  --panel-radius: 2px;
+  --space-3xl: 4.5rem;
+
+  --container-max: 1480px;
+  --container-padding: clamp(1.15rem, 3.2vw, 3.25rem);
+  --rail-width: 72px;
+  --mobile-nav-height: 72px;
+  --panel-radius: 0;
   --border-width: 1px;
-  
-  /* Animation - 動效時序 */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
-  
-  /* Z-index 層級 */
+
+  --transition-fast: 150ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-base: 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  --transition-slow: 480ms cubic-bezier(0.2, 0.8, 0.2, 1);
+
   --z-base: 1;
   --z-elevated: 10;
-  --z-overlay: 50;
-  --z-modal: 100;
-  --z-notification: 200;
+  --z-header: 40;
+  --z-navigation: 60;
+  --z-overlay: 80;
 }
 
-/* Dark mode only - 僅支持暗色模式 */
-@media (prefers-color-scheme: light) {
-  :root {
-    /* 強制保持暗色模式風格 */
-  }
-}
-
-/* Reduced motion support - 減弱動效支持 */
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

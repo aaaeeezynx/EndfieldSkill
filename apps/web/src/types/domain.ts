@@ -1,6 +1,7 @@
 export type SkillType = 'battle' | 'combo' | 'ultimate' | 'other'
 
 export type SkillResource = 'shared_skill_points' | 'energy' | 'none' | 'unknown'
+export type EquipmentSlot = 'body' | 'hand' | 'edc'
 
 export interface SkillFact {
   id: string
@@ -82,7 +83,7 @@ export interface EquipmentUnlock {
 export interface EquipmentFact {
   id: string
   name: string
-  slot: string | null
+  slot: EquipmentSlot | null
   rarity: number | null
   setName: string | null
   craftable: boolean | null
@@ -124,7 +125,17 @@ export interface DatasetMeta {
   generatedAt: string | null
   sourceCount: number | null
   notes: string[]
+  missingSkillTypes: string[]
+  partialFields: string[]
+  unresolved: DatasetUnresolved[]
   coverage: Record<string, unknown>
+}
+
+export interface DatasetUnresolved {
+  subject: string | null
+  field: string | null
+  reason: string | null
+  sourceIds: string[]
 }
 
 export interface DatasetCoverage {
@@ -183,11 +194,17 @@ export interface EquipmentCandidate {
   matchNotes: string[]
 }
 
-export interface EquipmentRecommendation {
-  characterId: string
-  bestOverall: EquipmentCandidate | null
-  bestAvailable: EquipmentCandidate | null
+export interface EquipmentSlotRecommendation {
+  slot: EquipmentSlot
+  target: EquipmentCandidate | null
+  available: EquipmentCandidate | null
   alternatives: EquipmentCandidate[]
+  warnings: string[]
+}
+
+export interface EquipmentLoadout {
+  characterId: string
+  slots: Record<EquipmentSlot, EquipmentSlotRecommendation>
   warnings: string[]
 }
 
@@ -195,7 +212,7 @@ export interface RecommendationReport {
   teamMatches: TeamMatch[]
   exactTeam: TeamMatch | null
   rotations: RotationChoice[]
-  equipment: EquipmentRecommendation[]
+  equipment: EquipmentLoadout[]
   teamTags: string[]
   warnings: string[]
 }

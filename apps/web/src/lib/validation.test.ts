@@ -31,10 +31,10 @@ describe('validatePlannerInput', () => {
   })
 
   it.each([
-    [['a', 'b', 'c'], '需要恰好 4 名角色，目前为 3 名。'],
-    [['a', 'b', 'c', 'd', 'e'], '需要恰好 4 名角色，目前为 5 名。'],
-    [['a', 'a', 'b', 'c'], '队伍中有重复角色。'],
-    [['a', 'b', 'c', 'unknown'], '队伍包含数据集中不存在的角色。'],
+    [['a', 'b', 'c'], '需要恰好 4 名角色，目前為 3 名。'],
+    [['a', 'b', 'c', 'd', 'e'], '需要恰好 4 名角色，目前為 5 名。'],
+    [['a', 'a', 'b', 'c'], '隊伍中有重複角色。'],
+    [['a', 'b', 'c', 'unknown'], '隊伍包含資料集中不存在的角色。'],
   ])('rejects roster %j', (roster, expectedError) => {
     const result = validate(roster)
 
@@ -46,14 +46,14 @@ describe('validatePlannerInput', () => {
     const result = validate(['a', 'b', 'c', 'd'], level)
 
     expect(result.valid).toBe(false)
-    expect(result.errors).toContain('玩家等级必须是 1–999 的整数。')
+    expect(result.errors).toContain('玩家等級必須是 1–999 的整數。')
   })
 
   it('enforces the chapter minimum player level', () => {
     const result = validate(['a', 'b', 'c', 'd'], '19', 'chapter-2')
 
     expect(result.valid).toBe(false)
-    expect(result.errors).toContain('该章节至少需要玩家等级 Lv.20。')
+    expect(result.errors).toContain('該章節至少需要玩家等級 Lv.20。')
   })
 
   it('allows chapter progress to be omitted when chapter data is unavailable', () => {
@@ -73,7 +73,7 @@ describe('validatePlannerInput', () => {
 
   it('rejects an unknown non-empty chapter only when chapter records exist', () => {
     expect(validate(['a', 'b', 'c', 'd'], '25', 'chapter-x').errors).toContain(
-      '所选剧情章节不在资料库中。',
+      '所選劇情章節不在資料庫中。',
     )
     expect(validate(['a', 'b', 'c', 'd'], '25', 'chapter-x', []).valid).toBe(true)
   })

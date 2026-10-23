@@ -122,7 +122,7 @@
     {
       "bytes": null,
       "contentType": null,
-      "fetchError": "Offline cache miss for optional source https://endfield.games/zh-Hans/tutorials/battle/",
+      "fetchError": "Offline cache miss for optional source https://endfield.gryphline.com/zh-tw#home",
       "fetchStatus": "unavailable",
       "fetchedAt": null,
       "fields": [
@@ -148,7 +148,7 @@
       "tableFetch": null,
       "title": "Official battle tutorials",
       "trustLevel": "official-primary",
-      "url": "https://endfield.games/zh-Hans/tutorials/battle/"
+      "url": "https://endfield.gryphline.com/zh-tw#home"
     },
     {
       "bytes": 134839,

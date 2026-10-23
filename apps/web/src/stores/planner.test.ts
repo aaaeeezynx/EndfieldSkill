@@ -22,7 +22,7 @@ describe('planner character selection', () => {
     store.toggleCharacter('admin-b')
 
     expect(store.selectedCharacterIds).toEqual(['admin-a'])
-    expect(store.notice).toBe('同一角色的不同形态不能同时上阵')
+    expect(store.notice).toBe('同一角色的不同形態不能同時上陣')
 
     store.toggleCharacter('perlica')
     expect(store.selectedCharacterIds).toEqual(['admin-a', 'perlica'])

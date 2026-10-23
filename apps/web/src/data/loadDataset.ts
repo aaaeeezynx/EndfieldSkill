@@ -3,7 +3,9 @@ import type {
   Dataset,
   DatasetCoverage,
   DatasetMeta,
+  DatasetUnresolved,
   EquipmentFact,
+  EquipmentSlot,
   RotationPreset,
   RotationStep,
   SkillFact,
@@ -14,6 +16,8 @@ import type {
 } from '@/types/domain'
 
 type UnknownRecord = Record<string, unknown>
+
+import { toTraditional, toTraditionalList } from '../lib/traditionalChinese'
 
 const DATA_FILES = [
   'meta.json',
@@ -52,6 +56,14 @@ const asBoolean = (value: unknown): boolean | null => {
 const asStringArray = (value: unknown): string[] => {
   if (!Array.isArray(value)) return []
   return [...new Set(value.map(asString).filter((item): item is string => Boolean(item)))]
+}
+
+const normalizeEquipmentSlot = (value: unknown): EquipmentSlot | null => {
+  const raw = (asString(value) ?? '').toLowerCase().replaceAll('_', '-').replaceAll(' ', '-')
+  if (['body', 'chest', 'armor', 'body-armor'].includes(raw)) return 'body'
+  if (['hand', 'hands', 'glove', 'gloves', 'arm'].includes(raw)) return 'hand'
+  if (['edc', 'accessory', 'accessories', 'device'].includes(raw)) return 'edc'
+  return null
 }
 
 const firstString = (...values: unknown[]): string | null => {
@@ -143,12 +155,12 @@ const normalizeSkill = (
 
   return {
     id,
-    name: firstString(raw.name, raw.title, raw.displayName) ?? id,
+    name: toTraditional(firstString(raw.name, raw.title, raw.displayName)) ?? id,
     type,
     resource,
-    description: firstString(raw.description, raw.summary, raw.effect),
-    tags: asStringArray(raw.tags ?? raw.effectTags ?? raw.labels),
-    triggerConditions: triggerConditions(raw),
+    description: toTraditional(firstString(raw.description, raw.summary, raw.effect)),
+    tags: toTraditionalList(asStringArray(raw.tags ?? raw.effectTags ?? raw.labels)) ?? [],
+    triggerConditions: toTraditionalList(triggerConditions(raw)) ?? [],
     cooldownSeconds: firstNumber(raw.cooldownSeconds, raw.cooldown, raw.cd),
     energyCost,
     sharedSkillPointCost: sharedCost,
@@ -192,18 +204,27 @@ const normalizeCharacter = (rawValue: unknown, index: number): CharacterFact | n
   const id = firstString(raw.id, raw.characterId, raw.slug, raw.code)
   if (!id) return null
   const names = asRecord(raw.names)
-  const name = firstString(raw.name, raw.displayName, names.zhHans, names.zhHant, names.zh, id)
+  const name = firstString(
+    names.zhHant,
+    names.zhHans,
+    names.zh,
+    raw.name,
+    raw.displayName,
+    id,
+  )
   if (!name) return null
 
   return {
     id,
-    name,
+    name: toTraditional(name) ?? name,
     nameEn: firstString(raw.nameEn, raw.englishName, names.en),
     rarity: firstNumber(raw.rarity, raw.stars),
-    profession: firstString(raw.profession, raw.class, raw.role, raw.position),
-    element: firstString(raw.element, raw.attribute, raw.damageType),
-    roles: asStringArray(raw.roles ?? raw.roleTags ?? raw.positions),
-    tags: asStringArray(raw.tags ?? raw.labels),
+    profession: toTraditional(
+      firstString(raw.profession, raw.class, raw.role, raw.position),
+    ),
+    element: toTraditional(firstString(raw.element, raw.attribute, raw.damageType)),
+    roles: toTraditionalList(asStringArray(raw.roles ?? raw.roleTags ?? raw.positions)) ?? [],
+    tags: toTraditionalList(asStringArray(raw.tags ?? raw.labels)) ?? [],
     portraitUrl: firstString(raw.portraitUrl, raw.avatar, raw.avatarUrl, raw.image),
     skills: collectSkills(raw, id),
     sourceIds: asStringArray(raw.sourceIds ?? raw.sources),
@@ -238,11 +259,11 @@ const normalizeTeamPreset = (rawValue: unknown, index: number): TeamPreset | nul
 
   return {
     id,
-    name: firstString(raw.name, raw.title, raw.label) ?? id,
-    description: firstString(raw.description, raw.summary, raw.notes),
+    name: toTraditional(firstString(raw.name, raw.title, raw.label)) ?? id,
+    description: toTraditional(firstString(raw.description, raw.summary, raw.notes)),
     characterIds: [...new Set(resolvedIds)],
     alternatives,
-    tags: asStringArray(raw.tags ?? raw.teamTags ?? raw.labels),
+    tags: toTraditionalList(asStringArray(raw.tags ?? raw.teamTags ?? raw.labels)) ?? [],
     sourceIds: asStringArray(raw.sourceIds ?? raw.sources),
     confidence: firstNumber(raw.confidence, raw.score),
   }
@@ -257,25 +278,29 @@ const normalizeRotationStep = (rawValue: unknown, index: number, rotationId: str
   return {
     id: firstString(raw.id, raw.stepId) ?? `${rotationId}-step-${index + 1}`,
     order: firstNumber(raw.order, raw.index) ?? index + 1,
-    phase: firstString(raw.phase, raw.stage, raw.section),
+    phase: toTraditional(firstString(raw.phase, raw.stage, raw.section)),
     characterId,
     skillId: firstString(raw.skillId, raw.skill),
-    skillName,
+    skillName: toTraditional(skillName) ?? skillName,
     skillType: normalizeSkillType(raw.skillType ?? raw.type ?? raw.skill),
-    triggerCondition: firstString(
+    triggerCondition: toTraditional(
+      firstString(
       raw.triggerCondition,
       raw.trigger,
       raw.condition,
       Array.isArray(raw.conditions) ? raw.conditions.map(String).join(' / ') : null,
       raw.timing,
+      ),
     ),
-    waitFor: firstString(raw.waitFor, raw.waitCondition, raw.wait, raw.precondition),
+    waitFor: toTraditional(
+      firstString(raw.waitFor, raw.waitCondition, raw.wait, raw.precondition),
+    ),
     comboWindowSeconds: firstNumber(raw.comboWindowSeconds, raw.comboWindow, raw.windowSeconds),
     sharedSkillPointCost: firstNumber(raw.sharedSkillPointCost, raw.skillPointCost, raw.spCost),
     energyCost: firstNumber(raw.energyCost, raw.energy),
     cooldownSeconds: firstNumber(raw.cooldownSeconds, raw.cooldown, raw.cd),
-    warnings: asStringArray(raw.warnings ?? raw.caveats),
-    note: firstString(raw.note, raw.notes, raw.description),
+    warnings: toTraditionalList(asStringArray(raw.warnings ?? raw.caveats)) ?? [],
+    note: toTraditional(firstString(raw.note, raw.notes, raw.description)),
   }
 }
 
@@ -290,11 +315,11 @@ const normalizeRotation = (rawValue: unknown, index: number): RotationPreset | n
 
   return {
     id,
-    name: firstString(raw.name, raw.title, raw.label) ?? id,
+    name: toTraditional(firstString(raw.name, raw.title, raw.label)) ?? id,
     teamPresetId: firstString(raw.teamPresetId, raw.teamId, raw.presetId),
     characterIds: asStringArray(raw.characterIds ?? raw.characters ?? raw.members),
-    scenario: firstString(raw.scenario, raw.mode, raw.content),
-    description: firstString(raw.description, raw.summary, raw.notes),
+    scenario: toTraditional(firstString(raw.scenario, raw.mode, raw.content)),
+    description: toTraditional(firstString(raw.description, raw.summary, raw.notes)),
     steps,
     sourceIds: asStringArray(raw.sourceIds ?? raw.sources),
     confidence: firstNumber(raw.confidence, raw.score),
@@ -322,17 +347,17 @@ const normalizeEquipment = (rawValue: unknown, index: number): EquipmentFact | n
 
   return {
     id,
-    name: firstString(raw.name, raw.displayName, raw.title) ?? id,
-    slot: firstString(raw.slot, raw.type, raw.category),
+    name: toTraditional(firstString(raw.name, raw.displayName, raw.title)) ?? id,
+    slot: normalizeEquipmentSlot(raw.slot ?? raw.type ?? raw.category),
     rarity: firstNumber(raw.rarity, raw.stars),
-    setName: firstString(raw.setName, raw.set, asRecord(raw.set).name),
+    setName: toTraditional(firstString(raw.setName, raw.set, asRecord(raw.set).name)),
     craftable: asBoolean(raw.craftable ?? raw.canCraft ?? raw.craftableAt),
     unlock: {
       playerLevel: firstNumber(unlock.playerLevel, unlock.level, raw.playerLevel),
       playerLevelKind: firstString(unlock.playerLevelKind, raw.playerLevelKind),
       chapterId: firstString(unlock.chapterId, unlock.chapter, raw.chapterId),
       chapterOrder: firstNumber(unlock.chapterOrder, uncoverOrder(raw)),
-      materials: asStringArray(unlock.materials ?? raw.materials),
+      materials: toTraditionalList(asStringArray(unlock.materials ?? raw.materials)) ?? [],
     },
     formulaAuthorityRank: firstNumber(
       unlockDetails.authorityRank,
@@ -341,15 +366,17 @@ const normalizeEquipment = (rawValue: unknown, index: number): EquipmentFact | n
     ),
     recipeTier: firstString(unlockDetails.recipeTier, raw.recipeTier),
     formulaId: firstString(unlockDetails.formulaId, raw.formulaId),
-    domainName: firstString(unlockDetails.domainName, raw.domainName),
+    domainName: toTraditional(firstString(unlockDetails.domainName, raw.domainName)),
     recommendedFor: asStringArray(
       raw.recommendedFor ?? raw.characterIds ?? raw.suitableFor ?? raw.recommendedCharacters,
     ),
-    roleTags: asStringArray(raw.roleTags ?? raw.roles ?? raw.suitableRoles),
-    elementTags: asStringArray(raw.elementTags ?? raw.elements ?? raw.suitableElements),
+    roleTags:
+      toTraditionalList(asStringArray(raw.roleTags ?? raw.roles ?? raw.suitableRoles)) ?? [],
+    elementTags:
+      toTraditionalList(asStringArray(raw.elementTags ?? raw.elements ?? raw.suitableElements)) ?? [],
     statTypes,
     stats,
-    description: firstString(raw.description, raw.effect, raw.summary),
+    description: toTraditional(firstString(raw.description, raw.effect, raw.summary)),
     sourceIds: asStringArray(raw.sourceIds ?? raw.sources),
   }
 }
@@ -365,7 +392,7 @@ const normalizeChapter = (rawValue: unknown, index: number): StoryChapter | null
   if (!id) return null
   return {
     id,
-    name: firstString(raw.name, raw.title, raw.label) ?? id,
+    name: toTraditional(firstString(raw.name, raw.title, raw.label)) ?? id,
     order: firstNumber(raw.order, raw.index, raw.sequence) ?? index + 1,
     minPlayerLevel: firstNumber(raw.minPlayerLevel, raw.playerLevel, raw.requiredLevel),
     sourceIds: asStringArray(raw.sourceIds ?? raw.sources),
@@ -378,11 +405,11 @@ const normalizeSource = (rawValue: unknown, index: number): SourceRecord | null 
   if (!id) return null
   return {
     id,
-    title: firstString(raw.title, raw.name, raw.publisher) ?? id,
-    publisher: firstString(raw.publisher, raw.site, raw.author),
+    title: toTraditional(firstString(raw.title, raw.name, raw.publisher)) ?? id,
+    publisher: toTraditional(firstString(raw.publisher, raw.site, raw.author)),
     url: firstString(raw.url, raw.link, raw.href),
     fetchedAt: firstString(raw.fetchedAt, raw.scrapedAt, raw.retrievedAt),
-    fields: asStringArray(raw.fields ?? raw.extractedFields),
+    fields: toTraditionalList(asStringArray(raw.fields ?? raw.extractedFields)) ?? [],
   }
 }
 
@@ -390,14 +417,34 @@ const normalizeMeta = (raw: unknown): DatasetMeta => {
   const record = asRecord(raw)
   const meta = asRecord(record.meta)
   const source = Object.keys(meta).length ? meta : record
+  const coverage = asRecord(source.coverage)
+  const unresolved = (Array.isArray(source.unresolved) ? source.unresolved : [])
+    .map((value): DatasetUnresolved | null => {
+      const item = asRecord(value)
+      const subject = toTraditional(firstString(item.subject, item.field))
+      const field = toTraditional(firstString(item.field))
+      const reason = toTraditional(firstString(item.reason, item.note))
+      if (!subject && !field && !reason) return null
+      return {
+        subject,
+        field,
+        reason,
+        sourceIds: asStringArray(item.sourceIds ?? item.sources),
+      }
+    })
+    .filter((item): item is DatasetUnresolved => Boolean(item))
+
   return {
     schemaVersion: firstString(source.schemaVersion, source.schema, source.contractVersion),
     dataVersion: firstString(source.dataVersion, source.version),
     gameVersion: firstString(source.gameVersion, source.game),
     generatedAt: firstString(source.generatedAt, source.fetchedAt, source.updatedAt),
     sourceCount: firstNumber(source.sourceCount, source.sources),
-    notes: asStringArray(source.notes ?? source.warnings),
-    coverage: asRecord(source.coverage),
+    notes: toTraditionalList(asStringArray(source.notes ?? source.warnings)) ?? [],
+    missingSkillTypes: asStringArray(coverage.missingSkillTypes),
+    partialFields: toTraditionalList(asStringArray(coverage.partialFields)) ?? [],
+    unresolved,
+    coverage,
   }
 }
 
@@ -413,7 +460,14 @@ const calculateCoverage = (
   let completeSkills = 0
   let sourcedCharacters = 0
   for (const character of characters) {
-    if (character.skills.some((skill) => skill.name && skill.type !== 'other')) completeSkills += 1
+    const presentTypes = new Set(
+      character.skills.filter((skill) => skill.name).map((skill) => skill.type),
+    )
+    const hasFullSkillSet =
+      presentTypes.has('battle') &&
+      presentTypes.has('combo') &&
+      presentTypes.has('ultimate')
+    if (hasFullSkillSet) completeSkills += 1
     else missingFields.add('characters.skills')
     if (character.sourceIds.length) sourcedCharacters += 1
     else missingFields.add('characters.sourceIds')
@@ -477,12 +531,8 @@ export const parseDataset = (
     .filter((item): item is SourceRecord => Boolean(item))
 
   const meta = normalizeMeta(files['meta.json'])
-  const metaCoverage = asRecord(meta.coverage)
   const computedCoverage = calculateCoverage(characters, equipment, rotationPresets)
-  if (metaCoverage.characterSkillCoverage !== undefined) {
-    computedCoverage.characterSkillCoverage =
-      asNumber(metaCoverage.characterSkillCoverage) ?? computedCoverage.characterSkillCoverage
-  }
+  // Keep the computed coverage as source of truth; do not let metadata override it.
 
   return {
     meta,

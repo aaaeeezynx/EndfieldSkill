@@ -23,20 +23,20 @@ export const validatePlannerInput = (
   const uniqueSelection = new Set(input.selectedCharacterIds)
 
   if (input.selectedCharacterIds.length !== 4) {
-    errors.push(`需要恰好 4 名角色，目前为 ${input.selectedCharacterIds.length} 名。`)
+    errors.push(`需要恰好 4 名角色，目前為 ${input.selectedCharacterIds.length} 名。`)
   }
   if (uniqueSelection.size !== input.selectedCharacterIds.length) {
-    errors.push('队伍中有重复角色。')
+    errors.push('隊伍中有重複角色。')
   }
   if ([...uniqueSelection].some((id) => !characterIds.has(id))) {
-    errors.push('队伍包含数据集中不存在的角色。')
+    errors.push('隊伍包含資料集中不存在的角色。')
   }
 
   const playerLevel = /^\d+$/.test(input.playerLevelRaw.trim())
     ? Number(input.playerLevelRaw)
     : null
   if (playerLevel === null || !Number.isInteger(playerLevel) || playerLevel < 1 || playerLevel > 999) {
-    errors.push('玩家等级必须是 1–999 的整数。')
+    errors.push('玩家等級必須是 1–999 的整數。')
   }
 
   const selectedChapterId = input.chapterId?.trim() ?? ''
@@ -46,11 +46,11 @@ export const validatePlannerInput = (
   // Chapter progress is optional in the current data contract. Missing chapter
   // mappings must not block planning when the characters dataset is usable.
   if (chapters.length > 0 && selectedChapterId && !chapter) {
-    errors.push('所选剧情章节不在资料库中。')
+    errors.push('所選劇情章節不在資料庫中。')
   }
 
   if (chapter?.minPlayerLevel && playerLevel !== null && playerLevel < chapter.minPlayerLevel) {
-    errors.push(`该章节至少需要玩家等级 Lv.${chapter.minPlayerLevel}。`)
+    errors.push(`該章節至少需要玩家等級 Lv.${chapter.minPlayerLevel}。`)
   }
 
   return {

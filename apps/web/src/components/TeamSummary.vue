@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, reactive } from 'vue'
 import type { CharacterFact, RecommendationReport } from '@/types/domain'
 import { getCharacterPortrait } from '@/data/portraitLoader'
 
@@ -7,6 +7,8 @@ const props = defineProps<{
   report: RecommendationReport
   characters: CharacterFact[]
 }>()
+
+const imageErrors = reactive<Set<string>>(new Set())
 
 const characterById = computed(
   () => new Map(props.characters.map((character) => [character.id, character])),
@@ -20,8 +22,14 @@ const selectedCharacters = computed(() =>
 
 const bestMatch = computed(() => props.report.exactTeam ?? props.report.teamMatches[0] ?? null)
 
+const displayCharacterName = (id: string): string => {
+  if (id === 'chr_0002_endminm') return '管理員（A 形態）'
+  if (id === 'chr_0003_endminf') return '管理員（B 形態）'
+  return characterById.value.get(id)?.name ?? id
+}
+
 const matchNames = (ids: string[]): string =>
-  ids.map((id) => characterById.value.get(id)?.name ?? id).join('、')
+  ids.map(displayCharacterName).join('、')
 
 const alternativeLines = computed(() => {
   const preset = bestMatch.value?.preset
@@ -29,16 +37,28 @@ const alternativeLines = computed(() => {
   return Object.entries(preset.alternatives)
     .filter(([, alternatives]) => alternatives.length > 0)
     .map(([characterId, alternatives]) => ({
-      source: characterById.value.get(characterId)?.name ?? characterId,
+      source: displayCharacterName(characterId),
       alternatives: matchNames(alternatives),
     }))
 })
 
 const statusLabel = computed(() => {
   if (props.report.exactTeam) return '完整攻略匹配'
-  if (bestMatch.value) return '近似队伍 / 标签覆盖'
-  return '无攻略队伍匹配'
+  if (bestMatch.value) return '近似隊伍 / 標籤覆蓋'
+  return '無攻略隊伍匹配'
 })
+
+const getPortraitUrl = (characterId: string): string | null =>
+  getCharacterPortrait(characterId)
+
+const shouldShowFallback = (characterId: string): boolean =>
+  !getPortraitUrl(characterId) || imageErrors.has(characterId)
+
+const handleImageError = (characterId: string): void => {
+  imageErrors.add(characterId)
+}
+
+const monogram = (name: string): string => name.slice(0, 1)
 </script>
 
 <template>
@@ -46,7 +66,7 @@ const statusLabel = computed(() => {
     <div class="summary-head">
       <div>
         <p class="eyebrow">04 / SQUAD READOUT</p>
-        <h2>队伍摘要</h2>
+        <h2>隊伍摘要</h2>
       </div>
       <div class="match-meter" :class="{ exact: report.exactTeam }">
         <span>{{ statusLabel }}</span>
@@ -65,12 +85,18 @@ const statusLabel = computed(() => {
           >
             <span class="token-index">0{{ index + 1 }}</span>
             <span class="token-avatar">
-            <img v-if="getCharacterPortrait(character.id)" :src="getCharacterPortrait(character.id)!" :alt="character.name" loading="lazy" />
-              <span v-else>{{ character.name.slice(0, 1) }}</span>
+              <img
+                v-if="!shouldShowFallback(character.id)"
+                :src="getPortraitUrl(character.id)!"
+                :alt="displayCharacterName(character.id)"
+                loading="lazy"
+                @error="handleImageError(character.id)"
+              />
+              <span v-else class="token-fallback">{{ monogram(character.name) }}</span>
             </span>
             <span class="token-copy">
-              <strong>{{ character.name }}</strong>
-              <small>{{ character.profession || '职业未标注' }} · {{ character.element || '元素未标注' }}</small>
+              <strong>{{ displayCharacterName(character.id) }}</strong>
+              <small>{{ character.profession || '職業未標註' }} · {{ character.element || '元素未標註' }}</small>
             </span>
           </article>
         </div>
@@ -79,7 +105,7 @@ const statusLabel = computed(() => {
           <span class="readout-label">TEAM TAGS</span>
           <div>
             <span v-for="tag in report.teamTags" :key="tag">{{ tag }}</span>
-            <span v-if="!report.teamTags.length">标签资料缺失</span>
+            <span v-if="!report.teamTags.length">標籤資料缺失</span>
           </div>
         </div>
       </div>
@@ -88,27 +114,27 @@ const statusLabel = computed(() => {
         <div class="readout-label">PRESET COMPARISON</div>
         <template v-if="bestMatch">
           <h3>{{ bestMatch.preset.name }}</h3>
-          <p>{{ bestMatch.preset.description || '攻略队伍未附说明。' }}</p>
+          <p>{{ bestMatch.preset.description || '攻略隊伍未附說明。' }}</p>
           <dl>
             <div>
               <dt>已匹配</dt>
-              <dd>{{ matchNames(bestMatch.matchedCharacterIds) || '无' }}</dd>
+              <dd>{{ matchNames(bestMatch.matchedCharacterIds) || '無' }}</dd>
             </div>
             <div>
-              <dt>预设缺少</dt>
-              <dd>{{ matchNames(bestMatch.missingCharacterIds) || '无' }}</dd>
+              <dt>預設缺少</dt>
+              <dd>{{ matchNames(bestMatch.missingCharacterIds) || '無' }}</dd>
             </div>
             <div>
-              <dt>队伍额外</dt>
-              <dd>{{ matchNames(bestMatch.extraCharacterIds) || '无' }}</dd>
+              <dt>隊伍額外</dt>
+              <dd>{{ matchNames(bestMatch.extraCharacterIds) || '無' }}</dd>
             </div>
           </dl>
           <p class="source-id">
-            {{ bestMatch.sourceBacked ? `SOURCE ${bestMatch.preset.sourceIds.join(' / ')}` : 'SOURCE 未标注' }}
+            {{ bestMatch.sourceBacked ? `SOURCE ${bestMatch.preset.sourceIds.join(' / ')}` : 'SOURCE 未標註' }}
           </p>
         </template>
         <p v-else class="no-match-copy">
-          当前四人没有命中任何攻略队伍。循环与装备仍会按确定性规则生成，但需要人工核对。
+          目前四人沒有命中任何攻略隊伍。循環與裝備仍會按確定性規則生成，但需要人工核對。
         </p>
       </div>
     </div>
@@ -116,7 +142,7 @@ const statusLabel = computed(() => {
     <div v-if="alternativeLines.length" class="alternative-strip">
       <span class="readout-label">PRESET ALTERNATIVES</span>
       <p v-for="line in alternativeLines" :key="line.source">
-        <strong>{{ line.source }}</strong> 可替换为 {{ line.alternatives }}
+        <strong>{{ line.source }}</strong> 可替換為 {{ line.alternatives }}
       </p>
     </div>
 
@@ -129,6 +155,9 @@ const statusLabel = computed(() => {
 <style scoped>
 .summary {
   padding: clamp(1rem, 2.5vw, 1.6rem);
+  background: #ffffff;
+  border: 1px solid var(--color-border-primary);
+  color: var(--color-text-primary);
 }
 
 .summary-head {
@@ -137,7 +166,7 @@ const statusLabel = computed(() => {
   justify-content: space-between;
   gap: 1rem;
   padding-bottom: 1.1rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--color-border-primary);
 }
 
 .summary-head h2 {
@@ -145,6 +174,7 @@ const statusLabel = computed(() => {
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
   font-size: clamp(1.5rem, 3vw, 2.1rem);
   font-weight: 700;
+  color: var(--color-text-primary);
 }
 
 .match-meter {
@@ -156,13 +186,13 @@ const statusLabel = computed(() => {
 
 .match-meter span {
   max-width: 150px;
-  color: var(--ember);
+  color: var(--color-accent-orange);
   font-size: 0.65rem;
   line-height: 1.35;
 }
 
 .match-meter strong {
-  color: var(--ember);
+  color: var(--color-accent-orange);
   font-family: "Rajdhani", sans-serif;
   font-size: 2.2rem;
   font-weight: 600;
@@ -170,14 +200,14 @@ const statusLabel = computed(() => {
 }
 
 .match-meter small {
-  color: #737a6c;
+  color: var(--color-text-tertiary);
   font-size: 0.65rem;
   font-weight: 500;
 }
 
 .match-meter.exact strong,
 .match-meter.exact span {
-  color: var(--acid);
+  color: var(--color-text-primary);
 }
 
 .summary-grid {
@@ -188,7 +218,7 @@ const statusLabel = computed(() => {
 }
 
 .readout-label {
-  color: #737a6c;
+  color: var(--color-text-secondary);
   font-family: "Rajdhani", sans-serif;
   font-size: 0.6rem;
   font-weight: 700;
@@ -208,13 +238,13 @@ const statusLabel = computed(() => {
   align-items: center;
   gap: 0.45rem;
   min-width: 0;
-  border: 1px solid #394132;
-  background: rgba(16, 19, 15, 0.45);
+  border: 1px solid var(--color-border-primary);
+  background: #fafafa;
   padding: 0.45rem;
 }
 
 .token-index {
-  color: var(--acid);
+  color: var(--color-text-primary);
   font-family: "Rajdhani", sans-serif;
   font-size: 0.58rem;
 }
@@ -225,8 +255,9 @@ const statusLabel = computed(() => {
   height: 39px;
   place-items: center;
   overflow: hidden;
-  border: 1px solid #4b5441;
-  background: #252b22;
+  border: 1px solid var(--color-border-primary);
+  background: #f0f0f0;
+  color: var(--color-text-primary);
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
   font-size: 0.9rem;
 }
@@ -235,6 +266,15 @@ const statusLabel = computed(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.token-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  opacity: 0.7;
 }
 
 .token-copy {
@@ -250,12 +290,13 @@ const statusLabel = computed(() => {
   font-weight: 600;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--color-text-primary);
 }
 
 .token-copy small {
   overflow: hidden;
   margin-top: 0.1rem;
-  color: #777e70;
+  color: var(--color-text-secondary);
   font-size: 0.54rem;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -273,20 +314,20 @@ const statusLabel = computed(() => {
 }
 
 .tag-cloud > div > span {
-  border: 1px solid #3d4537;
+  border: 1px solid var(--color-border-primary);
   padding: 0.16rem 0.35rem;
-  color: #a4aa9c;
+  color: var(--color-text-secondary);
   font-size: 0.57rem;
 }
 
 .match-readout {
-  border-left: 1px solid var(--line);
+  border-left: 1px solid var(--color-border-primary);
   padding-left: 1.3rem;
 }
 
 .match-readout h3 {
   margin-top: 0.45rem;
-  color: var(--paper);
+  color: var(--color-text-primary);
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
   font-size: 1.2rem;
   font-weight: 600;
@@ -294,7 +335,7 @@ const statusLabel = computed(() => {
 
 .match-readout > p {
   margin-top: 0.45rem;
-  color: var(--muted);
+  color: var(--color-text-secondary);
   font-size: 0.72rem;
   line-height: 1.6;
 }
@@ -309,24 +350,24 @@ const statusLabel = computed(() => {
   display: grid;
   grid-template-columns: 5.4rem 1fr;
   gap: 0.5rem;
-  border-top: 1px solid rgba(238, 233, 220, 0.08);
+  border-top: 1px solid var(--color-border-primary);
   padding-top: 0.38rem;
 }
 
 .match-readout dt {
-  color: #70776a;
+  color: var(--color-text-secondary);
   font-size: 0.58rem;
 }
 
 .match-readout dd {
   margin: 0;
-  color: #c3c7b9;
+  color: var(--color-text-primary);
   font-size: 0.65rem;
   line-height: 1.45;
 }
 
 .source-id {
-  color: #68705f !important;
+  color: var(--color-text-tertiary) !important;
   font-family: "Rajdhani", sans-serif;
   font-size: 0.56rem !important;
   letter-spacing: 0.08em;
@@ -341,18 +382,18 @@ const statusLabel = computed(() => {
   display: grid;
   gap: 0.3rem;
   margin-top: 1rem;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--color-border-primary);
   padding-top: 0.8rem;
 }
 
 .alternative-strip p {
   margin: 0;
-  color: #9ba293;
+  color: var(--color-text-secondary);
   font-size: 0.65rem;
 }
 
 .alternative-strip strong {
-  color: var(--paper);
+  color: var(--color-text-primary);
   font-weight: 500;
 }
 
@@ -360,8 +401,8 @@ const statusLabel = computed(() => {
   display: grid;
   gap: 0.25rem;
   margin-top: 1rem;
-  border: 1px solid rgba(255, 156, 102, 0.22);
-  background: rgba(255, 156, 102, 0.055);
+  border: 1px solid rgba(255, 156, 102, 0.4);
+  background: #fff8ec;
   padding: 0.6rem 0.7rem;
 }
 
@@ -369,13 +410,13 @@ const statusLabel = computed(() => {
   display: flex;
   gap: 0.45rem;
   margin: 0;
-  color: #c8ad9b;
+  color: #8a5a1c;
   font-size: 0.64rem;
   line-height: 1.45;
 }
 
 .summary-warnings span {
-  color: var(--ember);
+  color: var(--color-accent-orange);
   font-family: "Rajdhani", sans-serif;
   font-weight: 700;
 }
@@ -386,7 +427,7 @@ const statusLabel = computed(() => {
   }
 
   .match-readout {
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--color-border-primary);
     border-left: 0;
     padding-top: 1rem;
     padding-left: 0;
@@ -411,5 +452,10 @@ const statusLabel = computed(() => {
   .squad-tokens {
     grid-template-columns: 1fr;
   }
+}
+
+@media (max-width: 390px) {
+  .summary { padding: 0.75rem; }
+  .squad-tokens { gap: 0.32rem; }
 }
 </style>

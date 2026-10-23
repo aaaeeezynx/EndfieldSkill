@@ -40,7 +40,7 @@ SOURCES: list[dict[str, Any]] = [
         "id": SOURCE_IDS["official_battle"],
         "title": "Official battle tutorials",
         "publisher": "Hypergryph / Gryphline",
-        "url": "https://endfield.games/zh-Hans/tutorials/battle/",
+        "url": "https://endfield.gryphline.com/zh-tw#home",
         "sourceType": "official-guide",
         "trustLevel": "official-primary",
         "isOfficial": True,
@@ -156,7 +156,7 @@ SOURCE_BY_ID = {source["id"]: source for source in SOURCES}
 
 COMMUNITY_PAGE_FETCHES: dict[str, tuple[str, str]] = {
     "official_battle": (
-        "https://endfield.games/zh-Hans/tutorials/battle/",
+        "https://endfield.gryphline.com/zh-tw#home",
         "sources/official_battle_tutorial.html",
     ),
     "prydwen": (

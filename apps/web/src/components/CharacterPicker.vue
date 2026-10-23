@@ -81,6 +81,12 @@ const handleImageError = (characterId: string): void => {
 const shouldShowFallback = (character: CharacterFact): boolean => {
   return !getPortraitUrl(character) || imageErrors.has(character.id)
 }
+
+const displayName = (character: CharacterFact): string => {
+  if (character.id === 'chr_0002_endminm') return '管理員（A 形態）'
+  if (character.id === 'chr_0003_endminf') return '管理員（B 形態）'
+  return character.name
+}
 </script>
 
 <template>
@@ -88,7 +94,7 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
     <div class="picker-heading">
       <div>
         <p class="eyebrow">01 / PERSONNEL MATRIX</p>
-        <h2 class="picker-title">选择已拥有角色</h2>
+        <h2 class="picker-title">選擇已擁有角色</h2>
       </div>
       <div class="picker-counter">
         <strong>{{ selectedIds.length }}</strong>
@@ -98,12 +104,12 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
 
     <div class="filter-bar">
       <label class="search-field">
-        <span class="sr-only">搜索角色</span>
+        <span class="sr-only">搜尋角色</span>
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="10.5" cy="10.5" r="6.5"></circle>
           <path d="m15.5 15.5 4.5 4.5"></path>
         </svg>
-        <input v-model="search" type="search" placeholder="搜索角色 / 职业 / 标签" />
+        <input v-model="search" type="search" placeholder="搜尋角色 / 職業 / 標籤" />
       </label>
       <label class="compact-select">
         <span>元素</span>
@@ -113,7 +119,7 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
         </select>
       </label>
       <label class="compact-select">
-        <span>职业</span>
+        <span>職業</span>
         <select v-model="roleFilter">
           <option value="">全部</option>
           <option v-for="profession in professions" :key="profession" :value="profession">
@@ -142,7 +148,7 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
           <img
             v-if="!shouldShowFallback(character)"
             :src="getPortraitUrl(character)!"
-            :alt="`${character.name} 角色立繪`"
+            :alt="`${displayName(character)} 角色立繪`"
             loading="lazy"
             @error="handleImageError(character.id)"
           />
@@ -150,13 +156,13 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
         </span>
 
         <span class="character-copy">
-          <strong>{{ character.name }}</strong>
+          <strong>{{ displayName(character) }}</strong>
           <small>{{ character.nameEn || character.id }}</small>
         </span>
 
         <span class="character-meta">
-          <span>{{ character.profession || '职业未标注' }}</span>
-          <span>{{ character.element || '元素未标注' }}</span>
+          <span>{{ character.profession || '職業未標註' }}</span>
+          <span>{{ character.element || '元素未標註' }}</span>
           <span v-if="character.rarity">{{ character.rarity }}★</span>
         </span>
 
@@ -172,13 +178,18 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
 
     <div v-else class="filter-empty">
       <span>NO MATCH</span>
-      <p>没有符合当前筛选条件的角色。</p>
-      <button type="button" @click="clearFilters">清除筛选</button>
+      <p>沒有符合目前篩選條件的角色。</p>
+      <button type="button" @click="clearFilters">清除篩選</button>
     </div>
   </section>
-</template><style scoped>
+</template>
+
+<style scoped>
 .picker-panel {
   padding: 1.35rem;
+  background: #ffffff;
+  border: 1px solid var(--color-border-primary);
+  color: var(--color-text-primary);
 }
 
 .picker-heading {
@@ -187,6 +198,7 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   justify-content: space-between;
   gap: 1rem;
   padding-bottom: 1.2rem;
+  border-bottom: 1px solid var(--color-border-primary);
 }
 
 .picker-title {
@@ -195,16 +207,17 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   font-size: clamp(1.4rem, 2.5vw, 2rem);
   font-weight: 700;
   letter-spacing: -0.01em;
+  color: var(--color-text-primary);
 }
 
 .picker-counter {
   font-family: "Rajdhani", sans-serif;
-  color: var(--muted);
+  color: var(--color-text-tertiary);
   letter-spacing: 0.08em;
 }
 
 .picker-counter strong {
-  color: var(--acid);
+  color: var(--color-text-primary);
   font-size: 1.8rem;
   font-weight: 600;
 }
@@ -218,7 +231,7 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   grid-template-columns: minmax(200px, 1fr) auto auto;
   gap: 0.55rem;
   padding: 0.8rem 0 1rem;
-  border-top: 1px solid rgba(238, 233, 220, 0.1);
+  border-bottom: 1px solid var(--color-border-primary);
 }
 
 .search-field {
@@ -226,19 +239,19 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   align-items: center;
   gap: 0.6rem;
   height: 42px;
-  border: 1px solid var(--line);
-  background: rgba(16, 19, 15, 0.72);
+  border: 1px solid var(--color-border-primary);
+  background: #ffffff;
   padding: 0 0.8rem;
 }
 
 .search-field:focus-within {
-  border-color: var(--acid);
+  border-color: var(--color-accent-primary);
 }
 
 .search-field svg {
   width: 17px;
   fill: none;
-  stroke: var(--muted);
+  stroke: var(--color-text-tertiary);
   stroke-linecap: square;
   stroke-width: 1.5;
 }
@@ -249,25 +262,25 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   border: 0;
   outline: 0;
   background: transparent;
-  color: var(--paper);
+  color: var(--color-text-primary);
   font-size: 0.8rem;
 }
 
 .search-field input::placeholder {
-  color: #6f7668;
+  color: var(--color-text-tertiary);
 }
 
 .compact-select {
   display: flex;
   align-items: center;
   height: 42px;
-  border: 1px solid var(--line);
-  background: rgba(16, 19, 15, 0.72);
+  border: 1px solid var(--color-border-primary);
+  background: #ffffff;
   padding-left: 0.7rem;
 }
 
 .compact-select span {
-  color: #767d6f;
+  color: var(--color-text-secondary);
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
   font-size: 0.64rem;
   font-weight: 600;
@@ -281,12 +294,12 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   outline: 0;
   background: transparent;
   padding: 0 1.5rem 0 0.45rem;
-  color: var(--paper);
+  color: var(--color-text-primary);
   font-size: 0.76rem;
 }
 
 .compact-select option {
-  background: var(--carbon);
+  background: #ffffff;
 }
 
 .character-grid {
@@ -303,12 +316,12 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   gap: 0.42rem 0.75rem;
   min-height: 125px;
   overflow: hidden;
-  border: 1px solid #343b2e;
+  border: 1px solid var(--color-border-primary);
   background:
-    linear-gradient(130deg, rgba(255, 255, 255, 0.025), transparent 42%),
-    #1a1e18;
+    linear-gradient(130deg, rgba(255, 250, 0, 0.06), transparent 42%),
+    #ffffff;
   padding: 1.05rem 0.9rem 0.8rem;
-  color: var(--paper);
+  color: var(--color-text-primary);
   text-align: left;
   cursor: pointer;
   transition:
@@ -319,27 +332,27 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
 
 .character-card:hover {
   z-index: 1;
-  border-color: #6a7460;
+  border-color: var(--color-accent-blue);
   transform: translateY(-2px);
 }
 
 .character-card:focus-visible {
-  outline: 2px solid var(--cyan);
+  outline: 2px solid var(--color-accent-blue);
   outline-offset: 2px;
 }
 
 .character-card.selected {
-  border-color: var(--acid);
+  border-color: var(--color-accent-primary);
   background:
-    linear-gradient(130deg, rgba(216, 244, 91, 0.09), transparent 55%),
-    #20251b;
+    linear-gradient(130deg, rgba(255, 250, 0, 0.14), transparent 55%),
+    #fffef0;
 }
 
 .card-sequence {
   position: absolute;
   top: 0.55rem;
   right: 0.65rem;
-  color: #636a5d;
+  color: var(--color-text-tertiary);
   font-family: "Rajdhani", sans-serif;
   font-size: 0.6rem;
   font-weight: 600;
@@ -347,7 +360,7 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
 }
 
 .character-card.selected .card-sequence {
-  color: var(--acid);
+  color: var(--color-text-primary);
 }
 
 .element-mark {
@@ -356,12 +369,12 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   left: 0;
   width: 3px;
   height: 34%;
-  background: var(--cyan);
+  background: var(--color-accent-blue);
 }
 
 .selected .element-mark {
   height: 100%;
-  background: var(--acid);
+  background: var(--color-accent-primary);
 }
 
 .portrait {
@@ -371,9 +384,9 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   height: 62px;
   place-items: center;
   overflow: hidden;
-  border: 1px solid #434b3b;
-  background: linear-gradient(145deg, rgba(124, 230, 212, 0.12), transparent), #252b22;
-  color: var(--paper);
+  border: 1px solid var(--color-border-primary);
+  background: #f0f0f0;
+  color: var(--color-text-primary);
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
   font-size: 1.65rem;
   font-weight: 600;
@@ -392,13 +405,7 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   justify-content: center;
   width: 100%;
   height: 100%;
-  opacity: 0.6;
-}
-
-.portrait img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  opacity: 0.75;
 }
 
 .character-copy {
@@ -416,12 +423,13 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: var(--color-text-primary);
 }
 
 .character-copy small {
   overflow: hidden;
   margin-top: 0.15rem;
-  color: #71786b;
+  color: var(--color-text-tertiary);
   font-family: "Rajdhani", sans-serif;
   font-size: 0.59rem;
   letter-spacing: 0.06em;
@@ -440,9 +448,9 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
 
 .character-meta span,
 .role-row span {
-  border: 1px solid #3a4234;
+  border: 1px solid var(--color-border-primary);
   padding: 0.1rem 0.28rem;
-  color: #a4aa9c;
+  color: var(--color-text-secondary);
   font-size: 0.55rem;
   line-height: 1.2;
 }
@@ -456,13 +464,13 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
 
 .role-row span {
   border-color: transparent;
-  background: rgba(238, 233, 220, 0.045);
-  color: #777f70;
+  background: #f0f0f0;
+  color: var(--color-text-secondary);
 }
 
 .missing-line {
   grid-column: 1 / -1;
-  color: #85745c;
+  color: var(--color-accent-orange);
   font-size: 0.58rem;
 }
 
@@ -470,23 +478,23 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   position: absolute;
   right: 0.5rem;
   bottom: 0.38rem;
-  color: #68705f;
+  color: var(--color-text-tertiary);
   font-family: "Rajdhani", sans-serif;
   font-size: 1.1rem;
 }
 
 .selected .select-indicator {
-  color: var(--acid);
+  color: var(--color-text-primary);
 }
 
 .filter-empty {
   padding: 4rem 1rem;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--color-border-primary);
   text-align: center;
 }
 
 .filter-empty span {
-  color: var(--ember);
+  color: var(--color-accent-orange);
   font-family: "Rajdhani", sans-serif;
   font-size: 0.7rem;
   letter-spacing: 0.16em;
@@ -494,17 +502,23 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
 
 .filter-empty p {
   margin: 0.6rem 0 1rem;
-  color: var(--muted);
+  color: var(--color-text-secondary);
   font-size: 0.8rem;
 }
 
 .filter-empty button {
-  border: 1px solid var(--line);
+  border: 1px solid var(--color-border-strong);
   background: transparent;
   padding: 0.45rem 0.8rem;
-  color: var(--paper);
+  color: var(--color-text-primary);
   font-size: 0.72rem;
   cursor: pointer;
+}
+
+.filter-empty button:hover {
+  border-color: var(--color-accent-primary);
+  color: var(--color-text-primary);
+  background: var(--color-accent-primary);
 }
 
 @media (max-width: 1180px) {
@@ -543,7 +557,7 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   }
 
   .character-card.selected {
-    box-shadow: inset 3px 0 0 var(--acid);
+    box-shadow: inset 3px 0 0 var(--color-accent-primary);
   }
 
   .character-copy strong {
@@ -568,5 +582,3 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   .character-meta span { font-size: 0.5rem; }
 }
 </style>
-
-

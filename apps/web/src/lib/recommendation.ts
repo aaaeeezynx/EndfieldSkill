@@ -3,7 +3,9 @@ import type {
   Dataset,
   EquipmentCandidate,
   EquipmentFact,
-  EquipmentRecommendation,
+  EquipmentLoadout,
+  EquipmentSlot,
+  EquipmentSlotRecommendation,
   RecommendationReport,
   RotationChoice,
   RotationPreset,
@@ -25,6 +27,14 @@ const normalizeToken = (value: string): string =>
   value.toLowerCase().replaceAll('_', '-').replaceAll(' ', '-')
 
 const unique = <T>(values: T[]): T[] => [...new Set(values)]
+
+const EQUIPMENT_SLOTS: EquipmentSlot[] = ['body', 'hand', 'edc']
+
+export const EQUIPMENT_SLOT_LABELS: Record<EquipmentSlot, string> = {
+  body: '身體防具',
+  hand: '手部裝備',
+  edc: 'EDC 配件',
+}
 
 const selectSkill = (character: CharacterFact, type: SkillType): SkillFact | undefined =>
   character.skills.find((skill) => skill.type === type)
@@ -133,12 +143,13 @@ const rotationToChoice = (rotation: RotationPreset): RotationChoice => ({
   id: rotation.id,
   name: rotation.name,
   kind: 'source-backed',
-  description:
-    rotation.description ??
-    (rotation.scenario ? `攻略预设 · ${rotation.scenario}` : '攻略预设循环'),
+  description: `攻略來源循環 · 條件式順序${
+    rotation.scenario ? ` · ${rotation.scenario}` : ''
+  }${rotation.description ? `。${rotation.description}` : ''}`,
   steps: rotation.steps,
   warnings: unique([
-    ...(rotation.sourceIds.length ? [] : ['此循环没有来源 ID，请人工核对。']),
+    ...(rotation.sourceIds.length ? [] : ['此循環沒有來源 ID，請人工核對。']),
+    '攻略只提供條件式順序，並非幀級最佳或角色專屬最佳。',
     ...rotation.steps.flatMap((step) => step.warnings),
   ]),
   sourceIds: rotation.sourceIds,
@@ -168,48 +179,48 @@ const battleRule = (skill: SkillFact): { phase: string; rank: number } => {
       'energy-gain',
     ])
   ) {
-    return { phase: '铺设破韧 / 减益', rank: 20 }
+    return { phase: '鋪設破韌 / 減益', rank: 20 }
   }
-  return { phase: '战技窗口', rank: 40 }
+  return { phase: '戰技窗口', rank: 40 }
 }
 
 const skillRule = (skill: SkillFact): { phase: string; rank: number } => {
   if (skill.type === 'battle') return battleRule(skill)
   if (skill.type === 'combo') {
     return {
-      phase: '连携触发窗口',
+      phase: '連攜觸發窗口',
       rank: hasAnyTag(skill.tags, ['debuff-enemy', 'control', 'break-shield']) ? 25 : 35,
     }
   }
-  if (skill.type === 'ultimate') return { phase: '终结技能量窗口', rank: 50 }
+  if (skill.type === 'ultimate') return { phase: '終結技能量窗口', rank: 50 }
   return { phase: '其他技能', rank: 60 }
 }
 
 const ruleWaitFor = (skill: SkillFact): string => {
-  if (skill.type === 'battle') return '确认共享技力足够，且目标已进入本步效果窗口'
+  if (skill.type === 'battle') return '確認共享技力足夠，且目標已進入本步效果窗口'
   if (skill.type === 'combo') {
-    return skill.triggerConditions[0] ?? '等待角色连携条件亮起；仅在连携窗口内接续'
+    return skill.triggerConditions[0] ?? '等待角色連攜條件亮起；僅在連攜窗口內接續'
   }
-  if (skill.type === 'ultimate') return '确认终结技能量已满，且增益或破韧窗口尚未结束'
-  return '确认技能条件满足后再执行'
+  if (skill.type === 'ultimate') return '確認終結技能量已滿，且增益或破韌窗口尚未結束'
+  return '確認技能條件滿足後再執行'
 }
 
 const ruleTrigger = (skill: SkillFact): string => {
   if (skill.type === 'combo') {
-    return skill.triggerConditions.join(' / ') || '角色条件触发，不可当作普通战技主动释放'
+    return skill.triggerConditions.join(' / ') || '角色條件觸發，不可當作普通戰技主動釋放'
   }
-  if (skill.type === 'ultimate') return '终结技能量达到需求'
-  return skill.triggerConditions.join(' / ') || '主动战技；共享全队技力'
+  if (skill.type === 'ultimate') return '終結技能量達到需求'
+  return skill.triggerConditions.join(' / ') || '主動戰技；共享全隊技力'
 }
 
 const createRuleStep = (character: CharacterFact, skill: SkillFact, order: number): RotationStep => {
   const rule = skillRule(skill)
-  const warnings = ['规则生成，待人工核对']
+  const warnings = ['規則生成，待人工核對']
   if (!skill.triggerConditions.length && skill.type === 'combo') {
-    warnings.push('连携触发条件缺失')
+    warnings.push('連攜觸發條件缺失')
   }
   if (skill.type === 'ultimate' && skill.energyCost === null) {
-    warnings.push('终结技能量消耗未标注')
+    warnings.push('終結技能量消耗未標註')
   }
 
   return {
@@ -233,39 +244,56 @@ const createRuleStep = (character: CharacterFact, skill: SkillFact, order: numbe
 }
 
 export const buildRuleRotation = (characters: CharacterFact[]): RotationChoice => {
-  const candidates = characters.flatMap((character, characterIndex) =>
-    character.skills.map((skill) => ({
+  const deduplicated = characters.flatMap((character, characterIndex) =>
+    character.skills.map((skill, skillIndex) => ({
       character,
       characterIndex,
+      skillIndex,
       skill,
       rule: skillRule(skill),
+      candidateKey: `${character.id}:${skill.id}:${skill.type}`,
     })),
   )
 
-  const ordered = candidates
+  const candidates = [...deduplicated]
     .sort(
       (a, b) =>
         a.rule.rank - b.rule.rank ||
         a.characterIndex - b.characterIndex ||
+        a.skillIndex - b.skillIndex ||
         a.skill.id.localeCompare(b.skill.id),
     )
     .filter(
       (candidate, index, all) =>
-        all.findIndex(
-          (other) =>
-            other.character.id === candidate.character.id && other.skill.type === candidate.skill.type,
-        ) === index,
+        all.findIndex((other) => other.candidateKey === candidate.candidateKey) === index,
     )
-    .slice(0, 10)
 
-  const warnings = ['规则生成，待人工核对']
-  if (!candidates.length) warnings.push('所选角色缺少可用技能字段，无法生成步骤')
+  const ultimates = candidates
+    .filter((candidate) => candidate.skill.type === 'ultimate')
+    .slice(0, 12)
+  const regularSlots = Math.max(0, 12 - ultimates.length)
+  const regulars = candidates
+    .filter(
+      (candidate) =>
+        candidate.skill.type !== 'ultimate' &&
+        !ultimates.some((ultimate) => ultimate.candidateKey === candidate.candidateKey),
+    )
+    .slice(0, regularSlots)
+  const selectedKeys = new Set(
+    [...ultimates, ...regulars].map((candidate) => candidate.candidateKey),
+  )
+  const ordered = candidates
+    .filter((candidate) => selectedKeys.has(candidate.candidateKey))
+    .slice(0, 12)
+
+  const warnings = ['規則生成，待人工核對']
+  if (!candidates.length) warnings.push('所選角色缺少可用技能欄位，無法生成步驟')
 
   return {
     id: 'rule-generated',
-    name: '标签规则编排',
+    name: '標籤規則編排',
     kind: 'rule-generated',
-    description: '没有完全匹配的攻略循环。以下顺序仅由角色、技能类型与效果标签确定性推导。',
+    description: '沒有完全符合的攻略循環。以下順序僅由角色、技能類型與效果標籤確定性推導。',
     steps: ordered.map((candidate, index) =>
       createRuleStep(candidate.character, candidate.skill, index + 1),
     ),
@@ -318,7 +346,7 @@ const unlockForEquipment = (
   chaptersById: Map<string, StoryChapter>,
 ): { state: UnlockState; labels: string[] } => {
   if (equipment.craftable === false) {
-    return { state: 'not-craftable', labels: ['来源标记为不可制造'] }
+    return { state: 'not-craftable', labels: ['來源標記為不可製造'] }
   }
 
   const labels: string[] = []
@@ -329,29 +357,29 @@ const unlockForEquipment = (
     const levelKind = equipment.unlock.playerLevelKind
     labels.push(
       !levelKind || levelKind === 'equipment_wear_level'
-        ? `装备穿戴等级 Lv.${equipment.unlock.playerLevel}`
-        : `等级门槛 ${levelKind} Lv.${equipment.unlock.playerLevel}`,
+        ? `裝備穿戴等級 Lv.${equipment.unlock.playerLevel}`
+        : `等級門檻 ${levelKind} Lv.${equipment.unlock.playerLevel}`,
     )
     if (progress.playerLevel < equipment.unlock.playerLevel) locked = true
   }
 
   if (equipment.formulaAuthorityRank !== null) {
-    labels.push(`配方权限要求 Rank ${equipment.formulaAuthorityRank}`)
+    labels.push(`配方權限要求 Rank ${equipment.formulaAuthorityRank}`)
   }
-  if (equipment.recipeTier) labels.push(`配方阶级 ${equipment.recipeTier}`)
+  if (equipment.recipeTier) labels.push(`配方階級 ${equipment.recipeTier}`)
 
   const requiredChapterOrder =
     equipment.unlock.chapterOrder ??
     (equipment.unlock.chapterId ? chaptersById.get(equipment.unlock.chapterId)?.order ?? null : null)
   if (equipment.unlock.chapterId) {
     const chapter = chaptersById.get(equipment.unlock.chapterId)
-    labels.push(`剧情 ${chapter?.name ?? equipment.unlock.chapterId}`)
+    labels.push(`劇情 ${chapter?.name ?? equipment.unlock.chapterId}`)
   }
   if (requiredChapterOrder !== null) {
     const currentOrder = progress.chapterId
       ? chaptersById.get(progress.chapterId)?.order
       : undefined
-    if (!equipment.unlock.chapterId) labels.push(`章节序 ${requiredChapterOrder}`)
+    if (!equipment.unlock.chapterId) labels.push(`章節序 ${requiredChapterOrder}`)
     if (currentOrder === undefined) unknown = true
     else if (currentOrder < requiredChapterOrder) locked = true
   } else if (equipment.unlock.chapterId) {
@@ -376,11 +404,11 @@ const toCandidate = (
   const roles = matchingRoleTags(character, equipment)
   const elementMatches = matchesEquipmentElement(character, equipment)
 
-  if (equipment.recommendedFor.includes(character.id)) matchNotes.push('角色专属推荐')
+  if (equipment.recommendedFor.includes(character.id)) matchNotes.push('角色專屬推薦')
   if (roles.length) matchNotes.push(`定位匹配 · ${roles.join(' / ')}`)
   if (elementMatches) matchNotes.push(`元素匹配 · ${character.element}`)
   if (!equipment.recommendedFor.length && !equipment.roleTags.length) {
-    matchNotes.push('仅按通用属性排序，需人工核对')
+    matchNotes.push('僅按通用屬性排序')
   }
   return {
     equipment,
@@ -391,13 +419,15 @@ const toCandidate = (
   }
 }
 
-export const recommendEquipmentForCharacter = (
-  dataset: Dataset,
+const recommendEquipmentForSlot = (
+  equipment: EquipmentFact[],
   character: CharacterFact,
   progress: PlannerProgress,
-): EquipmentRecommendation => {
-  const chaptersById = chapterIndex(dataset)
-  const relevant = dataset.equipment
+  slot: EquipmentSlot,
+  chaptersById: Map<string, StoryChapter>,
+): EquipmentSlotRecommendation => {
+  const relevant = equipment
+    .filter((item) => item.slot === slot)
     .filter((item) => item.craftable !== false)
     .filter((item) => isEquipmentRelevant(character, item))
     .map((item) => toCandidate(character, item, progress, chaptersById))
@@ -405,39 +435,80 @@ export const recommendEquipmentForCharacter = (
       (a, b) =>
         b.score - a.score ||
         Number(b.unlockState === 'unlocked') - Number(a.unlockState === 'unlocked') ||
+        (a.equipment.setName ?? '~').localeCompare(b.equipment.setName ?? '~') ||
         a.equipment.id.localeCompare(b.equipment.id),
     )
 
-  const bestOverall = relevant[0] ?? null
-  const available = relevant.filter(
-    (item) => item.unlockState === 'unlocked' && item.equipment.id !== bestOverall?.equipment.id,
+  const target = relevant[0] ?? null
+  const available =
+    target?.unlockState === 'unlocked'
+      ? null
+      : relevant.find(
+          (item) =>
+            item.unlockState === 'unlocked' &&
+            item.equipment.id !== target?.equipment.id,
+        ) ?? null
+  const excludedIds = new Set(
+    [target?.equipment.id, available?.equipment.id].filter(
+      (id): id is string => Boolean(id),
+    ),
   )
-  const bestAvailable = bestOverall?.unlockState === 'unlocked' ? null : available[0] ?? null
-  const alternatives = available
-    .filter((item) => item.equipment.id !== bestAvailable?.equipment.id)
+  const alternatives = relevant
+    .filter((item) => !excludedIds.has(item.equipment.id))
     .slice(0, 2)
 
   const warnings: string[] = []
-  if (!relevant.length) warnings.push('没有符合角色标签的装备资料')
-  if (bestOverall?.unlockState === 'locked') warnings.push('最佳装备尚未达到已知解锁门槛')
-  if (!bestAvailable && bestOverall?.unlockState !== 'unlocked') {
-    warnings.push('当前装备穿戴等级与已知章节条件下，没有可确认通过已知门槛的装备')
+  if (!relevant.length) warnings.push('此部位沒有符合角色標籤或通用屬性的裝備資料')
+  if (target?.unlockState === 'locked') warnings.push('此部位最高分裝備尚未達到已知穿戴門檻')
+  if (target?.unlockState === 'unknown') warnings.push('此部位最高分裝備缺少完整解鎖資料')
+  if (target?.unlockState !== 'unlocked' && !available) {
+    warnings.push('此部位目前沒有可確認通過已知穿戴門檻的裝備')
   }
   if (relevant.some((item) => item.unlockState === 'unknown')) {
-    warnings.push('部分装备缺少等级、章节或制造状态，未计入“穿戴等级已达标”')
-  }
-  if (!dataset.chapters.length) {
-    warnings.push('章节与权限解锁资料尚未核验；本次仅确认装备穿戴等级条件')
+    warnings.push('部分裝備缺少等級、章節或製造狀態，未計入可確認的穿戴結果')
   }
   if (relevant.some((item) => item.equipment.formulaAuthorityRank !== null)) {
-    warnings.push('配方权限要求尚未由剧情或权限进度自动判定，请进入游戏核对')
+    warnings.push('配方權限要求尚未由劇情或權限進度自動判定，請進入遊戲核對')
   }
 
   return {
-    characterId: character.id,
-    bestOverall,
-    bestAvailable,
+    slot,
+    target,
+    available,
     alternatives,
+    warnings,
+  }
+}
+
+export const recommendEquipmentForCharacter = (
+  dataset: Dataset,
+  character: CharacterFact,
+  progress: PlannerProgress,
+): EquipmentLoadout => {
+  const chaptersById = chapterIndex(dataset)
+  const slots = Object.fromEntries(
+    EQUIPMENT_SLOTS.map((slot) => [
+      slot,
+      recommendEquipmentForSlot(
+        dataset.equipment,
+        character,
+        progress,
+        slot,
+        chaptersById,
+      ),
+    ]),
+  ) as Record<EquipmentSlot, EquipmentSlotRecommendation>
+
+  const warnings = unique([
+    ...(dataset.chapters.length
+      ? []
+      : ['章節與權限解鎖資料尚未核驗；本次僅確認已知裝備穿戴等級']),
+    ...EQUIPMENT_SLOTS.flatMap((slot) => slots[slot].warnings),
+  ])
+
+  return {
+    characterId: character.id,
+    slots,
     warnings,
   }
 }
@@ -460,19 +531,21 @@ export const buildRecommendationReport = (
   const teamTags = unique(characters.flatMap((character) => normalizedTags(character))).slice(0, 12)
   const warnings: string[] = []
 
-  if (!exactTeam) warnings.push('没有与当前四人完全一致的攻略队伍；队伍摘要来自部分匹配或标签覆盖。')
-  if (rotations.every((rotation) => rotation.kind === 'rule-generated')) {
-    warnings.push('沿用标签规则回退循环，不能视为已验证攻略。')
+  if (!exactTeam) {
+    warnings.push('沒有與目前四人完全一致的攻略隊伍；隊伍摘要來自部分匹配或標籤覆蓋。')
   }
-  if (!dataset.teamPresets.length) warnings.push('team-presets.json 没有可用记录。')
-  if (!dataset.rotationPresets.length) warnings.push('rotation-presets.json 没有可用记录。')
-  if (!dataset.equipment.length) warnings.push('equipment.json 没有可用记录。')
+  if (rotations.every((rotation) => rotation.kind === 'rule-generated')) {
+    warnings.push('沿用標籤規則回退循環，不能視為已驗證攻略。')
+  }
+  if (!dataset.teamPresets.length) warnings.push('team-presets.json 沒有可用記錄。')
+  if (!dataset.rotationPresets.length) warnings.push('rotation-presets.json 沒有可用記錄。')
+  if (!dataset.equipment.length) warnings.push('equipment.json 沒有可用記錄。')
   if (!dataset.chapters.length) {
-    warnings.push('章节与权限解锁资料尚未核验；装备结果仅按装备穿戴等级生成。')
+    warnings.push('章節與權限解鎖資料尚未核驗；裝備結果僅按已知裝備穿戴等級生成。')
   }
 
   return { teamMatches, exactTeam, rotations, equipment, teamTags, warnings }
 }
 
 export const describeUnlockGate = (candidate: EquipmentCandidate): string =>
-  candidate.gateLabels.length ? candidate.gateLabels.join(' · ') : '解锁门槛未标注'
+  candidate.gateLabels.length ? candidate.gateLabels.join(' · ') : '解鎖門檻未標註'
