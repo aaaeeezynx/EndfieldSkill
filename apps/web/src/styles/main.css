@@ -428,7 +428,10 @@ button {
 
   .site-footer {
     margin-top: 3rem;
-    padding: calc(1.7rem + env(safe-area-inset-bottom)) 0 5.8rem;
+    padding:
+      calc(1.7rem + env(safe-area-inset-bottom))
+      0
+      calc(var(--mobile-nav-height) + 1.5rem + env(safe-area-inset-bottom));
   }
 
   .footer-inner {
