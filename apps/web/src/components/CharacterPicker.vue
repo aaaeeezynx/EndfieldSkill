@@ -160,10 +160,9 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
           <span v-if="character.rarity">{{ character.rarity }}★</span>
         </span>
 
-        <span v-if="character.roles.length" class="role-row">
+        <span v-if="character.roles && character.roles.length > 0" class="role-row">
           <span v-for="role in character.roles.slice(0, 3)" :key="role">{{ role }}</span>
         </span>
-        <span v-else class="missing-line">定位标签缺失</span>
 
         <span class="select-indicator" aria-hidden="true">
           {{ selectedIndex(character.id) >= 0 ? '−' : '+' }}

@@ -93,6 +93,15 @@ export const usePlannerStore = defineStore('planner', () => {
       invalidateReport()
       return
     }
+    const incomingCharacter = characters.value.find((character) => character.id === characterId)
+    const incomingName = incomingCharacter?.name.trim()
+    if (
+      incomingName &&
+      selectedCharacters.value.some((character) => character.name.trim() === incomingName)
+    ) {
+      setNotice('同一角色的不同形态不能同时上阵')
+      return
+    }
     if (selectedCharacterIds.value.length >= 4) {
       setNotice('队伍已满。先移除一名角色，再加入新角色。')
       return

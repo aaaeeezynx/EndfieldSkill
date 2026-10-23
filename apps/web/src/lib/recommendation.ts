@@ -409,8 +409,10 @@ export const recommendEquipmentForCharacter = (
     )
 
   const bestOverall = relevant[0] ?? null
-  const available = relevant.filter((item) => item.unlockState === 'unlocked')
-  const bestAvailable = available[0] ?? null
+  const available = relevant.filter(
+    (item) => item.unlockState === 'unlocked' && item.equipment.id !== bestOverall?.equipment.id,
+  )
+  const bestAvailable = bestOverall?.unlockState === 'unlocked' ? null : available[0] ?? null
   const alternatives = available
     .filter((item) => item.equipment.id !== bestAvailable?.equipment.id)
     .slice(0, 2)
@@ -418,7 +420,7 @@ export const recommendEquipmentForCharacter = (
   const warnings: string[] = []
   if (!relevant.length) warnings.push('没有符合角色标签的装备资料')
   if (bestOverall?.unlockState === 'locked') warnings.push('最佳装备尚未达到已知解锁门槛')
-  if (!bestAvailable) {
+  if (!bestAvailable && bestOverall?.unlockState !== 'unlocked') {
     warnings.push('当前装备穿戴等级与已知章节条件下，没有可确认通过已知门槛的装备')
   }
   if (relevant.some((item) => item.unlockState === 'unknown')) {

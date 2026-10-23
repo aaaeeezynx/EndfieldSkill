@@ -95,6 +95,7 @@ export interface EquipmentFact {
   roleTags: string[]
   elementTags: string[]
   stats: Record<string, string | number>
+  statTypes?: Record<string, string | null>
   description: string | null
   sourceIds: string[]
 }

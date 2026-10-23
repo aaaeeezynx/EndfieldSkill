@@ -210,6 +210,18 @@ describe('equipment gates', () => {
       characters: roster,
       chapters: [],
       equipment: [
+        makeEquipment('ceiling-locked', {
+          rarity: 6,
+          formulaAuthorityRank: 10,
+          recipeTier: 'IV',
+          unlock: {
+            playerLevel: 40,
+            playerLevelKind: 'equipment_wear_level',
+            chapterId: null,
+            chapterOrder: null,
+            materials: ['material-rare'],
+          },
+        }),
         makeEquipment('wear-gated-gear', {
           rarity: 4,
           formulaAuthorityRank: 7,
@@ -220,6 +232,18 @@ describe('equipment gates', () => {
             chapterId: null,
             chapterOrder: null,
             materials: ['material-a'],
+          },
+        }),
+        makeEquipment('lower-tier-gear', {
+          rarity: 3,
+          formulaAuthorityRank: 5,
+          recipeTier: 'II',
+          unlock: {
+            playerLevel: 10,
+            playerLevelKind: 'equipment_wear_level',
+            chapterId: null,
+            chapterOrder: null,
+            materials: [],
           },
         }),
       ],
@@ -257,6 +281,18 @@ describe('equipment gates', () => {
       characters: [hero],
       chapters,
       equipment: [
+        makeEquipment('best-but-locked', {
+          rarity: 6,
+          roleTags: ['dps'],
+          elementTags: ['cold'],
+          unlock: {
+            playerLevel: 40,
+            playerLevelKind: 'equipment_wear_level',
+            chapterId: 'chapter-3',
+            chapterOrder: 3,
+            materials: [],
+          },
+        }),
         makeEquipment('matching-dps', {
           rarity: 4,
           roleTags: ['dps'],
@@ -307,5 +343,35 @@ describe('equipment gates', () => {
     expect(
       recommendation.bestAvailable?.matchNotes.some((note) => note === '定位匹配'),
     ).toBe(false)
+  })
+
+  it('does not duplicate bestOverall in bestAvailable when already unlocked', () => {
+    const dataset = makeDataset({
+      characters: [hero],
+      chapters,
+      equipment: [
+        makeEquipment('only-unlocked', {
+          rarity: 5,
+          recommendedFor: [hero.id],
+          unlock: {
+            playerLevel: 10,
+            playerLevelKind: 'equipment_wear_level',
+            chapterId: 'chapter-1',
+            chapterOrder: 1,
+            materials: [],
+          },
+        }),
+      ],
+    })
+
+    const recommendation = recommendEquipmentForCharacter(dataset, hero, {
+      playerLevel: 25,
+      chapterId: 'chapter-2',
+    })
+
+    expect(recommendation.bestOverall?.equipment.id).toBe('only-unlocked')
+    expect(recommendation.bestOverall?.unlockState).toBe('unlocked')
+    expect(recommendation.bestAvailable).toBeNull()
+    expect(recommendation.alternatives).toHaveLength(0)
   })
 })

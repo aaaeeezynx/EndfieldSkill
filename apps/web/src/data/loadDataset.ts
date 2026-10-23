@@ -314,6 +314,11 @@ const normalizeEquipment = (rawValue: unknown, index: number): EquipmentFact | n
   for (const [key, value] of Object.entries(statsRecord)) {
     if (typeof value === 'string' || typeof value === 'number') stats[key] = value
   }
+  const statTypesRecord = asRecord(raw.statTypes ?? raw.attributeTypes)
+  const statTypes: Record<string, string | null> = {}
+  for (const [key, value] of Object.entries(statTypesRecord)) {
+    if (value === null || typeof value === 'string') statTypes[key] = value
+  }
 
   return {
     id,
@@ -342,6 +347,7 @@ const normalizeEquipment = (rawValue: unknown, index: number): EquipmentFact | n
     ),
     roleTags: asStringArray(raw.roleTags ?? raw.roles ?? raw.suitableRoles),
     elementTags: asStringArray(raw.elementTags ?? raw.elements ?? raw.suitableElements),
+    statTypes,
     stats,
     description: firstString(raw.description, raw.effect, raw.summary),
     sourceIds: asStringArray(raw.sourceIds ?? raw.sources),

@@ -31,6 +31,7 @@ crawler/.cache/
 # Generated frontend data mirror (canonical data lives in data/v1)
 apps/web/public/data/v1/*.json
 !apps/web/public/data/v1/.gitkeep
+apps/web/.artifacts/
 
 # Editors and operating systems
 .vscode/

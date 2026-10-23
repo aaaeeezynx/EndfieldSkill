@@ -94,6 +94,7 @@ export const makeEquipment = (
   recommendedFor: [],
   roleTags: [],
   elementTags: [],
+  statTypes: {},
   stats: {},
   description: null,
   sourceIds: [],

@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import {
+  buildEquipmentStatDisplays,
+  type EquipmentStatDisplay,
+} from '@/lib/equipmentDisplay'
 import { describeUnlockGate } from '@/lib/recommendation'
 import type {
   CharacterFact,
@@ -24,8 +28,23 @@ const stateLabel = (state: UnlockState): string => {
   return '门槛未确认'
 }
 
-const statEntries = (candidate: EquipmentCandidate): [string, string | number][] =>
-  Object.entries(candidate.equipment.stats).slice(0, 6)
+const statEntries = (candidate: EquipmentCandidate): EquipmentStatDisplay[] =>
+  buildEquipmentStatDisplays(candidate.equipment.stats, candidate.equipment.statTypes)
+
+const hasSeparateAvailable = (recommendation: EquipmentRecommendation): boolean =>
+  Boolean(
+    recommendation.bestAvailable &&
+      recommendation.bestAvailable.equipment.id !== recommendation.bestOverall?.equipment.id,
+  )
+
+const hasSingleTargetResult = (recommendation: EquipmentRecommendation): boolean =>
+  !hasSeparateAvailable(recommendation) ||
+  recommendation.bestOverall?.unlockState === 'unlocked'
+
+const targetKicker = (recommendation: EquipmentRecommendation): string =>
+  hasSingleTargetResult(recommendation)
+    ? 'CEILING / CURRENT BEST · 角色上限／目前門檻最佳'
+    : 'BEST OVERALL / 角色上限'
 
 const hasFormulaAuthority = (candidate: EquipmentCandidate): boolean =>
   candidate.equipment.formulaAuthorityRank !== null
@@ -78,9 +97,12 @@ const hasFormulaAuthority = (candidate: EquipmentCandidate): boolean =>
           </div>
         </header>
 
-        <div class="gear-grid">
+        <div
+          class="gear-grid"
+          :class="{ 'single-column': hasSingleTargetResult(recommendation) }"
+        >
           <div class="gear-column target">
-            <span class="gear-kicker">BEST OVERALL / 角色上限</span>
+            <span class="gear-kicker">{{ targetKicker(recommendation) }}</span>
             <template v-if="recommendation.bestOverall">
               <div class="gear-name-row">
                 <h4>{{ recommendation.bestOverall.equipment.name }}</h4>
@@ -101,12 +123,18 @@ const hasFormulaAuthority = (candidate: EquipmentCandidate): boolean =>
               <p v-if="hasFormulaAuthority(recommendation.bestOverall)" class="authority-note">
                 Rank 为配方权限要求；剧情/权限进度尚未自动判定。
               </p>
+              <p
+                v-if="recommendation.bestOverall.unlockState === 'unlocked'"
+                class="single-result-note"
+              >
+                此结果同时是角色上限与目前通过已知门槛的最佳结果；仅代表穿戴等级与已知章节条件通过，不代表配方已解锁或当前可制造。
+              </p>
               <div v-if="statEntries(recommendation.bestOverall).length" class="stat-grid">
                 <span
-                  v-for="[key, value] in statEntries(recommendation.bestOverall)"
-                  :key="key"
+                  v-for="stat in statEntries(recommendation.bestOverall)"
+                  :key="stat.key"
                 >
-                  {{ key }} <strong>{{ value }}</strong>
+                  {{ stat.label }} <strong>{{ stat.value }}</strong>
                 </span>
               </div>
               <div v-else class="field-warning">属性数值未标注</div>
@@ -114,7 +142,10 @@ const hasFormulaAuthority = (candidate: EquipmentCandidate): boolean =>
             <p v-else class="gear-empty">没有可评分的装备资料。</p>
           </div>
 
-          <div class="gear-column available">
+          <div
+            v-if="hasSeparateAvailable(recommendation)"
+            class="gear-column available"
+          >
             <span class="gear-kicker">WEAR GATE PASSED / 穿戴等级已达标</span>
             <template v-if="recommendation.bestAvailable">
               <div class="gear-name-row">
@@ -140,9 +171,6 @@ const hasFormulaAuthority = (candidate: EquipmentCandidate): boolean =>
                 </span>
               </div>
             </template>
-            <p v-else class="gear-empty">
-              当前装备穿戴等级与已知章节条件下，没有可确认通过门槛的装备。
-            </p>
           </div>
         </div>
 
@@ -163,7 +191,13 @@ const hasFormulaAuthority = (candidate: EquipmentCandidate): boolean =>
         </p>
 
         <div v-if="recommendation.alternatives.length" class="alternatives">
-          <span class="gear-kicker">KNOWN-GATE ALTERNATIVES / 已知门槛替代项</span>
+          <span class="gear-kicker">
+            {{
+              recommendation.bestOverall?.unlockState === 'unlocked'
+                ? 'OTHER WEARABLE CANDIDATES / 其他可穿戴候选'
+                : 'KNOWN-GATE ALTERNATIVES / 已知门槛替代项'
+            }}
+          </span>
           <div class="alternative-grid">
             <div v-for="alternative in recommendation.alternatives" :key="alternative.equipment.id">
               <strong>{{ alternative.equipment.name }}</strong>
@@ -323,6 +357,10 @@ const hasFormulaAuthority = (candidate: EquipmentCandidate): boolean =>
   margin-top: 0.85rem;
 }
 
+.gear-grid.single-column {
+  grid-template-columns: 1fr;
+}
+
 .gear-column {
   min-width: 0;
   border: 1px solid #353d30;
@@ -418,6 +456,16 @@ const hasFormulaAuthority = (candidate: EquipmentCandidate): boolean =>
   line-height: 1.5;
 }
 
+.single-result-note {
+  margin-top: 0.38rem;
+  border-left: 2px solid var(--cyan);
+  background: rgba(124, 230, 212, 0.055);
+  padding: 0.3rem 0.42rem;
+  color: #9bb9b1;
+  font-size: 0.56rem;
+  line-height: 1.5;
+}
+
 .stat-grid {
   display: flex;
   flex-wrap: wrap;
@@ -426,16 +474,21 @@ const hasFormulaAuthority = (candidate: EquipmentCandidate): boolean =>
 }
 
 .stat-grid span {
+  max-width: 100%;
   background: rgba(238, 233, 220, 0.045);
   padding: 0.16rem 0.3rem;
   color: #737a6c;
   font-size: 0.53rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .stat-grid strong {
   margin-left: 0.15rem;
   color: #bcc1b5;
   font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
 .match-notes {
