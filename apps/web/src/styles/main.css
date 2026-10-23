@@ -12,6 +12,8 @@
   --cyan: #7ce6d4;
   --ember: #ff9c66;
   --danger: #ff765f;
+  --steel: #788174;
+  --surface-glass: rgba(19, 23, 18, 0.88);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -53,6 +55,9 @@ body {
   color: var(--paper);
   font-family: "IBM Plex Sans", "Noto Sans TC", "Noto Sans SC", "Microsoft JhengHei", sans-serif;
 }
+
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: 180ms; }
 
 button,
 input,
@@ -134,9 +139,11 @@ a {
   position: relative;
   border: 1px solid var(--line);
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.025), transparent 28%),
-    rgba(23, 26, 21, 0.9);
+    linear-gradient(135deg, rgba(255, 255, 255, 0.035), transparent 30%),
+    linear-gradient(155deg, rgba(124, 230, 212, 0.025), transparent 42%),
+    var(--surface-glass);
   box-shadow: 0 18px 70px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(8px);
 }
 
 .panel::before {
@@ -147,6 +154,17 @@ a {
   width: 42px;
   height: 2px;
   background: var(--acid);
+}
+
+.panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 30px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124, 230, 212, 0.38));
+  pointer-events: none;
 }
 
 .eyebrow {
@@ -179,6 +197,13 @@ a {
 
 .cut-corners {
   clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+}
+
+input, select, button { min-width: 0; }
+
+@media (max-width: 640px) {
+  .site-footer { margin-top: 3rem; padding-bottom: 1.5rem; font-size: 0.68rem; }
+  .site-footer p { overflow-wrap: anywhere; }
 }
 
 .reveal {

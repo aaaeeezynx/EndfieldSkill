@@ -5,6 +5,7 @@ import {
   type EquipmentStatDisplay,
 } from '@/lib/equipmentDisplay'
 import { describeUnlockGate } from '@/lib/recommendation'
+import { getCharacterPortrait } from '@/data/portraitLoader'
 import type {
   CharacterFact,
   EquipmentCandidate,
@@ -79,9 +80,10 @@ const hasFormulaAuthority = (candidate: EquipmentCandidate): boolean =>
         <header class="character-strip">
           <span class="character-avatar">
             <img
-              v-if="characterById.get(recommendation.characterId)?.portraitUrl"
-              :src="characterById.get(recommendation.characterId)?.portraitUrl ?? ''"
+              v-if="getCharacterPortrait(recommendation.characterId)"
+              :src="getCharacterPortrait(recommendation.characterId) ?? ''"
               :alt="characterById.get(recommendation.characterId)?.name ?? recommendation.characterId"
+              loading="lazy"
             />
             <span v-else>
               {{ characterById.get(recommendation.characterId)?.name.slice(0, 1) ?? '?' }}

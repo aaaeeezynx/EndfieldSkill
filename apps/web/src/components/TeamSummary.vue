@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { CharacterFact, RecommendationReport } from '@/types/domain'
+import { getCharacterPortrait } from '@/data/portraitLoader'
 
 const props = defineProps<{
   report: RecommendationReport
@@ -64,7 +65,7 @@ const statusLabel = computed(() => {
           >
             <span class="token-index">0{{ index + 1 }}</span>
             <span class="token-avatar">
-              <img v-if="character.portraitUrl" :src="character.portraitUrl" :alt="character.name" />
+            <img v-if="getCharacterPortrait(character.id)" :src="getCharacterPortrait(character.id)!" :alt="character.name" loading="lazy" />
               <span v-else>{{ character.name.slice(0, 1) }}</span>
             </span>
             <span class="token-copy">

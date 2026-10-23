@@ -323,6 +323,11 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   transform: translateY(-2px);
 }
 
+.character-card:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
 .character-card.selected {
   border-color: var(--acid);
   background:
@@ -537,36 +542,9 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
     padding: 0.92rem 0.68rem 0.65rem;
   }
 
-  .portrait {
-  grid-row: 1 / span 2;
-  display: grid;
-  width: 54px;
-  height: 62px;
-  place-items: center;
-  overflow: hidden;
-  border: 1px solid #434b3b;
-  background: linear-gradient(145deg, rgba(124, 230, 212, 0.12), transparent), #252b22;
-  color: var(--paper);
-  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 1.65rem;
-  font-weight: 600;
-}
-
-.portrait img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-}
-
-.portrait-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  opacity: 0.6;
-}
+  .character-card.selected {
+    box-shadow: inset 3px 0 0 var(--acid);
+  }
 
   .character-copy strong {
     font-size: 0.9rem;
@@ -575,6 +553,19 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
   .character-meta span:nth-child(2) {
     display: none;
   }
+}
+
+@media (max-width: 390px) {
+  .picker-panel { padding: 0.75rem; }
+  .character-grid { gap: 0.32rem; }
+  .character-card {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 0.32rem 0.45rem;
+    min-height: 102px;
+    padding: 0.8rem 0.5rem 0.58rem;
+  }
+  .portrait { width: 44px; height: 54px; }
+  .character-meta span { font-size: 0.5rem; }
 }
 </style>
 
