@@ -2,7 +2,7 @@
 
 一款針對《明日方舟：終末地》的確定性隊伍與技能循環輔助工具。玩家選擇自己實際擁有的四名角色、玩家等級與劇情進度後，頁面會從版本化資料庫中匹配隊伍、輸出技能釋放順序與觸發條件，並列出配裝候選及已知門檻。
 
-MVP 线上测试站：[https://aaaeeezynx.github.io/EndfieldSkill/](https://aaaeeezynx.github.io/EndfieldSkill/)
+MVP 線上測試站：[https://aaaeeezynx.github.io/EndfieldSkill/](https://aaaeeezynx.github.io/EndfieldSkill/)
 
 ## 解決的問題
 
@@ -11,7 +11,7 @@ MVP 线上测试站：[https://aaaeeezynx.github.io/EndfieldSkill/](https://aaae
 本專案採用「先整理可信資料，再用確定性規則排列組合」的方式：
 
 - 使用玩家已有的四名角色，而不是要求玩家先湊出攻略固定隊。
-- 對完全匹配的来源队伍展示經過整理的攻略循環。
+- 對完全匹配的來源隊伍展示經過整理的攻略循環。
 - 對其他四人組合展示明確標註的規則回退，不把推導結果偽裝成實測攻略。
 - 按裝備穿戴等級、角色定位、元素和推薦關係篩選配裝候選。
 - 執行時不呼叫 AI，不生成沒有資料依據的答案。
@@ -140,7 +140,7 @@ npm audit --audit-level=low
 - **裝備圖**：258 張官方裝備圖，配備五級稀有度色框（灰／綠／藍／紫／金）與 18 筆缺圖 fallback
 
 所有角色圖片資產來源、原始 URL 與使用注意事項記錄在 [`apps/web/ASSET_SOURCES.md`](apps/web/ASSET_SOURCES.md)。
-本项目明确标示为非官方第三方攻略工具，不宣称官方授权或关联。
+本專案明確標示為非官方第三方攻略工具，不宣稱官方授權或關聯。
 
 ## 主要資料來源
 
@@ -170,11 +170,11 @@ npm audit --audit-level=low
 
 ```text
 .
-|-- apps/web/                  # Vue 3 前端与测试
-|-- crawler/                   # Python 资料抓取、解析、校验与测试
+|-- apps/web/                  # Vue 3 前端與測試
+|-- crawler/                   # Python 資料抓取、解析、校驗與測試
 |-- data/v1/                   # canonical 版本化 JSON
 |-- data/schemas/              # JSON Schema
-|-- docs/                      # 产品规划与架构文件
+|-- docs/                      # 產品規劃與架構文件
 |-- .github/workflows/         # GitHub Pages 部署
  `-- README.md
 ```

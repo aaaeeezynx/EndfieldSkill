@@ -238,6 +238,8 @@ const dataLabel = computed(() => {
 @media (max-width: 760px) {
   .site-header {
     position: relative;
+    /* Avoid creating a containing block for the fixed mobile navigation. */
+    backdrop-filter: none;
   }
 
   .header-inner {
