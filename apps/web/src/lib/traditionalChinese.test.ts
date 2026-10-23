@@ -10,6 +10,11 @@ describe('traditional Chinese display conversion', () => {
     expect(toTraditional('終末地 // 戰術編排台')).toBe('終末地 // 戰術編排台')
   })
 
+  it('uses Taiwan wording for runtime, fields, data, and game tables', () => {
+    expect(toTraditional('运行时不调用 AI')).toBe('執行期不呼叫 AI')
+    expect(toTraditional('未知字段与游戏表数据')).toBe('未知欄位與遊戲資料表資料')
+  })
+
   it('preserves null and converts list values', () => {
     expect(toTraditional(null)).toBeNull()
     expect(toTraditionalList(['连携技', '终结技'])).toEqual(['連攜技', '終結技'])

@@ -10,6 +10,11 @@ const displayOverrides: ReadonlyArray<readonly [string, string]> = [
   ['編排臺', '編排台'],
   ['終末地 // 戰術編排臺', '終末地 // 戰術編排台'],
   ['終末地戰術編排臺', '終末地戰術編排台'],
+  ['運行時不調用', '執行期不呼叫'],
+  ['字段', '欄位'],
+  ['數據', '資料'],
+  ['遊戲表', '遊戲資料表'],
+  ['調用', '呼叫'],
 ]
 
 // Return type is deliberately `string | null` (never `undefined`) so call sites
