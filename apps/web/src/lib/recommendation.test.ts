@@ -477,8 +477,8 @@ describe('three-slot equipment gates', () => {
 
     expect(body.available?.equipment.id).toBe('matching-dps')
     expect(body.available?.matchNotes).toEqual([
-      '定位匹配 · dps',
-      '元素匹配 · cold',
+      '定位匹配 · 輸出',
+      '元素匹配 · 寒冷',
     ])
     expect(body.available?.matchNotes.some((note) => note === '定位匹配')).toBe(false)
   })

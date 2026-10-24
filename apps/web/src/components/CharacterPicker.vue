@@ -2,6 +2,13 @@
 import { computed, ref, reactive } from 'vue'
 import type { CharacterFact } from '@/types/domain'
 import { getCharacterPortrait } from '@/data/portraitLoader'
+import {
+  displayElement,
+  displayProfession,
+  displayRoleOrTag,
+  displaySkillType,
+  missingSkillTypeLabels,
+} from '@/lib/displayLabels'
 
 const props = defineProps<{
   characters: CharacterFact[]
@@ -46,6 +53,11 @@ const filteredCharacters = computed(() => {
       character.element,
       ...character.roles,
       ...character.tags,
+      // Include display-mapped values so Traditional Chinese searches hit raw tokens.
+      displayProfession(character.profession),
+      displayElement(character.element),
+      ...character.roles.map((role) => displayRoleOrTag(role)),
+      ...character.tags.map((tag) => displayRoleOrTag(tag)),
     ]
       .filter(Boolean)
       .join(' ')
@@ -87,6 +99,10 @@ const displayName = (character: CharacterFact): string => {
   if (character.id === 'chr_0003_endminf') return '管理員（B 形態）'
   return character.name
 }
+
+// Localized missing-skill chip text, derived purely from skills[].type.
+const missingSkillLabels = (character: CharacterFact): string[] =>
+  missingSkillTypeLabels(character.skills).map((label) => `缺 ${label}`)
 </script>
 
 <template>
@@ -115,7 +131,7 @@ const displayName = (character: CharacterFact): string => {
         <span>元素</span>
         <select v-model="elementFilter">
           <option value="">全部</option>
-          <option v-for="element in elements" :key="element" :value="element">{{ element }}</option>
+          <option v-for="element in elements" :key="element" :value="element">{{ displayElement(element) }}</option>
         </select>
       </label>
       <label class="compact-select">
@@ -123,7 +139,7 @@ const displayName = (character: CharacterFact): string => {
         <select v-model="roleFilter">
           <option value="">全部</option>
           <option v-for="profession in professions" :key="profession" :value="profession">
-            {{ profession }}
+            {{ displayProfession(profession) }}
           </option>
         </select>
       </label>
@@ -161,13 +177,17 @@ const displayName = (character: CharacterFact): string => {
         </span>
 
         <span class="character-meta">
-          <span>{{ character.profession || '職業未標註' }}</span>
-          <span>{{ character.element || '元素未標註' }}</span>
+          <span>{{ displayProfession(character.profession) || '職業未標註' }}</span>
+          <span>{{ displayElement(character.element) || '元素未標註' }}</span>
           <span v-if="character.rarity">{{ character.rarity }}★</span>
         </span>
 
         <span v-if="character.roles && character.roles.length > 0" class="role-row">
-          <span v-for="role in character.roles.slice(0, 3)" :key="role">{{ role }}</span>
+          <span v-for="role in character.roles.slice(0, 3)" :key="role">{{ displayRoleOrTag(role) }}</span>
+        </span>
+
+        <span v-if="missingSkillLabels(character).length" class="missing-skill-row">
+          <span v-for="label in missingSkillLabels(character)" :key="label" class="missing-chip">{{ label }}</span>
         </span>
 
         <span class="select-indicator" aria-hidden="true">
@@ -472,6 +492,24 @@ const displayName = (character: CharacterFact): string => {
   grid-column: 1 / -1;
   color: var(--color-accent-orange);
   font-size: 0.58rem;
+}
+
+.missing-skill-row {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+}
+
+.missing-chip {
+  border: 1px solid var(--color-accent-orange);
+  background: #fff3e6;
+  padding: 0.08rem 0.3rem;
+  color: #b3500a;
+  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
+  font-size: 0.54rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .select-indicator {

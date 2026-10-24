@@ -2,6 +2,7 @@
 import { computed, reactive } from 'vue'
 import { usePlannerStore } from '@/stores/planner'
 import { getCharacterPortrait } from '@/data/portraitLoader'
+import { displayElement, displayProfession } from '@/lib/displayLabels'
 
 const planner = usePlannerStore()
 
@@ -85,7 +86,7 @@ const submit = async (): Promise<void> => {
           </span>
           <span class="slot-copy">
             <strong>{{ displayName(character.id, character.name) }}</strong>
-            <small>{{ character.profession || '職業未標註' }} · {{ character.element || '元素未標註' }}</small>
+            <small>{{ displayProfession(character.profession) || '職業未標註' }} · {{ displayElement(character.element) || '元素未標註' }}</small>
           </span>
           <button
             type="button"

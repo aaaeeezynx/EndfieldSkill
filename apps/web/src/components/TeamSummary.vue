@@ -2,6 +2,12 @@
 import { computed, reactive } from 'vue'
 import type { CharacterFact, RecommendationReport } from '@/types/domain'
 import { getCharacterPortrait } from '@/data/portraitLoader'
+import {
+  displayElement,
+  displayProfession,
+  displayRoleOrTag,
+  missingSkillTypeLabels,
+} from '@/lib/displayLabels'
 
 const props = defineProps<{
   report: RecommendationReport
@@ -59,6 +65,10 @@ const handleImageError = (characterId: string): void => {
 }
 
 const monogram = (name: string): string => name.slice(0, 1)
+
+// Localized missing-skill chip text per character.
+const missingSkillLabels = (character: CharacterFact): string[] =>
+  missingSkillTypeLabels(character.skills).map((label) => `缺 ${label}`)
 </script>
 
 <template>
@@ -96,7 +106,10 @@ const monogram = (name: string): string => name.slice(0, 1)
             </span>
             <span class="token-copy">
               <strong>{{ displayCharacterName(character.id) }}</strong>
-              <small>{{ character.profession || '職業未標註' }} · {{ character.element || '元素未標註' }}</small>
+              <small>{{ displayProfession(character.profession) || '職業未標註' }} · {{ displayElement(character.element) || '元素未標註' }}</small>
+              <span v-if="missingSkillLabels(character).length" class="token-missing">
+                <span v-for="label in missingSkillLabels(character)" :key="label" class="missing-chip">{{ label }}</span>
+              </span>
             </span>
           </article>
         </div>
@@ -104,7 +117,7 @@ const monogram = (name: string): string => name.slice(0, 1)
         <div class="tag-cloud">
           <span class="readout-label">TEAM TAGS</span>
           <div>
-            <span v-for="tag in report.teamTags" :key="tag">{{ tag }}</span>
+            <span v-for="tag in report.teamTags" :key="tag">{{ displayRoleOrTag(tag) }}</span>
             <span v-if="!report.teamTags.length">標籤資料缺失</span>
           </div>
         </div>
@@ -300,6 +313,24 @@ const monogram = (name: string): string => name.slice(0, 1)
   font-size: 0.54rem;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.token-missing {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.28rem;
+  margin-top: 0.2rem;
+}
+
+.missing-chip {
+  border: 1px solid var(--color-accent-orange);
+  background: #fff3e6;
+  padding: 0.06rem 0.28rem;
+  color: #b3500a;
+  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
+  font-size: 0.52rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
 }
 
 .tag-cloud {

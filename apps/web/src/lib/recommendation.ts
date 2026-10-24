@@ -17,6 +17,7 @@ import type {
   TeamPreset,
   UnlockState,
 } from '@/types/domain'
+import { displayElement, displayRoleOrTag } from '@/lib/displayLabels'
 
 export interface PlannerProgress {
   playerLevel: number
@@ -405,8 +406,9 @@ const toCandidate = (
   const elementMatches = matchesEquipmentElement(character, equipment)
 
   if (equipment.recommendedFor.includes(character.id)) matchNotes.push('角色專屬推薦')
-  if (roles.length) matchNotes.push(`定位匹配 · ${roles.join(' / ')}`)
-  if (elementMatches) matchNotes.push(`元素匹配 · ${character.element}`)
+  const roleNote = roles.map((role) => displayRoleOrTag(role)).join(' / ')
+  if (roles.length) matchNotes.push(`定位匹配 · ${roleNote}`)
+  if (elementMatches) matchNotes.push(`元素匹配 · ${displayElement(character.element)}`)
   if (!equipment.recommendedFor.length && !equipment.roleTags.length) {
     matchNotes.push('僅按通用屬性排序')
   }

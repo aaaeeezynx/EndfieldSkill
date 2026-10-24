@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import EquipmentArtwork from '@/components/EquipmentArtwork.vue'
 import { getCharacterPortrait } from '@/data/portraitLoader'
+import { displayElement, displayProfession } from '@/lib/displayLabels'
 import {
   buildEquipmentStatDisplays,
   type EquipmentStatDisplay,
@@ -147,9 +148,9 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
               {{ displayName(loadout.characterId, characterById.get(loadout.characterId)?.name) }}
             </h3>
             <p>
-              {{ characterById.get(loadout.characterId)?.profession || '職業未標註' }}
+              {{ displayProfession(characterById.get(loadout.characterId)?.profession) || '職業未標註' }}
               ·
-              {{ characterById.get(loadout.characterId)?.element || '元素未標註' }}
+              {{ displayElement(characterById.get(loadout.characterId)?.element) || '元素未標註' }}
             </p>
           </div>
           <span class="slot-count">03 GEAR SLOTS</span>
