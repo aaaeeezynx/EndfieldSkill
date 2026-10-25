@@ -30,13 +30,39 @@ const hasUnverifiedProgressData = computed(
 
     <template v-else>
       <section class="hero reveal">
-        <!-- Original geometric artwork; no official character key visual is loaded. -->
+        <!-- Original schematic; no official character key visual is loaded. -->
         <div class="hero-visual" aria-hidden="true">
           <span class="hero-grid"></span>
-          <span class="hero-block hero-block--yellow"></span>
-          <span class="hero-block hero-block--blue"></span>
-          <span class="hero-block hero-block--orange"></span>
-          <span class="hero-ring"></span>
+          <span class="schematic-header">
+            <b>ROSTER TERMINAL</b>
+            <i>ROSTER / 04</i>
+          </span>
+          <span class="schematic-column schematic-column--a">
+            <b>UNIT-A</b>
+            <small>BATTLE</small>
+          </span>
+          <span class="schematic-column schematic-column--b">
+            <b>UNIT-B</b>
+            <small>COMBO</small>
+          </span>
+          <span class="schematic-column schematic-column--c">
+            <b>UNIT-C</b>
+            <small>SUPPORT</small>
+          </span>
+          <span class="schematic-column schematic-column--d">
+            <b>UNIT-D</b>
+            <small>ULT</small>
+          </span>
+          <span class="schematic-link schematic-link--battle"></span>
+          <span class="schematic-link schematic-link--combo"></span>
+          <span class="schematic-link schematic-link--support"></span>
+          <span class="schematic-link schematic-link--ultimate"></span>
+          <span class="schematic-console">
+            <span>BATTLE SKILL / SHARED SP</span>
+            <span>COMBO / CONDITION</span>
+            <span>ULTIMATE / ENERGY</span>
+            <span>EQUIPMENT / GATE</span>
+          </span>
         </div>
 
         <div class="hero-copy">
@@ -176,46 +202,154 @@ const hasUnverifiedProgressData = computed(
   pointer-events: none;
 }
 
-.hero-block {
+.schematic-header {
   position: absolute;
+  top: 1.15rem;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  width: min(560px, 68%);
+  border-top: 2px solid var(--color-text-primary);
+  transform: translateX(-50%);
+  padding-top: 0.35rem;
+}
+
+.schematic-header b,
+.schematic-column b {
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.schematic-header i {
+  color: var(--planner-body-muted);
+  font-style: normal;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.schematic-column {
+  position: absolute;
+  top: 27%;
+  width: clamp(52px, 5vw, 78px);
   border: 1px solid var(--color-text-primary);
+  background: #fff;
 }
 
-.hero-block--yellow {
-  top: 14%;
-  right: 9%;
-  width: 30%;
-  height: 26%;
+.schematic-column::before {
+  display: block;
+  height: 8px;
   background: var(--color-accent-primary);
-  transform: skewX(-8deg);
+  content: "";
 }
 
-.hero-block--blue {
-  bottom: 16%;
-  right: 22%;
-  width: 20%;
-  height: 30%;
-  background: var(--color-accent-blue);
+.schematic-column::after {
+  display: block;
+  height: 54px;
+  background:
+    linear-gradient(90deg, transparent 24%, rgba(25, 25, 25, 0.1) 25% 75%, transparent 76%),
+    linear-gradient(0deg, rgba(25, 25, 25, 0.06) 1px, transparent 1px);
+  background-size: 10px 10px, 10px 10px;
+  content: "";
 }
 
-.hero-block--orange {
-  bottom: 22%;
-  right: 7%;
-  width: 12%;
-  height: 12%;
-  background: var(--color-accent-orange);
+.schematic-column small {
+  display: block;
+  border-top: 1px solid var(--planner-ui-line);
+  background: var(--color-bg-secondary);
+  color: var(--planner-body-muted);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.7;
+  text-align: center;
+}
+
+.schematic-column--a { left: 14%; transform: translateY(0); }
+.schematic-column--b { left: 36%; top: 38%; }
+.schematic-column--c { left: 56%; top: 22%; }
+.schematic-column--d { left: 77%; top: 35%; }
+
+.schematic-link {
+  position: absolute;
+  height: 2px;
+  background: linear-gradient(90deg, var(--color-accent-blue), rgba(23, 68, 173, 0.18));
+}
+
+.schematic-link::before,
+.schematic-link::after {
+  position: absolute;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--color-text-primary);
+  background: #fff;
+  content: "";
   transform: rotate(45deg);
 }
 
-.hero-ring {
+.schematic-link::before { left: -4px; }
+.schematic-link::after { right: -4px; }
+
+.schematic-link--battle {
+  top: 34%;
+  left: 17%;
+  width: 19%;
+  transform: rotate(16deg);
+}
+
+.schematic-link--combo {
+  top: 44%;
+  left: 37%;
+  width: 19%;
+  transform: rotate(-18deg);
+}
+
+.schematic-link--support {
+  top: 34%;
+  left: 57%;
+  width: 20%;
+  transform: rotate(12deg);
+}
+
+.schematic-link--ultimate {
+  top: 46%;
+  left: 41%;
+  width: 19%;
+  height: 8px;
+  border: 1px solid var(--planner-warning-line);
+  background: transparent;
+  transform: rotate(-8deg);
+}
+
+.schematic-link--ultimate::before,
+.schematic-link--ultimate::after {
+  border-color: var(--planner-warning-line);
+}
+
+.schematic-console {
   position: absolute;
-  top: 12%;
-  right: 40%;
-  width: 64px;
-  height: 64px;
-  border: 2px solid var(--color-text-primary);
-  border-radius: 50%;
-  background: radial-gradient(circle, transparent 56%, rgba(25, 25, 25, 0.12) 58%);
+  right: clamp(1.2rem, 4vw, 3.2rem);
+  bottom: 1.25rem;
+  display: grid;
+  gap: 0.3rem;
+  min-width: 225px;
+}
+
+.schematic-console span {
+  border-left: 4px solid var(--color-accent-blue);
+  background: rgba(255, 255, 255, 0.92);
+  padding: 0.3rem 0.5rem;
+  color: var(--planner-body-muted);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
 .hero-copy {
@@ -535,6 +669,73 @@ const hasUnverifiedProgressData = computed(
   .hero {
     grid-template-rows: 245px auto auto;
     border-top-width: 4px;
+  }
+
+  .hero-visual {
+    background-size: 24px 24px;
+  }
+
+  .schematic-header {
+    width: calc(100% - 2rem);
+  }
+
+  .schematic-column {
+    top: 27%;
+    width: 48px;
+  }
+
+  .schematic-column::after {
+    height: 34px;
+  }
+
+  .schematic-column small {
+    font-size: 0.7rem;
+  }
+
+  .schematic-column--a { left: 9%; }
+  .schematic-column--b { left: 30%; top: 38%; }
+  .schematic-column--c { left: 51%; top: 24%; }
+  .schematic-column--d { left: 71%; top: 36%; }
+
+  .schematic-link--battle {
+    top: 33%;
+    left: 12%;
+    width: 18%;
+    transform: rotate(20deg);
+  }
+
+  .schematic-link--combo {
+    top: 43%;
+    left: 31%;
+    width: 20%;
+    transform: rotate(-20deg);
+  }
+
+  .schematic-link--support {
+    top: 33%;
+    left: 53%;
+    width: 18%;
+    transform: rotate(14deg);
+  }
+
+  .schematic-link--ultimate {
+    top: 45%;
+    left: 34%;
+    width: 32%;
+    transform: rotate(-7deg);
+  }
+
+  .schematic-console {
+    right: 0.65rem;
+    bottom: 0.55rem;
+    min-width: 160px;
+    gap: 0.18rem;
+  }
+
+  .schematic-console span {
+    padding: 0.18rem 0.35rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.03em;
   }
 
   .hero-copy {
