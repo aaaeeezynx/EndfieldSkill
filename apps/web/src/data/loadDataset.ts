@@ -14,6 +14,7 @@ import type {
   StoryChapter,
   TeamPreset,
 } from '@/types/domain'
+import { MAX_TEAM_SIZE, MIN_TEAM_SIZE } from '@/lib/validation'
 
 type UnknownRecord = Record<string, unknown>
 
@@ -605,8 +606,8 @@ export const isExcludedCharacter = (id: string): boolean =>
 
 // Returns a new Dataset with B-form admin removed from characters, and any
 // reference to excluded ids stripped from team/rotation presets and equipment
-// recommendations. Team presets must remain exactly four unique characters
-// after filtering; rotations keep their valid steps with contiguous ordering.
+// recommendations. Team presets must retain 1–4 unique characters after
+// filtering; rotations keep their valid steps with contiguous ordering.
 // Coverage is recomputed so statistics stay consistent.
 export const sanitizeDataset = (dataset: Dataset): Dataset => {
   const visibleCharacters = dataset.characters.filter(
@@ -633,7 +634,11 @@ export const sanitizeDataset = (dataset: Dataset): Dataset => {
 
   const teamPresets = dataset.teamPresets.flatMap((team) => {
     const characterIds = stripIds(team.characterIds)
-    if (characterIds.length !== 4 || new Set(characterIds).size !== 4) {
+    if (
+      characterIds.length < MIN_TEAM_SIZE ||
+      characterIds.length > MAX_TEAM_SIZE ||
+      new Set(characterIds).size !== characterIds.length
+    ) {
       return []
     }
     return [

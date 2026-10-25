@@ -3,14 +3,22 @@ import { computed, reactive } from 'vue'
 import { usePlannerStore } from '@/stores/planner'
 import { getCharacterPortrait } from '@/data/portraitLoader'
 import { displayElement, displayProfession } from '@/lib/displayLabels'
+import { MAX_TEAM_SIZE } from '@/lib/validation'
 
 const planner = usePlannerStore()
+const operatorFrameUrl = `url("${import.meta.env.BASE_URL}assets/official/operator-frame.svg")`
 
 const imageErrors = reactive<Set<string>>(new Set())
 
 const selectedSlots = computed(() =>
-  Array.from({ length: 4 }, (_, index) => planner.selectedCharacters[index] ?? null),
+  Array.from(
+    { length: MAX_TEAM_SIZE },
+    (_, index) => planner.selectedCharacters[index] ?? null,
+  ),
 )
+
+const teamCount = computed(() => planner.selectedCharacters.length)
+const isAtCapacity = computed(() => teamCount.value >= MAX_TEAM_SIZE)
 
 const selectedChapter = computed(() =>
   planner.chapters.find((chapter) => chapter.id === planner.chapterId),
@@ -52,19 +60,24 @@ const submit = async (): Promise<void> => {
     <div class="dock-head">
       <div>
         <p class="eyebrow">02 / SQUAD LOCK</p>
-        <h2>四人編成</h2>
+        <h2>1～4 人編成</h2>
       </div>
-      <button
-        v-if="planner.selectedCharacters.length"
-        type="button"
-        class="clear-button"
-        @click="planner.clearTeam()"
-      >
-        清空
-      </button>
+      <div class="dock-head-actions">
+        <span class="capacity-badge" :class="{ full: isAtCapacity }">
+          {{ teamCount }} / {{ MAX_TEAM_SIZE }}
+        </span>
+        <button
+          v-if="teamCount"
+          type="button"
+          class="clear-button"
+          @click="planner.clearTeam()"
+        >
+          清空
+        </button>
+      </div>
     </div>
 
-    <div class="slot-stack">
+    <TransitionGroup name="squad-slot" tag="div" class="slot-stack">
       <div
         v-for="(character, index) in selectedSlots"
         :key="character?.id ?? `empty-${index}`"
@@ -104,7 +117,7 @@ const submit = async (): Promise<void> => {
           </span>
         </template>
       </div>
-    </div>
+    </TransitionGroup>
 
     <p v-if="planner.notice" class="dock-notice" role="status">
       <span>!</span>{{ planner.notice }}
@@ -179,9 +192,10 @@ const submit = async (): Promise<void> => {
     </button>
 
     <div class="dock-footnote">
-      <span class="pulse-dot"></span>
-      <p v-if="planner.selectedCharacters.length === 4">隊伍席位已鎖定，可以生成。</p>
-      <p v-else>還需 {{ 4 - planner.selectedCharacters.length }} 名角色。</p>
+      <span class="pulse-dot" :class="{ full: isAtCapacity }"></span>
+      <p v-if="teamCount === 0">尚未編成，至少選擇 1 名角色。</p>
+      <p v-else-if="isAtCapacity">已達 {{ MAX_TEAM_SIZE }}/{{ MAX_TEAM_SIZE }} 上限；可移除角色後替換。</p>
+      <p v-else>已選 {{ teamCount }}/{{ MAX_TEAM_SIZE }} 人，符合 1～4 人編成。</p>
     </div>
   </aside>
 </template>
@@ -206,6 +220,12 @@ const submit = async (): Promise<void> => {
   border-bottom: 1px solid var(--color-border-primary);
 }
 
+.dock-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
 .dock-head h2 {
   margin-top: 0.2rem;
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
@@ -214,12 +234,30 @@ const submit = async (): Promise<void> => {
   color: var(--color-text-primary);
 }
 
+.capacity-badge {
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-bg-secondary);
+  padding: 0.26rem 0.45rem;
+  color: var(--color-text-secondary);
+  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.capacity-badge.full {
+  border-color: var(--color-text-primary);
+  background: var(--color-accent-primary);
+  color: var(--color-text-primary);
+}
+
 .clear-button {
   border: 0;
   background: transparent;
   padding: 0.25rem 0;
   color: var(--color-text-secondary);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
@@ -235,11 +273,12 @@ const submit = async (): Promise<void> => {
 }
 
 .squad-slot {
+  position: relative;
   display: grid;
   grid-template-columns: 1.8rem 44px minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.55rem;
-  min-height: 60px;
+  min-height: 66px;
   border: 1px dashed var(--color-border-primary);
   background: #fafafa;
   padding: 0.4rem 0.45rem;
@@ -251,10 +290,40 @@ const submit = async (): Promise<void> => {
   background: #fffde7;
 }
 
+.squad-slot.filled::after {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: var(--color-text-primary);
+  content: "";
+  opacity: 0.1;
+  pointer-events: none;
+  -webkit-mask: v-bind(operatorFrameUrl) center / 100% 100% no-repeat;
+  mask: v-bind(operatorFrameUrl) center / 100% 100% no-repeat;
+}
+
+.squad-slot > * {
+  position: relative;
+  z-index: 1;
+}
+
+.squad-slot-enter-active {
+  animation: squad-slot-enter 160ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.squad-slot-leave-active {
+  animation: squad-slot-leave 140ms ease-in both;
+  pointer-events: none;
+}
+
+.squad-slot-move {
+  transition: transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
 .slot-number {
   color: var(--color-text-tertiary);
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
@@ -309,7 +378,7 @@ const submit = async (): Promise<void> => {
   overflow: hidden;
   margin-top: 0.12rem;
   color: var(--color-text-secondary);
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -355,7 +424,7 @@ const submit = async (): Promise<void> => {
   background: #fff8ec;
   padding: 0.48rem 0.6rem;
   color: #5c3a00;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
 }
 
 .dock-notice span {
@@ -375,7 +444,7 @@ const submit = async (): Promise<void> => {
   margin-bottom: 0.9rem;
   color: var(--color-text-secondary);
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.12em;
 }
@@ -390,7 +459,7 @@ const submit = async (): Promise<void> => {
   display: block;
   margin: 0.7rem 0 0.35rem;
   color: var(--color-text-secondary);
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   font-weight: 500;
 }
 
@@ -411,7 +480,7 @@ const submit = async (): Promise<void> => {
   padding-left: 0.75rem;
   color: var(--color-text-primary);
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
@@ -456,7 +525,7 @@ const submit = async (): Promise<void> => {
   margin-top: 0.42rem;
   color: var(--color-text-tertiary);
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
 }
 
@@ -480,7 +549,7 @@ const submit = async (): Promise<void> => {
   border-left: 2px solid var(--color-danger);
   padding: 0.35rem 0 0.35rem 0.6rem;
   color: #9e332a;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   line-height: 1.45;
   list-style: none;
 }
@@ -560,7 +629,7 @@ const submit = async (): Promise<void> => {
 .generate-button small {
   margin-top: 0.1rem;
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.13em;
 }
@@ -575,7 +644,7 @@ const submit = async (): Promise<void> => {
   gap: 0.45rem;
   margin-top: 0.7rem;
   color: var(--color-text-secondary);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
 }
 
 .pulse-dot {
@@ -584,6 +653,33 @@ const submit = async (): Promise<void> => {
   border-radius: 50%;
   background: var(--color-accent-blue);
   box-shadow: 0 0 9px var(--color-accent-blue);
+}
+
+.pulse-dot.full {
+  background: var(--color-text-primary);
+  box-shadow: none;
+}
+
+@keyframes squad-slot-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes squad-slot-leave {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(10px);
+  }
 }
 
 @media (max-width: 960px) {
@@ -619,7 +715,7 @@ const submit = async (): Promise<void> => {
   }
 
   .slot-copy small {
-    font-size: 0.6rem;
+    font-size: 0.75rem;
   }
 
   .progress-section {
@@ -637,15 +733,27 @@ const submit = async (): Promise<void> => {
 
 @media (max-width: 390px) {
   .team-dock { padding: 0.75rem; }
+  .dock-head-actions { gap: 0.4rem; }
   .squad-slot {
     grid-template-columns: 1.1rem 32px minmax(0, 1fr) auto;
     gap: 0.3rem;
-    min-height: 52px;
+    min-height: 60px;
     padding: 0.35rem 0.4rem;
   }
   .slot-avatar, .empty-cross { width: 30px; height: 34px; }
-  .slot-copy strong { font-size: 0.72rem; }
-  .slot-copy small { font-size: 0.6rem; }
+  .slot-copy strong { font-size: 0.75rem; }
+  .slot-copy small { font-size: 0.75rem; }
   .generate-button { min-height: 58px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .squad-slot-enter-active,
+  .squad-slot-leave-active {
+    animation: none;
+  }
+
+  .squad-slot-move {
+    transition: none;
+  }
 }
 </style>

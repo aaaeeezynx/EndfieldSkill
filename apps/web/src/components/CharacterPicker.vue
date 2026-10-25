@@ -6,9 +6,9 @@ import {
   displayElement,
   displayProfession,
   displayRoleOrTag,
-  displaySkillType,
   missingSkillTypeLabels,
 } from '@/lib/displayLabels'
+import { MAX_TEAM_SIZE } from '@/lib/validation'
 
 const props = defineProps<{
   characters: CharacterFact[]
@@ -73,6 +73,14 @@ const filteredCharacters = computed(() => {
 const selectedIndex = (characterId: string): number =>
   props.selectedIds.indexOf(characterId)
 
+const isSelected = (characterId: string): boolean =>
+  selectedIndex(characterId) >= 0
+
+const isAtCapacity = computed(() => props.selectedIds.length >= MAX_TEAM_SIZE)
+
+const isCapacityBlocked = (character: CharacterFact): boolean =>
+  isAtCapacity.value && !isSelected(character.id)
+
 const clearFilters = (): void => {
   search.value = ''
   elementFilter.value = ''
@@ -111,11 +119,20 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
         <p class="eyebrow">01 / PERSONNEL MATRIX</p>
         <h2 class="picker-title">選擇已擁有角色</h2>
       </div>
-      <div class="picker-counter">
+      <div class="picker-counter" :class="{ 'is-full': isAtCapacity }">
         <strong>{{ selectedIds.length }}</strong>
-        <span>/ 04</span>
+        <span>/ {{ MAX_TEAM_SIZE }}</span>
       </div>
     </div>
+
+    <p
+      v-if="isAtCapacity"
+      id="team-capacity-note"
+      class="capacity-banner"
+      role="status"
+    >
+      隊伍已滿 {{ MAX_TEAM_SIZE }}/{{ MAX_TEAM_SIZE }}；請先移除已選角色，才能加入其他角色。
+    </p>
 
     <div class="filter-bar">
       <label class="search-field">
@@ -150,12 +167,17 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
         :key="character.id"
         type="button"
         class="character-card cut-corners"
-        :class="{ selected: selectedIndex(character.id) >= 0 }"
-        :aria-pressed="selectedIndex(character.id) >= 0"
+        :class="{
+          selected: isSelected(character.id),
+          'capacity-blocked': isCapacityBlocked(character),
+        }"
+        :disabled="isCapacityBlocked(character)"
+        :aria-pressed="isSelected(character.id)"
+        :aria-describedby="isCapacityBlocked(character) ? 'team-capacity-note' : undefined"
         @click="emit('toggle', character.id)"
       >
         <span class="card-sequence">
-          {{ selectedIndex(character.id) >= 0 ? `0${selectedIndex(character.id) + 1}` : character.id.slice(-3) }}
+          {{ isSelected(character.id) ? `0${selectedIndex(character.id) + 1}` : character.id.slice(-3) }}
         </span>
         <span class="element-mark" aria-hidden="true"></span>
 
@@ -190,7 +212,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
         </span>
 
         <span class="select-indicator" aria-hidden="true">
-          {{ selectedIndex(character.id) >= 0 ? '−' : '+' }}
+          {{ isSelected(character.id) ? '−' : isAtCapacity ? '滿' : '+' }}
         </span>
       </button>
     </div>
@@ -243,6 +265,22 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
 
 .picker-counter span {
   font-size: 0.85rem;
+}
+
+.picker-counter.is-full,
+.picker-counter.is-full strong {
+  color: var(--color-danger);
+}
+
+.capacity-banner {
+  margin: 0.8rem 0 0;
+  border-left: 3px solid var(--color-text-primary);
+  background: var(--color-accent-primary);
+  padding: 0.55rem 0.7rem;
+  color: var(--color-text-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.45;
 }
 
 .filter-bar {
@@ -307,7 +345,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
 .compact-select span {
   color: var(--color-text-secondary);
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.08em;
 }
@@ -347,12 +385,13 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   text-align: left;
   cursor: pointer;
   transition:
-    border-color 180ms ease,
-    background-color 180ms ease,
-    transform 180ms ease;
+    border-color 160ms ease,
+    background-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
 }
 
-.character-card:hover {
+.character-card:hover:not(:disabled) {
   z-index: 1;
   border-color: var(--color-accent-blue);
   transform: translateY(-2px);
@@ -370,13 +409,37 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   background: #fffef0;
 }
 
+.character-card::after {
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--color-accent-blue);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+}
+
+.character-card.selected::after {
+  animation: card-select-feedback 160ms ease-out both;
+}
+
+.character-card:disabled {
+  border-color: var(--color-border-primary);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+.character-card.capacity-blocked .portrait {
+  filter: grayscale(1);
+}
+
 .card-sequence {
   position: absolute;
   top: 0.55rem;
   right: 0.65rem;
   color: var(--color-text-tertiary);
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.08em;
 }
@@ -452,7 +515,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   margin-top: 0.15rem;
   color: var(--color-text-tertiary);
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   letter-spacing: 0.06em;
   text-overflow: ellipsis;
   text-transform: uppercase;
@@ -472,7 +535,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   border: 1px solid var(--color-border-primary);
   padding: 0.1rem 0.28rem;
   color: var(--color-text-secondary);
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   line-height: 1.2;
 }
 
@@ -492,7 +555,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
 .missing-line {
   grid-column: 1 / -1;
   color: var(--color-accent-orange);
-  font-size: 0.6rem;
+  font-size: 0.75rem;
 }
 
 .missing-skill-row {
@@ -508,7 +571,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   padding: 0.08rem 0.3rem;
   color: #8f3f00;
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -526,6 +589,12 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   color: var(--color-text-primary);
 }
 
+.capacity-blocked .select-indicator {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 .filter-empty {
   padding: 4rem 1rem;
   border-top: 1px solid var(--color-border-primary);
@@ -535,7 +604,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
 .filter-empty span {
   color: var(--color-accent-orange);
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
 }
 
@@ -550,7 +619,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   background: transparent;
   padding: 0.45rem 0.8rem;
   color: var(--color-text-primary);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   cursor: pointer;
 }
 
@@ -558,6 +627,17 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   border-color: var(--color-text-primary);
   color: var(--color-text-primary);
   background: var(--color-accent-primary);
+}
+
+@keyframes card-select-feedback {
+  0% {
+    opacity: 0.8;
+    transform: translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(6px);
+  }
 }
 
 @media (max-width: 1180px) {
@@ -606,6 +686,10 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   .character-meta span:nth-child(2) {
     display: none;
   }
+
+  .capacity-banner {
+    font-size: 0.75rem;
+  }
 }
 
 @media (max-width: 390px) {
@@ -618,6 +702,18 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
     padding: 0.8rem 0.5rem 0.58rem;
   }
   .portrait { width: 44px; height: 54px; }
-  .character-meta span { font-size: 0.6rem; }
+  .character-meta span { font-size: 0.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .character-card,
+  .character-card::after {
+    animation: none;
+    transition: none;
+  }
+
+  .character-card:hover:not(:disabled) {
+    transform: none;
+  }
 }
 </style>

@@ -1,3 +1,20 @@
+<script lang="ts">
+export const clampStepIndex = (index: number, total: number): number => {
+  if (total <= 0) return -1
+  return Math.min(Math.max(index, 0), total - 1)
+}
+
+export const moveStepIndex = (
+  current: number,
+  total: number,
+  direction: -1 | 1,
+): number => {
+  if (total <= 0) return -1
+  const safeCurrent = clampStepIndex(current, total)
+  return clampStepIndex(safeCurrent + direction, total)
+}
+</script>
+
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import type { CharacterFact, RotationChoice, RotationStep } from '@/types/domain'
@@ -32,6 +49,75 @@ const characterById = computed(
 const orderedSteps = computed(() =>
   [...(activeChoice.value?.steps ?? [])].sort((a, b) => a.order - b.order),
 )
+
+const currentStepIndex = ref(-1)
+
+watch(
+  () => activeChoice.value?.id ?? '',
+  () => {
+    currentStepIndex.value = orderedSteps.value.length ? 0 : -1
+  },
+  { immediate: true },
+)
+
+watch(
+  () => orderedSteps.value.length,
+  (total) => {
+    currentStepIndex.value = total ? clampStepIndex(currentStepIndex.value, total) : -1
+  },
+)
+
+const currentStep = computed(
+  () =>
+    currentStepIndex.value >= 0
+      ? orderedSteps.value[currentStepIndex.value] ?? null
+      : null,
+)
+
+const hasPreviousStep = computed(
+  () => currentStepIndex.value > 0 && orderedSteps.value.length > 0,
+)
+
+const hasNextStep = computed(
+  () =>
+    currentStepIndex.value >= 0 &&
+    currentStepIndex.value < orderedSteps.value.length - 1,
+)
+
+const stepPositionLabel = computed(() => {
+  if (!orderedSteps.value.length) return '0 / 0'
+  return `${currentStepIndex.value + 1} / ${orderedSteps.value.length}`
+})
+
+const skillFrequencyAsset = `${import.meta.env.BASE_URL}assets/official/skill-frequency.png`
+
+const selectStep = (index: number): void => {
+  currentStepIndex.value = clampStepIndex(index, orderedSteps.value.length)
+}
+
+const previousStep = (): void => {
+  currentStepIndex.value = moveStepIndex(
+    currentStepIndex.value,
+    orderedSteps.value.length,
+    -1,
+  )
+}
+
+const nextStep = (): void => {
+  currentStepIndex.value = moveStepIndex(
+    currentStepIndex.value,
+    orderedSteps.value.length,
+    1,
+  )
+}
+
+const firstStep = (): void => {
+  selectStep(0)
+}
+
+const lastStep = (): void => {
+  selectStep(orderedSteps.value.length - 1)
+}
 
 const typeLabel = (step: RotationStep): string => {
   if (step.skillType === 'battle') return '戰技'
@@ -137,7 +223,7 @@ const characterName = (characterId: string): string => {
     <div v-if="activeChoice.kind === 'rule-generated'" class="fallback-banner">
       <span>RULE GENERATED / 待核對</span>
       <p>
-        目前四人沒有完整攻略循環。以下依職業、技能類型、效果標籤與技能順序產生確定性回退方案，
+        目前隊伍沒有完整攻略循環。以下依職業、技能類型、效果標籤與技能順序產生確定性回退方案，
         不是攻略原文，也不代表逐幀最佳。
       </p>
     </div>
@@ -151,10 +237,117 @@ const characterName = (characterId: string): string => {
       </div>
     </div>
 
-    <ol v-if="orderedSteps.length" class="step-list">
-      <li v-for="step in orderedSteps" :key="step.id" class="step-card">
+    <section
+      v-if="orderedSteps.length"
+      class="step-controller"
+      tabindex="0"
+      aria-label="技能循環手動步進控制器"
+      @keydown.left.prevent="previousStep"
+      @keydown.up.prevent="previousStep"
+      @keydown.right.prevent="nextStep"
+      @keydown.down.prevent="nextStep"
+      @keydown.home.prevent="firstStep"
+      @keydown.end.prevent="lastStep"
+    >
+      <img
+        class="frequency-decoration"
+        :src="skillFrequencyAsset"
+        alt=""
+        aria-hidden="true"
+      />
+
+      <div class="controller-head">
+        <div>
+          <span class="controller-kicker">MANUAL STEP / 手動逐步</span>
+          <strong>目前第 {{ stepPositionLabel }} 步</strong>
+          <p>使用上一步／下一步或方向鍵逐步查看，不自動播放。</p>
+        </div>
+        <div class="step-controls" role="group" aria-label="目前技能步驟控制">
+          <button
+            type="button"
+            :disabled="!hasPreviousStep"
+            aria-controls="rotation-step-list"
+            @click="previousStep"
+          >
+            ← 上一步
+          </button>
+          <button
+            type="button"
+            :disabled="!hasNextStep"
+            aria-controls="rotation-step-list"
+            @click="nextStep"
+          >
+            下一步 →
+          </button>
+        </div>
+      </div>
+
+      <div
+        v-if="currentStep"
+        :key="currentStep.id"
+        class="current-step-panel"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <div class="current-step-marker">
+          <span>NOW</span>
+          <strong>{{ stepPositionLabel }}</strong>
+        </div>
+        <div class="current-step-body">
+          <div class="current-step-title">
+            <div>
+              <span>目前步驟</span>
+              <h3>
+                {{ characterName(currentStep.characterId) }}
+                <i aria-hidden="true">/</i>
+                {{ currentStep.skillName }}
+              </h3>
+            </div>
+            <span class="skill-type" :class="currentStep.skillType">
+              {{ typeLabel(currentStep) }}
+            </span>
+          </div>
+          <dl class="current-step-facts">
+            <div>
+              <dt>角色</dt>
+              <dd>{{ characterName(currentStep.characterId) }}</dd>
+            </div>
+            <div>
+              <dt>技能</dt>
+              <dd>{{ currentStep.skillName }}</dd>
+            </div>
+            <div>
+              <dt>觸發條件</dt>
+              <dd>{{ currentStep.triggerCondition || '來源未標註觸發條件' }}</dd>
+            </div>
+            <div>
+              <dt>等待／承接時機</dt>
+              <dd>{{ currentStep.waitFor || '來源未標註等待／承接時機' }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <ol v-if="orderedSteps.length" id="rotation-step-list" class="step-list">
+      <li
+        v-for="(step, index) in orderedSteps"
+        :key="step.id"
+        class="step-card"
+        :class="{ 'is-current': currentStepIndex === index }"
+        :aria-current="currentStepIndex === index ? 'step' : undefined"
+      >
         <div class="step-rail">
-          <span class="step-number">{{ String(step.order).padStart(2, '0') }}</span>
+          <button
+            type="button"
+            class="step-number"
+            :aria-label="`查看第 ${index + 1} 步：${characterName(step.characterId)}，${step.skillName}`"
+            :aria-current="currentStepIndex === index ? 'step' : undefined"
+            @click="selectStep(index)"
+          >
+            {{ String(step.order).padStart(2, '0') }}
+          </button>
           <i aria-hidden="true"></i>
         </div>
 
@@ -434,6 +627,211 @@ const characterName = (characterId: string): string => {
   letter-spacing: 0.08em;
 }
 
+.step-controller {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--color-border-strong);
+  background:
+    linear-gradient(var(--color-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px),
+    #f7f7f7;
+  background-size: 24px 24px;
+}
+
+.step-controller:focus-visible {
+  outline: 3px solid var(--color-accent-blue);
+  outline-offset: 3px;
+}
+
+.frequency-decoration {
+  position: absolute;
+  z-index: 0;
+  top: 0.4rem;
+  right: 0.7rem;
+  width: clamp(5.5rem, 14vw, 9rem);
+  opacity: 0.14;
+  pointer-events: none;
+  animation: frequency-enter 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.controller-head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--color-border-primary);
+  background: #ffffff;
+  padding: 1rem clamp(6.5rem, 16vw, 10.5rem) 1rem 1rem;
+}
+
+.controller-kicker {
+  display: block;
+  color: var(--color-accent-blue);
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.controller-head strong {
+  display: block;
+  margin-top: 0.18rem;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+.controller-head p {
+  margin-top: 0.2rem;
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.step-controls {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 0.45rem;
+}
+
+.step-controls button {
+  min-height: 44px;
+  border: 1px solid var(--color-border-strong);
+  background: #ffffff;
+  padding: 0.55rem 0.8rem;
+  color: var(--color-text-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.step-controls button:not(:disabled):hover {
+  background: var(--color-text-primary);
+  color: var(--color-text-inverse);
+}
+
+.step-controls button:focus-visible {
+  outline: 3px solid var(--color-accent-blue);
+  outline-offset: 2px;
+}
+
+.step-controls button:disabled {
+  border-color: var(--color-border-primary);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+}
+
+.current-step-panel {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 1px;
+  background: var(--color-border-primary);
+  animation: step-focus-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.current-step-marker {
+  display: flex;
+  min-width: 92px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  background: var(--color-accent-primary);
+  padding: 1rem 0.8rem;
+  color: var(--color-text-primary);
+}
+
+.current-step-marker span {
+  font-family: var(--font-display);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.current-step-marker strong {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.current-step-body {
+  min-width: 0;
+  background: #fffde5;
+  padding: 0.9rem 1rem;
+}
+
+.current-step-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.current-step-title > div {
+  min-width: 0;
+}
+
+.current-step-title > div > span {
+  color: var(--color-text-secondary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.current-step-title h3 {
+  margin-top: 0.16rem;
+  overflow-wrap: anywhere;
+  color: var(--color-text-primary);
+  font-family: var(--font-display);
+  font-size: 1.16rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.current-step-title h3 i {
+  margin: 0 0.25rem;
+  color: var(--color-accent-blue);
+  font-style: normal;
+}
+
+.current-step-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 0.7rem;
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-border-primary);
+}
+
+.current-step-facts div {
+  min-width: 0;
+  background: #ffffff;
+  padding: 0.55rem 0.65rem;
+}
+
+.current-step-facts dt {
+  color: var(--color-text-secondary);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.current-step-facts dd {
+  margin-top: 0.2rem;
+  overflow-wrap: anywhere;
+  color: var(--color-text-primary);
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
 .step-list {
   display: grid;
   gap: 0;
@@ -459,11 +857,30 @@ const characterName = (characterId: string): string => {
   flex: 0 0 auto;
   place-items: center;
   border: 1px solid var(--color-text-primary);
-  background: var(--color-accent-primary);
+  background: #ffffff;
+  padding: 0;
   color: var(--color-text-primary);
   font-family: var(--font-display);
   font-size: 0.82rem;
   font-weight: 700;
+  cursor: pointer;
+}
+
+.step-number:hover,
+.step-number:focus-visible {
+  background: var(--color-text-primary);
+  color: var(--color-text-inverse);
+}
+
+.step-number:focus-visible {
+  outline: 3px solid var(--color-accent-blue);
+  outline-offset: 2px;
+}
+
+.step-card.is-current .step-number {
+  border-width: 2px;
+  background: var(--color-accent-primary);
+  color: var(--color-text-primary);
 }
 
 .step-rail i {
@@ -485,6 +902,15 @@ const characterName = (characterId: string): string => {
 
 .step-card:first-child .step-content {
   border-top-color: var(--color-text-primary);
+}
+
+.step-card.is-current .step-content {
+  margin: 0.3rem 0 1rem;
+  border: 1px solid var(--color-border-strong);
+  border-left: 6px solid var(--color-accent-primary);
+  background: #fffde5;
+  padding: 0.8rem 0.85rem;
+  animation: step-focus-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .step-title-row {
@@ -670,6 +1096,30 @@ const characterName = (characterId: string): string => {
   letter-spacing: 0.08em;
 }
 
+@keyframes frequency-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem);
+  }
+
+  to {
+    opacity: 0.14;
+    transform: translateY(0);
+  }
+}
+
+@keyframes step-focus-in {
+  from {
+    opacity: 0.55;
+    transform: translateY(0.25rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (max-width: 960px) {
   .resource-doctrine {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -678,6 +1128,16 @@ const characterName = (characterId: string): string => {
   .doctrine-source {
     grid-column: 1 / -1;
     min-height: 38px;
+  }
+
+  .controller-head {
+    align-items: stretch;
+    flex-direction: column;
+    padding-right: 7.5rem;
+  }
+
+  .step-controls {
+    align-self: flex-start;
   }
 }
 
@@ -714,6 +1174,50 @@ const characterName = (characterId: string): string => {
     justify-content: flex-start;
   }
 
+  .frequency-decoration {
+    top: 0.35rem;
+    right: 0.35rem;
+    width: 5.25rem;
+  }
+
+  .controller-head {
+    gap: 0.75rem;
+    padding: 0.85rem 5.9rem 0.85rem 0.85rem;
+  }
+
+  .step-controls {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .step-controls button {
+    padding-inline: 0.45rem;
+  }
+
+  .current-step-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .current-step-marker {
+    min-width: 0;
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 0.65rem 0.85rem;
+  }
+
+  .current-step-marker strong {
+    font-size: 1.1rem;
+  }
+
+  .current-step-body {
+    padding: 0.8rem;
+  }
+
+  .current-step-facts {
+    grid-template-columns: 1fr;
+  }
+
   .condition-grid {
     grid-template-columns: 1fr;
   }
@@ -732,6 +1236,10 @@ const characterName = (characterId: string): string => {
     padding-left: 0.55rem;
   }
 
+  .step-card.is-current .step-content {
+    padding: 0.75rem;
+  }
+
   .step-title-row {
     gap: 0.5rem;
   }
@@ -743,6 +1251,14 @@ const characterName = (characterId: string): string => {
   .fallback-banner {
     grid-template-columns: 1fr;
     gap: 0.35rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .frequency-decoration,
+  .current-step-panel,
+  .step-card.is-current .step-content {
+    animation: none;
   }
 }
 </style>

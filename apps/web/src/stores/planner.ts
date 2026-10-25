@@ -6,7 +6,7 @@ import {
   sanitizeDataset,
 } from '@/data/loadDataset'
 import { buildRecommendationReport } from '@/lib/recommendation'
-import { validatePlannerInput } from '@/lib/validation'
+import { MAX_TEAM_SIZE, validatePlannerInput } from '@/lib/validation'
 import type { CharacterFact, Dataset, RecommendationReport } from '@/types/domain'
 
 export type DataState = 'idle' | 'loading' | 'ready' | 'empty' | 'error'
@@ -129,8 +129,8 @@ export const usePlannerStore = defineStore('planner', () => {
       setNotice('同一角色只能選擇一名')
       return
     }
-    if (selectedCharacterIds.value.length >= 4) {
-      setNotice('隊伍已滿。先移除一名角色，再加入新角色。')
+    if (selectedCharacterIds.value.length >= MAX_TEAM_SIZE) {
+      setNotice('隊伍人數上限為 4 名。請先移除一名角色，再加入新角色。')
       return
     }
     selectedCharacterIds.value.push(characterId)

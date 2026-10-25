@@ -1,5 +1,8 @@
 import type { CharacterFact, StoryChapter } from '@/types/domain'
 
+export const MIN_TEAM_SIZE = 1
+export const MAX_TEAM_SIZE = 4
+
 export interface PlannerInput {
   selectedCharacterIds: string[]
   playerLevelRaw: string
@@ -22,8 +25,11 @@ export const validatePlannerInput = (
   const characterIds = new Set(characters.map((character) => character.id))
   const uniqueSelection = new Set(input.selectedCharacterIds)
 
-  if (input.selectedCharacterIds.length !== 4) {
-    errors.push(`需要恰好 4 名角色，目前為 ${input.selectedCharacterIds.length} 名。`)
+  if (
+    input.selectedCharacterIds.length < MIN_TEAM_SIZE ||
+    input.selectedCharacterIds.length > MAX_TEAM_SIZE
+  ) {
+    errors.push('至少選擇 1 名角色，最多 4 名。')
   }
   if (uniqueSelection.size !== input.selectedCharacterIds.length) {
     errors.push('隊伍中有重複角色。')

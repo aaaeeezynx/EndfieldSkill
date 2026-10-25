@@ -21,8 +21,13 @@ const validate = (
   )
 
 describe('validatePlannerInput', () => {
-  it('accepts exactly four unique known characters with valid progress', () => {
-    const result = validate(['d', 'c', 'b', 'a'])
+  it.each([
+    [['a']],
+    [['a', 'b']],
+    [['a', 'b', 'c']],
+    [['d', 'c', 'b', 'a']],
+  ])('accepts a unique roster of one to four characters %j', (roster) => {
+    const result = validate(roster)
 
     expect(result.valid).toBe(true)
     expect(result.errors).toEqual([])
@@ -31,8 +36,16 @@ describe('validatePlannerInput', () => {
   })
 
   it.each([
-    [['a', 'b', 'c'], '需要恰好 4 名角色，目前為 3 名。'],
-    [['a', 'b', 'c', 'd', 'e'], '需要恰好 4 名角色，目前為 5 名。'],
+    [[]],
+    [['a', 'b', 'c', 'd', 'e']],
+  ])('rejects a roster outside the one-to-four-player range %j', (roster) => {
+    const result = validate(roster)
+
+    expect(result.valid).toBe(false)
+    expect(result.errors).toContain('至少選擇 1 名角色，最多 4 名。')
+  })
+
+  it.each([
     [['a', 'a', 'b', 'c'], '隊伍中有重複角色。'],
     [['a', 'b', 'c', 'unknown'], '隊伍包含資料集中不存在的角色。'],
   ])('rejects roster %j', (roster, expectedError) => {

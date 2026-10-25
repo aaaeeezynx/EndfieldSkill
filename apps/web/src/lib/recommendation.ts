@@ -18,6 +18,7 @@ import type {
   UnlockState,
 } from '@/types/domain'
 import { displayElement, displayRoleOrTag } from '@/lib/displayLabels'
+import { MAX_TEAM_SIZE } from '@/lib/validation'
 
 export interface PlannerProgress {
   playerLevel: number
@@ -77,21 +78,30 @@ const isEquipmentRelevant = (character: CharacterFact, equipment: EquipmentFact)
 }
 
 const scoreTeamPreset = (preset: TeamPreset, selectedCharacterIds: string[]): TeamMatch => {
-  const selected = new Set(selectedCharacterIds)
-  const presetIds = new Set(preset.characterIds)
-  const matchedCharacterIds = preset.characterIds.filter((id) => selected.has(id))
-  const missingCharacterIds = preset.characterIds.filter((id) => !selected.has(id))
-  const extraCharacterIds = selectedCharacterIds.filter((id) => !presetIds.has(id))
+  const selectedIds = unique(selectedCharacterIds)
+  const presetCharacterIds = unique(preset.characterIds)
+  const selected = new Set(selectedIds)
+  const presetIds = new Set(presetCharacterIds)
+  const matchedCharacterIds = presetCharacterIds.filter((id) => selected.has(id))
+  const missingCharacterIds = presetCharacterIds.filter((id) => !selected.has(id))
+  const extraCharacterIds = selectedIds.filter((id) => !presetIds.has(id))
   const exact =
-    selected.size === 4 &&
-    presetIds.size === 4 &&
-    matchedCharacterIds.length === 4 &&
+    selected.size > 0 &&
+    selected.size <= MAX_TEAM_SIZE &&
+    presetIds.size <= MAX_TEAM_SIZE &&
+    selected.size === presetIds.size &&
+    matchedCharacterIds.length === selected.size &&
     extraCharacterIds.length === 0
 
-  let score = matchedCharacterIds.length * 17
-  if (exact) score += 30
+  const unionSize = new Set([...selected, ...presetIds]).size
+  const selectedCoverage = selected.size ? matchedCharacterIds.length / selected.size : 0
+  const presetCoverage = presetIds.size ? matchedCharacterIds.length / presetIds.size : 0
+  const setCoverage = unionSize ? matchedCharacterIds.length / unionSize : 0
+  let score = Math.round(
+    setCoverage * 60 + selectedCoverage * 20 + presetCoverage * 20,
+  )
   if (preset.sourceIds.length > 0) score += 2
-  if (preset.characterIds.length !== 4) score -= 8
+  if (exact) score = 100
   score = Math.max(0, Math.min(100, score))
 
   return {
@@ -124,10 +134,10 @@ const rotationMatchesSelection = (
   selectedCharacterIds: string[],
   exactTeam: TeamMatch | null,
 ): boolean => {
-  const selected = [...selectedCharacterIds].sort()
-  const rotationIds = [...rotation.characterIds].sort()
+  const selected = unique(selectedCharacterIds).sort()
+  const rotationIds = unique(rotation.characterIds).sort()
   const sameCharacters =
-    rotationIds.length === 4 &&
+    rotationIds.length > 0 &&
     rotationIds.length === selected.length &&
     rotationIds.every((id, index) => id === selected[index])
 
@@ -534,7 +544,11 @@ export const buildRecommendationReport = (
   const warnings: string[] = []
 
   if (!exactTeam) {
-    warnings.push('沒有與目前四人完全一致的攻略隊伍；隊伍摘要來自部分匹配或標籤覆蓋。')
+    warnings.push(
+      teamMatches.length
+        ? `目前選擇的 ${characters.length} 名角色未與任何攻略隊伍完全一致；隊伍摘要來自部分匹配，不代表攻略隊伍已完整重現。`
+        : `目前選擇的 ${characters.length} 名角色沒有可用的攻略隊伍匹配；隊伍摘要僅依角色標籤整理。`,
+    )
   }
   if (rotations.every((rotation) => rotation.kind === 'rule-generated')) {
     warnings.push('沿用標籤規則回退循環，不能視為已驗證攻略。')

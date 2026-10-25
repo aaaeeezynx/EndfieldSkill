@@ -219,7 +219,8 @@ const pairs = [
   pair(token('--color-success'), token('--color-bg-primary'), 'success on white (UI)', 'ui'),
   pair(token('--color-border-primary'), token('--color-bg-primary'), 'primary border on white (UI)', 'ui'),
 
-  pair(componentColor('#4a4a4a', 'src/views/PlannerView.vue'), '#ffffff', 'Planner muted copy on white (body)', 'body'),
+  pair(componentColor('#f2f2f2', 'src/views/PlannerView.vue'), '#191919', 'Planner hero copy on black (body)', 'body'),
+  pair(componentColor('#fff', 'src/views/PlannerView.vue'), '#242424', 'Planner roster text on dark panel (body)', 'body'),
   pair(componentColor('#767676', 'src/views/PlannerView.vue'), '#ffffff', 'Planner borders on white (UI)', 'ui'),
   pair(componentColor('#8a3400', 'src/views/PlannerView.vue'), '#fff7ef', 'Planner warning label on warm white (UI)', 'ui'),
   pair(componentColor('#5a3a1a', 'src/views/PlannerView.vue'), '#fff8f1', 'Planner warning copy on cream (body)', 'body'),

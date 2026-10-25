@@ -102,7 +102,7 @@ const validateSemantics = (file, payload) => {
     assertUniqueIds(file, payload.teams, 'teams')
     for (const team of payload.teams) {
       const ids = Array.isArray(team.characterIds) ? team.characterIds : []
-      if (ids.length !== 4 || new Set(ids).size !== 4) {
+      if (ids.length < 1 || ids.length > 4 || new Set(ids).size !== ids.length) {
         throw new Error(
           `${file}: team "${team.id}" must contain exactly four unique characterIds`,
         )

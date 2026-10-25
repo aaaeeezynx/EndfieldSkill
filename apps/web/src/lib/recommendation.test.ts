@@ -114,6 +114,89 @@ describe('team matching', () => {
       'rule-generated',
     )
   })
+
+  it('treats a selected subset of a guide team as partial, never as an exact team', () => {
+    const sourceTeam = makeTeamPreset('team-source', ['a', 'b', 'c', 'd'])
+
+    const [match] = matchTeamPresets(['a', 'b', 'c'], [sourceTeam])
+
+    expect(match).toMatchObject({
+      exact: false,
+      matchedCharacterIds: ['a', 'b', 'c'],
+      missingCharacterIds: ['d'],
+      extraCharacterIds: [],
+    })
+  })
+
+  it('falls back to a rule rotation when only a subset of a source team is selected', () => {
+    const team = makeTeamPreset('team-source', ['a', 'b', 'c', 'd'])
+    const rotation = makeRotation('rotation-source', ['a', 'b', 'c', 'd'], {
+      teamPresetId: team.id,
+    })
+    const dataset = makeDataset({
+      characters: roster,
+      teamPresets: [team],
+      rotationPresets: [rotation],
+    })
+
+    const report = buildRecommendationReport(dataset, ['a', 'b', 'c'], {
+      playerLevel: 20,
+      chapterId: null,
+    })
+
+    expect(report.exactTeam).toBeNull()
+    expect(report.teamMatches[0]).toMatchObject({
+      exact: false,
+      matchedCharacterIds: ['a', 'b', 'c'],
+      missingCharacterIds: ['d'],
+    })
+    expect(report.rotations[0].kind).toBe('rule-generated')
+    expect(report.warnings).toContain(
+      '目前選擇的 3 名角色未與任何攻略隊伍完全一致；隊伍摘要來自部分匹配，不代表攻略隊伍已完整重現。',
+    )
+  })
+
+  it('supports exact and source-backed guide presets whose recorded team is smaller than four', () => {
+    const team = makeTeamPreset('team-three', ['a', 'b', 'c'])
+    const rotation = makeRotation('rotation-three', ['a', 'b', 'c'], {
+      teamPresetId: team.id,
+    })
+    const dataset = makeDataset({
+      characters: roster,
+      teamPresets: [team],
+      rotationPresets: [rotation],
+    })
+
+    const report = buildRecommendationReport(dataset, ['c', 'a', 'b'], {
+      playerLevel: 20,
+      chapterId: null,
+    })
+
+    expect(report.exactTeam?.preset.id).toBe(team.id)
+    expect(report.rotations[0]).toMatchObject({
+      id: rotation.id,
+      kind: 'source-backed',
+    })
+  })
+
+  it.each([
+    [['a']],
+    [['a', 'b']],
+    [['a', 'b', 'c']],
+    [['a', 'b', 'c', 'd']],
+  ])('returns equipment and a skill loop for a %j roster', (selectedIds) => {
+    const report = buildRecommendationReport(makeDataset({ characters: roster }), selectedIds, {
+      playerLevel: 20,
+      chapterId: null,
+    })
+
+    expect(report.equipment.map((loadout) => loadout.characterId)).toEqual(selectedIds)
+    expect(report.rotations).toHaveLength(1)
+    expect(report.rotations[0].kind).toBe('rule-generated')
+    expect(new Set(report.rotations[0].steps.map((step) => step.characterId))).toEqual(
+      new Set(selectedIds),
+    )
+  })
 })
 
 describe('rule rotation battle mechanics', () => {

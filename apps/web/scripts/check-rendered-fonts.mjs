@@ -715,18 +715,25 @@ async function main() {
       }
     }
 
-    // Preserve the real four-character + level + generate flow, then scan the
+    // Exercise team-size boundaries through the real controls, then scan the
     // complete generated planner state (not only #recommendation-output).
     await setViewport(VIEWPORTS.find((vp) => vp.name === 'iphone-390'))
     await navigate(`${BASE_URL}#/`)
     const drive = await evaluateJson(call, sessionId, `(() => {
       const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       return (async () => {
+        const button = document.querySelector('.generate-button');
+        const emptyDisabled = !!button?.disabled;
         const cards = Array.from(document.querySelectorAll('.character-card'));
-        for (const card of cards.slice(0, 4)) {
+        cards[0]?.click();
+        await wait(60);
+        const oneEnabled = !!button && !button.disabled;
+        for (const card of cards.slice(1, 5)) {
           card.click();
           await wait(60);
         }
+        const selectedCount = document.querySelectorAll('.squad-slot.filled').length;
+        const fifthBlocked = selectedCount === 4;
         const level = document.querySelector('#player-level');
         if (level) {
           const setter = Object.getOwnPropertyDescriptor(
@@ -735,18 +742,24 @@ async function main() {
           setter.call(level, '40');
           level.dispatchEvent(new Event('input', { bubbles: true }));
         }
-        const button = document.querySelector('.generate-button');
         if (button && !button.disabled) button.click();
-        await wait(700);
+        // Wait for the output reveal to settle before auditing text opacity.
+        await wait(1200);
         return JSON.stringify({
-          generated: !!document.querySelector('#recommendation-output')
+          generated: !!document.querySelector('#recommendation-output'),
+          emptyDisabled,
+          oneEnabled,
+          selectedCount,
+          fifthBlocked,
         });
       })();
     })()`, dig, 'planner drive', true)
-    if (!drive.generated) {
+    if (!drive.generated || !drive.emptyDisabled || !drive.oneEnabled || !drive.fifthBlocked) {
       overflow.push(
-        'iphone-390 #/ (generated): recommendation output was not generated ' +
-        'after selecting 4 characters + level 40',
+        'iphone-390 #/ (generated): team-size boundary failed ' +
+        `(empty disabled=${drive.emptyDisabled}, one enabled=${drive.oneEnabled}, ` +
+        `selected=${drive.selectedCount}, fifth blocked=${drive.fifthBlocked}, ` +
+        `generated=${drive.generated})`,
       )
     }
     await inspectPage('iphone-390 #/ (generated)')

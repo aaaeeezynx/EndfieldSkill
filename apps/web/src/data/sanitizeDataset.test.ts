@@ -55,11 +55,16 @@ describe('sanitizeDataset', () => {
     })
   })
 
-  it('drops teams with fewer than four unique IDs or duplicate IDs', () => {
+  it('keeps one to four unique members and drops empty, oversized or duplicate teams', () => {
     const dataset = makeDataset({
       characters: visibleCharacters(),
       teamPresets: [
         makeTeamPreset('three-members', ['chr_0002_endminm', 'perlica', 'chen']),
+        makeTeamPreset('one-member', ['chr_0002_endminm']),
+        makeTeamPreset('five-members', [
+          'chr_0002_endminm', 'perlica', 'chen', 'wulfgard', 'antal',
+        ]),
+        makeTeamPreset('empty', []),
         makeTeamPreset('duplicate-member', [
           'chr_0002_endminm',
           'perlica',
@@ -77,10 +82,12 @@ describe('sanitizeDataset', () => {
 
     const sanitized = sanitizeDataset(dataset)
 
-    expect(sanitized.teamPresets.map((team) => team.id)).toEqual(['valid-team'])
+    expect(sanitized.teamPresets.map((team) => team.id)).toEqual([
+      'three-members', 'one-member', 'valid-team',
+    ])
   })
 
-  it('keeps a five-member preset after removing B only when four unique IDs remain', () => {
+  it('keeps presets within the team limit after removing B-form references', () => {
     const dataset = makeDataset({
       characters: [
         ...visibleCharacters(),
@@ -108,7 +115,9 @@ describe('sanitizeDataset', () => {
 
     const sanitized = sanitizeDataset(dataset)
 
-    expect(sanitized.teamPresets).toHaveLength(1)
+    expect(sanitized.teamPresets.map((team) => team.id)).toEqual([
+      'five-with-b', 'four-with-b',
+    ])
     expect(sanitized.teamPresets[0]).toMatchObject({
       id: 'five-with-b',
       characterIds: ['chr_0002_endminm', 'perlica', 'chen', 'wulfgard'],
@@ -175,9 +184,7 @@ describe('sanitizeDataset', () => {
   it('clears a rotation teamPresetId when the referenced team is removed', () => {
     const dataset = makeDataset({
       characters: visibleCharacters(),
-      teamPresets: [
-        makeTeamPreset('invalid-team', ['chr_0002_endminm', 'perlica', 'chen']),
-      ],
+      teamPresets: [makeTeamPreset('invalid-team', [])],
       rotationPresets: [
         makeRotationPreset(
           'rotation',

@@ -5,6 +5,7 @@ import { usePlannerStore } from '@/stores/planner'
 
 const route = useRoute()
 const planner = usePlannerStore()
+const navIndicatorUrl = `url("${import.meta.env.BASE_URL}assets/official/nav-indicator.svg")`
 
 const dataLabel = computed(() => {
   if (planner.dataState === 'loading') return '資料連線中'
@@ -190,8 +191,11 @@ const dataLabel = computed(() => {
   right: 0;
   bottom: 0;
   left: 0;
-  height: 5px;
-  background: var(--color-accent-primary);
+          right: 1.2rem;
+          bottom: 0;
+          left: 1.2rem;
+          height: 6px;
+          background: v-bind(navIndicatorUrl) center / 100% 100% no-repeat;
 }
 
 .data-beacon {

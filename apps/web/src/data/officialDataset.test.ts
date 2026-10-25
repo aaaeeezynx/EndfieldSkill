@@ -192,11 +192,12 @@ describe('canonical dataset integrity', () => {
     }
   })
 
-  it('has exactly four unique members and contiguous rotation steps', () => {
+  it('has one to four unique members and contiguous rotation steps', () => {
     const teams = readJson('team-presets.json').teams
     for (const team of teams) {
-      expect(team.characterIds, team.id).toHaveLength(4)
-      expect(new Set(team.characterIds).size, team.id).toBe(4)
+      expect(team.characterIds.length, team.id).toBeGreaterThanOrEqual(1)
+      expect(team.characterIds.length, team.id).toBeLessThanOrEqual(4)
+      expect(new Set(team.characterIds).size, team.id).toBe(team.characterIds.length)
     }
 
     const rotations = readJson('rotation-presets.json').rotations
