@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "pretest": "node scripts/sync-data.mjs",
     "prebuild": "node scripts/sync-data.mjs",
     "build": "vue-tsc --noEmit && vite build",
     "test": "vitest run",
