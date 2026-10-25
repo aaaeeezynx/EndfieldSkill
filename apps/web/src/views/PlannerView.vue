@@ -332,9 +332,113 @@ const hasUnverifiedProgressData = computed(
 
 .hero-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
-  align-items: start;
-  gap: clamp(1.2rem, 3vw, 2.6rem);
+  grid-template-columns: minmax(0, 1fr);
+  align-items: stretch;
+  gap: clamp(1.2rem, 2.6vw, 2rem);
+}
+
+.hero-copy {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(280px, 0.88fr);
+  grid-template-rows: auto auto auto auto;
+  align-items: end;
+  column-gap: clamp(1.5rem, 4vw, 4.5rem);
+  row-gap: 0.75rem;
+}
+
+.hero-copy .eyebrow {
+  grid-column: 1 / -1;
+}
+
+.hero-copy h1 {
+  grid-column: 1;
+  grid-row: 2 / 5;
+  max-width: 780px;
+  margin: 0;
+  font-size: clamp(3.15rem, 6vw, 5.75rem);
+}
+
+.hero-copy h1 span {
+  display: inline;
+  background: var(--color-accent-primary);
+  box-decoration-break: clone;
+  color: var(--color-text-primary);
+  padding: 0 0.08em;
+  -webkit-box-decoration-break: clone;
+}
+
+.hero-lede {
+  grid-column: 2;
+  grid-row: 2;
+  max-width: 620px;
+  margin: 0;
+  color: var(--planner-body-muted);
+  font-size: clamp(0.88rem, 1.3vw, 1.04rem);
+  line-height: 1.72;
+}
+
+.hero-tags {
+  grid-column: 2;
+  grid-row: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.hero-tags span {
+  border: 1px solid var(--planner-ui-line);
+  background: var(--color-bg-secondary);
+  padding: 0.32rem 0.52rem;
+  color: var(--planner-body-muted);
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+}
+
+.hero-tags span:last-child {
+  border-color: var(--planner-warning-line);
+  background: #fff7ef;
+  color: #7a3608;
+}
+
+.hero-action {
+  grid-column: 2;
+  grid-row: 4;
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  border: 1px solid var(--color-text-primary);
+  background: var(--color-text-primary);
+  padding: 0.72rem 0.85rem 0.72rem 1rem;
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.hero-action:hover {
+  background: var(--color-accent-primary);
+  color: var(--color-text-primary);
+}
+
+.hero-action:focus-visible {
+  outline: 3px solid var(--color-accent-blue);
+  outline-offset: 3px;
+}
+
+.hero-disclaimer {
+  width: fit-content;
+  max-width: 620px;
+  margin: -0.25rem 0 0 auto;
+  border-left: 3px solid var(--color-text-primary);
+  padding-left: 0.65rem;
+  color: var(--planner-body-muted);
+  font-size: 0.78rem;
+  line-height: 1.55;
 }
 .partial-banner {
   display: flex;
@@ -512,15 +616,20 @@ const hasUnverifiedProgressData = computed(
 
 .flow-track {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns:
+    minmax(0, 1fr) auto
+    minmax(0, 1fr) auto
+    minmax(0, 1fr) auto
+    minmax(0, 1fr);
   align-items: stretch;
-  gap: 0.4rem;
+  gap: 0.45rem;
   margin-top: 1rem;
 }
 
 .flow-connector {
   align-self: center;
   display: grid;
+  width: 32px;
   place-items: center;
   color: var(--color-accent-blue);
 }
@@ -797,6 +906,11 @@ const hasUnverifiedProgressData = computed(
     grid-template-columns: 1fr;
   }
 
+  .hero-copy {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr);
+    column-gap: 2rem;
+  }
+
   .planner-layout {
     grid-template-columns: 1fr;
   }
@@ -816,9 +930,25 @@ const hasUnverifiedProgressData = computed(
     gap: 0.3rem;
   }
 
+  .hero-copy {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    align-items: start;
+    row-gap: 0.85rem;
+  }
+
+  .hero-copy .eyebrow,
+  .hero-copy h1,
+  .hero-lede,
+  .hero-tags,
+  .hero-action {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
   .hero h1 {
     margin-top: 0.6rem;
-    font-size: clamp(2.65rem, 12vw, 4.1rem);
+    font-size: clamp(2.55rem, 11.5vw, 3.75rem);
   }
 
   .hero-lede {
@@ -837,6 +967,11 @@ const hasUnverifiedProgressData = computed(
     margin-top: 1rem;
   }
 
+  .hero-disclaimer {
+    width: 100%;
+    margin-top: 0;
+  }
+
   .hero-terminal {
     padding: 1rem;
   }
@@ -847,7 +982,8 @@ const hasUnverifiedProgressData = computed(
   }
 
   .flow-connector {
-    justify-self: start;
+    justify-self: center;
+    width: 2.25rem;
     height: 1.3rem;
     transform: rotate(90deg);
   }
