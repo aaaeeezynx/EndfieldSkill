@@ -105,7 +105,7 @@ const hasError = computed(() => planner.dataState === 'error')
   padding: 2rem 0.7rem;
   color: #fff;
   font-family: var(--font-display);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   writing-mode: vertical-rl;
@@ -180,7 +180,7 @@ const hasError = computed(() => planner.dataState === 'error')
 .file-note {
   color: var(--color-text-tertiary);
   font-family: var(--font-display);
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
 }

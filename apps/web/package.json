@@ -9,6 +9,9 @@
     "build": "vue-tsc --noEmit && vite build",
     "test": "vitest run",
     "test:watch": "vitest",
+    "check:font": "node scripts/check-font-size.mjs",
+    "check:contrast": "node scripts/apca-check.mjs",
+    "check:rendered": "node scripts/check-rendered-fonts.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

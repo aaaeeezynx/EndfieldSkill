@@ -4,6 +4,8 @@ import type {
   DatasetCoverage,
   DatasetMeta,
   EquipmentFact,
+  RotationPreset,
+  RotationStep,
   SkillFact,
   StoryChapter,
   TeamPreset,
@@ -98,6 +100,46 @@ export const makeEquipment = (
   stats: {},
   description: null,
   sourceIds: [],
+  ...overrides,
+})
+
+export const makeRotationPreset = (
+  id: string,
+  characterIds: string[],
+  steps: RotationStep[] = [],
+  overrides: Partial<RotationPreset> = {},
+): RotationPreset => ({
+  id,
+  name: id,
+  teamPresetId: null,
+  characterIds,
+  scenario: null,
+  description: null,
+  steps,
+  sourceIds: [`source-${id}`],
+  confidence: null,
+  ...overrides,
+})
+
+export const makeRotationStep = (
+  characterId: string,
+  overrides: Partial<RotationStep> = {},
+): RotationStep => ({
+  id: `${characterId}-step`,
+  order: 1,
+  phase: null,
+  characterId,
+  skillId: null,
+  skillName: '战技',
+  skillType: 'battle',
+  triggerCondition: null,
+  waitFor: null,
+  comboWindowSeconds: null,
+  sharedSkillPointCost: null,
+  energyCost: null,
+  cooldownSeconds: null,
+  warnings: [],
+  note: null,
   ...overrides,
 })
 

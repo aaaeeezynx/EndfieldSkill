@@ -1,6 +1,10 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { loadDataset } from '@/data/loadDataset'
+import {
+  isExcludedCharacter,
+  loadDataset,
+  sanitizeDataset,
+} from '@/data/loadDataset'
 import { buildRecommendationReport } from '@/lib/recommendation'
 import { validatePlannerInput } from '@/lib/validation'
 import type { CharacterFact, Dataset, RecommendationReport } from '@/types/domain'
@@ -18,20 +22,34 @@ export const usePlannerStore = defineStore('planner', () => {
   const report = ref<RecommendationReport | null>(null)
   const isGenerating = ref(false)
 
-  const characters = computed(() => dataset.value?.characters ?? [])
+  // The store keeps a sanitized, non-playable-Administrator-free view of the
+  // dataset. All consumers (picker, search, filter, selection, recommendation,
+  // DataView) read through `dataset` so only the A-form can appear. The source
+  // JSON and underlying IDs remain intact.
+  const characters = computed(() =>
+    (dataset.value?.characters ?? []).filter(
+      (character) => !isExcludedCharacter(character.id),
+    ),
+  )
   const chapters = computed(() =>
     [...(dataset.value?.chapters ?? [])].sort((a, b) => a.order - b.order),
   )
+  const sanitizeSelection = (ids: string[]): string[] => {
+    const selectableIds = new Set(characters.value.map((character) => character.id))
+    return [...new Set(ids)].filter(
+      (id) => selectableIds.has(id) && !isExcludedCharacter(id),
+    )
+  }
   const selectedCharacters = computed<CharacterFact[]>(() => {
     const byId = new Map(characters.value.map((character) => [character.id, character]))
-    return selectedCharacterIds.value
+    return sanitizeSelection(selectedCharacterIds.value)
       .map((id) => byId.get(id))
       .filter((character): character is CharacterFact => Boolean(character))
   })
   const validation = computed(() =>
     validatePlannerInput(
       {
-        selectedCharacterIds: selectedCharacterIds.value,
+        selectedCharacterIds: sanitizeSelection(selectedCharacterIds.value),
         playerLevelRaw: playerLevelRaw.value,
         chapterId: chapterId.value,
       },
@@ -53,7 +71,8 @@ export const usePlannerStore = defineStore('planner', () => {
     dataError.value = null
     try {
       const loaded = await loadDataset()
-      dataset.value = loaded
+      dataset.value = sanitizeDataset(loaded)
+      selectedCharacterIds.value = sanitizeSelection(selectedCharacterIds.value)
       if (!hasCoreData.value) {
         dataState.value = 'empty'
         return
@@ -87,6 +106,14 @@ export const usePlannerStore = defineStore('planner', () => {
 
   const toggleCharacter = (characterId: string): void => {
     clearNotice()
+    if (isExcludedCharacter(characterId)) {
+      setNotice('此角色未開放，無法加入隊伍。')
+      return
+    }
+    if (!characters.value.some((character) => character.id === characterId)) {
+      setNotice('找不到此角色，無法加入隊伍。')
+      return
+    }
     const existingIndex = selectedCharacterIds.value.indexOf(characterId)
     if (existingIndex >= 0) {
       selectedCharacterIds.value.splice(existingIndex, 1)
@@ -99,7 +126,7 @@ export const usePlannerStore = defineStore('planner', () => {
       incomingName &&
       selectedCharacters.value.some((character) => character.name.trim() === incomingName)
     ) {
-      setNotice('同一角色的不同形態不能同時上陣')
+      setNotice('同一角色只能選擇一名')
       return
     }
     if (selectedCharacterIds.value.length >= 4) {
@@ -131,14 +158,19 @@ export const usePlannerStore = defineStore('planner', () => {
   }
 
   const generate = async (): Promise<boolean> => {
+    const safeSelection = sanitizeSelection(selectedCharacterIds.value)
+    if (safeSelection.length !== selectedCharacterIds.value.length) {
+      selectedCharacterIds.value = safeSelection
+      invalidateReport()
+    }
     if (!dataset.value || !validation.value.valid || validation.value.playerLevel === null) {
       return false
     }
     isGenerating.value = true
     try {
       // Yield once so the terminal-style loading state can render.
-      await new Promise((resolve) => window.setTimeout(resolve, 180))
-      report.value = buildRecommendationReport(dataset.value, selectedCharacterIds.value, {
+      await new Promise((resolve) => globalThis.setTimeout(resolve, 180))
+      report.value = buildRecommendationReport(dataset.value, safeSelection, {
         playerLevel: validation.value.playerLevel,
         chapterId: chapterId.value || null,
       })

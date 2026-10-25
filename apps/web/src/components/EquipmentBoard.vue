@@ -32,8 +32,7 @@ const characterById = computed(
 )
 
 const displayName = (characterId: string, name?: string): string => {
-  if (characterId === 'chr_0002_endminm') return '管理員（A 形態）'
-  if (characterId === 'chr_0003_endminf') return '管理員（B 形態）'
+  if (characterId === 'chr_0002_endminm') return '管理員'
   return name ?? characterId
 }
 
@@ -347,12 +346,8 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 
 <style scoped>
 .equipment-board {
-  border-color: #d9d9d9;
-  background:
-    linear-gradient(90deg, rgba(25, 25, 25, 0.035) 1px, transparent 1px),
-    linear-gradient(rgba(25, 25, 25, 0.035) 1px, transparent 1px),
-    #ffffff;
-  background-size: 32px 32px;
+  border-color: #949494;
+  background: #ffffff;
   color: #191919;
   padding: clamp(1.15rem, 2.7vw, 1.8rem);
   box-shadow: 0 18px 50px rgba(25, 25, 25, 0.07);
@@ -369,7 +364,7 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
   align-items: flex-end;
   justify-content: space-between;
   gap: 2rem;
-  border-bottom: 1px solid #d9d9d9;
+  border-bottom: 1px solid #949494;
   padding-bottom: 1.1rem;
 }
 
@@ -384,7 +379,7 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 
 .equipment-principle {
   max-width: 470px;
-  color: #626262;
+  color: #3f3f3f;
   font-size: 0.78rem;
   line-height: 1.65;
   text-align: right;
@@ -395,7 +390,7 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
   align-items: center;
   gap: 0.9rem;
   margin-top: 1rem;
-  border: 1px solid #d9d9d9;
+  border: 1px solid #949494;
   border-left: 5px solid #fffa00;
   background: #f2f2f2;
   padding: 0.72rem 0.9rem;
@@ -405,14 +400,14 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
   flex: 0 0 auto;
   color: #191919;
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
 }
 
 .equipment-legend p {
-  color: #525252;
-  font-size: 0.74rem;
+  color: #3f3f3f;
+  font-size: 0.75rem;
   line-height: 1.6;
 }
 
@@ -428,10 +423,8 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 
 .loadout-character {
   position: relative;
-  border: 1px solid #cecece;
-  background:
-    linear-gradient(135deg, rgba(255, 250, 0, 0.075), transparent 24rem),
-    #fafafa;
+  border: 1px solid #949494;
+  background: #fafafa;
   padding: 1.15rem;
 }
 
@@ -449,7 +442,7 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  border-bottom: 1px solid #dedede;
+  border-bottom: 1px solid #949494;
   padding-bottom: 0.85rem;
 }
 
@@ -480,7 +473,7 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 }
 
 .character-index {
-  color: #787878;
+  color: #3f3f3f;
   font-family: "Rajdhani", sans-serif;
   font-size: 0.6rem;
   font-weight: 700;
@@ -495,14 +488,14 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 }
 
 .character-strip p:last-child {
-  color: #6c6c6c;
-  font-size: 0.72rem;
+  color: #3f3f3f;
+  font-size: 0.75rem;
 }
 
 .slot-count {
-  color: #767676;
+  color: #3f3f3f;
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
 }
@@ -518,7 +511,7 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
   display: flex;
   min-width: 0;
   flex-direction: column;
-  border: 1px solid #d2d2d2;
+  border: 1px solid #949494;
   border-top: 4px solid #191919;
   background: #ffffff;
   padding: 0.9rem;
@@ -528,7 +521,7 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  border-bottom: 1px solid #e3e3e3;
+  border-bottom: 1px solid #949494;
   padding-bottom: 0.65rem;
 }
 
@@ -541,7 +534,7 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
   background: #191919;
   color: #fffa00;
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
@@ -551,9 +544,9 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 }
 
 .slot-head p {
-  color: #777777;
+  color: #3f3f3f;
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
 }
@@ -566,31 +559,31 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 }
 
 .slot-state {
-  border: 1px solid #bdbdbd;
+  border: 1px solid #949494;
   background: #f2f2f2;
   padding: 0.18rem 0.32rem;
-  color: #555555;
+  color: #3f3f3f;
   font-size: 0.6rem;
   white-space: nowrap;
 }
 
 .slot-state.locked {
-  border-color: #c98a28;
+  border-color: #8f3f00;
   background: #fff8e8;
-  color: #895d18;
+  color: #5c3a00;
 }
 
 .slot-state.unknown,
 .slot-state.not-craftable {
-  border-color: #cf736b;
+  border-color: #9e332a;
   background: #fff2f0;
   color: #9e332a;
 }
 
 .slot-state.unlocked {
-  border-color: #2f9d5a;
+  border-color: #145c35;
   background: #effbf2;
-  color: #247d48;
+  color: #145c35;
 }
 
 .target-block {
@@ -610,9 +603,9 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 }
 
 .target-kicker {
-  color: #737373;
+  color: #3f3f3f;
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.07em;
 }
@@ -629,17 +622,17 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 
 .equipment-meta {
   margin-top: 0.16rem;
-  color: #626262;
-  font-size: 0.67rem;
+  color: #3f3f3f;
+  font-size: 0.75rem;
   line-height: 1.45;
 }
 
 .gate-line {
   margin-top: 0.42rem;
-  border-top: 1px solid #e5e5e5;
+  border-top: 1px solid #949494;
   padding-top: 0.38rem;
-  color: #4d4d4d;
-  font-size: 0.68rem;
+  color: #3f3f3f;
+  font-size: 0.75rem;
   line-height: 1.5;
 }
 
@@ -652,11 +645,11 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 
 .stat-grid span {
   max-width: 100%;
-  border: 1px solid #e1e1e1;
+  border: 1px solid #949494;
   background: #f7f7f7;
   padding: 0.18rem 0.3rem;
-  color: #6b6b6b;
-  font-size: 0.65rem;
+  color: #3f3f3f;
+  font-size: 0.75rem;
   line-height: 1.45;
   overflow-wrap: anywhere;
 }
@@ -677,16 +670,16 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 }
 
 .match-notes span {
-  border: 1px solid #c8c8c8;
+  border: 1px solid #949494;
   background: #f7f7f7;
   padding: 0.14rem 0.28rem;
-  color: #474747;
-  font-size: 0.62rem;
+  color: #3f3f3f;
+  font-size: 0.75rem;
 }
 
 .field-warning {
   margin-top: 0.5rem;
-  color: #775c26;
+  color: #5c3a00;
   font-size: 0.7rem;
 }
 
@@ -699,7 +692,7 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 
 .material-line > span,
 .subhead {
-  color: #6e6e6e;
+  color: #3f3f3f;
   font-family: "Rajdhani", sans-serif;
   font-size: 0.6rem;
   font-weight: 700;
@@ -713,39 +706,39 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 }
 
 .material-line > div span {
-  border: 1px solid #d0d0d0;
+  border: 1px solid #949494;
   background: #f7f7f7;
   padding: 0.12rem 0.26rem;
-  color: #4f4f4f;
-  font-size: 0.62rem;
+  color: #3f3f3f;
+  font-size: 0.75rem;
 }
 
 .material-line small {
-  color: #8b682b;
-  font-size: 0.66rem;
+  color: #5c3a00;
+  font-size: 0.75rem;
 }
 
 .authority-note,
 .single-result-note {
   margin-top: 0.52rem;
-  border-left: 3px solid #c98a28;
+  border-left: 3px solid #8f3f00;
   background: #fff8e8;
   padding: 0.35rem 0.45rem;
-  color: #76511d;
-  font-size: 0.66rem;
+  color: #5c3a00;
+  font-size: 0.75rem;
   line-height: 1.5;
 }
 
 .single-result-note {
-  border-left-color: #2f9d5a;
+  border-left-color: #145c35;
   background: #effbf2;
-  color: #2b6843;
+  color: #145c35;
 }
 
 .available-block,
 .alternative-block {
   margin-top: 0.75rem;
-  border-top: 1px solid #dedede;
+  border-top: 1px solid #949494;
   padding-top: 0.65rem;
 }
 
@@ -764,7 +757,7 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 }
 
 .alternative-card {
-  border: 1px solid #dddddd;
+  border: 1px solid #949494;
   background: #f7f7f7;
   padding: 0.45rem;
 }
@@ -783,8 +776,8 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 .alternative-card small {
   display: block;
   margin-top: 0.12rem;
-  color: #666666;
-  font-size: 0.63rem;
+  color: #3f3f3f;
+  font-size: 0.75rem;
   line-height: 1.45;
 }
 
@@ -797,46 +790,46 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 .slot-warnings p {
   display: flex;
   gap: 0.32rem;
-  color: #815c27;
-  font-size: 0.66rem;
+  color: #5c3a00;
+  font-size: 0.75rem;
   line-height: 1.45;
 }
 
 .slot-warnings span {
-  color: #b37a1d;
+  color: #5c3a00;
   font-family: "Rajdhani", sans-serif;
   font-weight: 700;
 }
 
 .slot-empty {
   margin-top: 0.7rem;
-  border: 1px dashed #c9c9c9;
+  border: 1px dashed #949494;
   background: #f7f7f7;
   padding: 1.2rem 0.8rem;
   text-align: center;
 }
 
 .slot-empty span {
-  color: #8b682b;
+  color: #5c3a00;
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
 }
 
 .slot-empty p {
   margin-top: 0.25rem;
-  color: #666666;
-  font-size: 0.68rem;
+  color: #3f3f3f;
+  font-size: 0.75rem;
   line-height: 1.5;
 }
 
 .equipment-source {
   margin-top: auto;
   padding-top: 0.65rem;
-  color: #888888;
+  color: #3f3f3f;
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   letter-spacing: 0.06em;
   overflow-wrap: anywhere;
 }
@@ -845,20 +838,20 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
   display: grid;
   gap: 0.35rem;
   margin-top: 0.85rem;
-  border: 1px solid #e3d7bb;
+  border: 1px solid #8f3f00;
   background: #fffaf0;
   padding: 0.65rem 0.75rem;
 }
 
 .loadout-warnings p {
-  color: #775c26;
-  font-size: 0.68rem;
+  color: #5c3a00;
+  font-size: 0.75rem;
   line-height: 1.55;
 }
 
 .loadout-warnings span {
   margin-right: 0.55rem;
-  color: #9b6c17;
+  color: #5c3a00;
   font-family: "Rajdhani", sans-serif;
   font-size: 0.6rem;
   font-weight: 700;
@@ -866,7 +859,7 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 }
 
 .equipment-empty {
-  border: 1px dashed #bdbdbd;
+  border: 1px dashed #949494;
   background: #f7f7f7;
   margin-top: 1rem;
   padding: 2.5rem 1rem;
@@ -882,8 +875,8 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
 
 .equipment-empty p {
   margin-top: 0.45rem;
-  color: #666666;
-  font-size: 0.72rem;
+  color: #3f3f3f;
+  font-size: 0.75rem;
 }
 
 @media (max-width: 1180px) {

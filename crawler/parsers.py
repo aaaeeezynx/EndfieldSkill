@@ -17,7 +17,9 @@ from .sources import (
 
 
 SCHEMA_VERSION = "1.0.0"
-EXCLUDED_CHARACTER_IDS = {"chr_9000_endmin"}
+# Non-playable roster entries that must never be emitted into canonical data.
+# The Administrator is represented by the A-form (chr_0002_endminm) only.
+EXCLUDED_CHARACTER_IDS = {"chr_0003_endminf", "chr_9000_endmin"}
 SLOT_NAMES = {0: "body", 1: "hand", 2: "edc"}
 SKILL_SUFFIXES = {
     "battle": "_normal_skill",

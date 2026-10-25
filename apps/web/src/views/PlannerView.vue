@@ -9,10 +9,6 @@ import TeamSummary from '@/components/TeamSummary.vue'
 import { usePlannerStore } from '@/stores/planner'
 
 const planner = usePlannerStore()
-const baseUrl = import.meta.env.BASE_URL
-const heroDesktop = `${baseUrl}assets/official/hero-desktop.webp`
-const heroTablet = `${baseUrl}assets/official/hero-tablet.webp`
-const heroMobile = `${baseUrl}assets/official/hero-mobile.webp`
 
 const showPipelineState = computed(
   () =>
@@ -34,11 +30,14 @@ const hasUnverifiedProgressData = computed(
 
     <template v-else>
       <section class="hero reveal">
-        <picture class="hero-visual">
-          <source media="(max-width: 620px)" :srcset="heroMobile" />
-          <source media="(max-width: 1100px)" :srcset="heroTablet" />
-          <img :src="heroDesktop" alt="終末地官方主視覺角色插畫" fetchpriority="high" />
-        </picture>
+        <!-- Original geometric artwork; no official character key visual is loaded. -->
+        <div class="hero-visual" aria-hidden="true">
+          <span class="hero-grid"></span>
+          <span class="hero-block hero-block--yellow"></span>
+          <span class="hero-block hero-block--blue"></span>
+          <span class="hero-block hero-block--orange"></span>
+          <span class="hero-ring"></span>
+        </div>
 
         <div class="hero-copy">
           <p class="eyebrow">ENDFIELD // OWNED-ROSTER ORCHESTRATOR</p>
@@ -136,6 +135,12 @@ const hasUnverifiedProgressData = computed(
 
 <style scoped>
 .planner-page {
+  /* Keep PlannerView body text at APCA 75+ and UI lines at 45+ on light surfaces. */
+  --planner-body-muted: #4a4a4a;
+  --planner-ui-line: #767676;
+  --planner-warning-line: #8a3400;
+  --planner-progress-line: #6b6000;
+  background: #ffffff;
   padding-top: clamp(1rem, 3vw, 2.2rem);
 }
 
@@ -145,7 +150,7 @@ const hasUnverifiedProgressData = computed(
   grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
   grid-template-rows: minmax(360px, 31vw) auto;
   overflow: hidden;
-  border: 1px solid var(--color-border-primary);
+  border: 1px solid var(--planner-ui-line);
   border-top: 6px solid var(--color-text-primary);
   background: #ffffff;
 }
@@ -156,24 +161,61 @@ const hasUnverifiedProgressData = computed(
   min-height: 0;
   overflow: hidden;
   background: #f5f3ea;
+  background-image:
+    linear-gradient(rgba(25, 25, 25, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(25, 25, 25, 0.05) 1px, transparent 1px);
+  background-size: 34px 34px;
 }
 
-.hero-visual::after {
+.hero-grid {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0) 45%, #fff 100%),
-    linear-gradient(0deg, #fff 0, transparent 38%);
-  content: "";
+    linear-gradient(90deg, rgba(25, 25, 25, 0.04), transparent 60%),
+    linear-gradient(0deg, #fff 0, transparent 46%);
   pointer-events: none;
 }
 
-.hero-visual img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 42%;
+.hero-block {
+  position: absolute;
+  border: 1px solid var(--color-text-primary);
+}
+
+.hero-block--yellow {
+  top: 14%;
+  right: 9%;
+  width: 30%;
+  height: 26%;
+  background: var(--color-accent-primary);
+  transform: skewX(-8deg);
+}
+
+.hero-block--blue {
+  bottom: 16%;
+  right: 22%;
+  width: 20%;
+  height: 30%;
+  background: var(--color-accent-blue);
+}
+
+.hero-block--orange {
+  bottom: 22%;
+  right: 7%;
+  width: 12%;
+  height: 12%;
+  background: var(--color-accent-orange);
+  transform: rotate(45deg);
+}
+
+.hero-ring {
+  position: absolute;
+  top: 12%;
+  right: 40%;
+  width: 64px;
+  height: 64px;
+  border: 2px solid var(--color-text-primary);
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 56%, rgba(25, 25, 25, 0.12) 58%);
 }
 
 .hero-copy {
@@ -201,6 +243,10 @@ const hasUnverifiedProgressData = computed(
   font-size: clamp(3.4rem, 7.6vw, 7.4rem);
 }
 
+.hero .eyebrow {
+  color: var(--planner-body-muted);
+}
+
 .hero h1 span {
   position: relative;
   display: inline-block;
@@ -222,7 +268,7 @@ const hasUnverifiedProgressData = computed(
 .hero-lede {
   max-width: 680px;
   margin-top: 1.4rem;
-  color: var(--color-text-secondary);
+  color: var(--planner-body-muted);
   font-size: clamp(0.92rem, 1.25vw, 1.06rem);
   line-height: 1.85;
 }
@@ -235,17 +281,17 @@ const hasUnverifiedProgressData = computed(
 }
 
 .hero-tags span {
-  border: 1px solid var(--color-border-primary);
+  border: 1px solid var(--planner-ui-line);
   background: var(--color-bg-secondary);
   padding: 0.3rem 0.5rem;
-  color: var(--color-text-secondary);
+  color: var(--planner-body-muted);
   font-size: 0.75rem;
 }
 
 .hero-tags span:last-child {
-  border-color: #f0b77e;
+  border-color: var(--planner-warning-line);
   background: #fff7ef;
-  color: #9c4709;
+  color: #8a3400;
 }
 
 .hero-action {
@@ -287,7 +333,7 @@ const hasUnverifiedProgressData = computed(
   right: 0;
   color: var(--color-text-tertiary);
   font-family: var(--font-display);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   content: "PROCESS MAP";
@@ -310,7 +356,7 @@ const hasUnverifiedProgressData = computed(
   background: var(--color-accent-primary);
   color: var(--color-text-primary);
   font-family: var(--font-display);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
@@ -323,7 +369,7 @@ const hasUnverifiedProgressData = computed(
 .hero-matrix small {
   color: var(--color-text-tertiary);
   font-family: var(--font-display);
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -331,7 +377,7 @@ const hasUnverifiedProgressData = computed(
 .hero-matrix i {
   display: block;
   height: 1px;
-  background: var(--color-border-primary);
+  background: var(--planner-ui-line);
 }
 
 .partial-banner {
@@ -339,7 +385,7 @@ const hasUnverifiedProgressData = computed(
   align-items: center;
   gap: 0.8rem;
   margin-top: 0.9rem;
-  border: 1px solid #f0c9a7;
+  border: 1px solid var(--planner-warning-line);
   border-left: 5px solid var(--color-accent-orange);
   background: #fff8f1;
   padding: 0.72rem 0.9rem;
@@ -347,40 +393,40 @@ const hasUnverifiedProgressData = computed(
 
 .partial-banner > span {
   flex: 0 0 auto;
-  color: #a94b00;
+  color: #8a3400;
   font-family: var(--font-display);
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
 }
 
 .partial-banner p {
   flex: 1;
-  color: #694b36;
+  color: #5a3a1a;
   font-size: 0.78rem;
   line-height: 1.6;
 }
 
 .partial-banner a {
   flex: 0 0 auto;
-  color: #82410d;
+  color: #7a3608;
   font-size: 0.76rem;
   text-decoration: none;
 }
 
 .partial-banner.progress-warning {
-  border-color: #ded74a;
-  border-left-color: var(--color-accent-primary);
+  border-color: var(--planner-progress-line);
+  border-left-color: var(--planner-progress-line);
   background: #fffde7;
 }
 
 .partial-banner.progress-warning > span,
 .partial-banner.progress-warning a {
-  color: #625e00;
+  color: #5a5500;
 }
 
 .partial-banner.progress-warning p {
-  color: #5f5b2a;
+  color: #565015;
 }
 
 .planner-layout {
@@ -403,6 +449,7 @@ const hasUnverifiedProgressData = computed(
   grid-template-columns: 120px minmax(0, 1fr);
   min-height: 270px;
   overflow: hidden;
+  border-color: var(--planner-ui-line);
 }
 
 .awaiting-code {
@@ -411,7 +458,7 @@ const hasUnverifiedProgressData = computed(
   background: var(--color-text-primary);
   color: var(--color-accent-primary);
   font-family: var(--font-display);
-  font-size: 0.67rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   writing-mode: vertical-rl;
@@ -445,11 +492,11 @@ const hasUnverifiedProgressData = computed(
 }
 
 .output-preview span {
-  border: 1px solid var(--color-border-primary);
+  border: 1px solid var(--planner-ui-line);
   padding: 0.38rem 0.55rem;
   color: var(--color-text-secondary);
   font-family: var(--font-display);
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.07em;
 }
@@ -490,10 +537,6 @@ const hasUnverifiedProgressData = computed(
     border-top-width: 4px;
   }
 
-  .hero-visual img {
-    object-position: 55% center;
-  }
-
   .hero-copy {
     margin-top: -2.5rem;
     padding: 1.15rem 1rem 1.25rem;
@@ -520,7 +563,7 @@ const hasUnverifiedProgressData = computed(
   }
 
   .hero-tags span {
-    font-size: 0.68rem;
+    font-size: 0.75rem;
   }
 
   .hero-action {

@@ -592,3 +592,161 @@ export const loadDataset = async (fetcher: typeof fetch = fetch): Promise<Datase
 }
 
 export { DATA_FILES }
+
+// Canonical data already excludes all non-playable Administrator forms and
+// keeps only the A-form (chr_0002_endminm). Keep this policy and the
+// sanitization below as a defensive guard for stale mirrors, fixtures and
+// future crawler regressions. Excluded forms must never surface in the UI,
+// search, filters, team presets, rotation presets or statistics.
+export const EXCLUDED_CHARACTER_IDS = ['chr_0003_endminf', 'chr_9000_endmin'] as const
+
+export const isExcludedCharacter = (id: string): boolean =>
+  (EXCLUDED_CHARACTER_IDS as readonly string[]).includes(id)
+
+// Returns a new Dataset with B-form admin removed from characters, and any
+// reference to excluded ids stripped from team/rotation presets and equipment
+// recommendations. Team presets must remain exactly four unique characters
+// after filtering; rotations keep their valid steps with contiguous ordering.
+// Coverage is recomputed so statistics stay consistent.
+export const sanitizeDataset = (dataset: Dataset): Dataset => {
+  const visibleCharacters = dataset.characters.filter(
+    (character) => !isExcludedCharacter(character.id),
+  )
+  // Build the exclusion set from the policy constant, not from the current
+  // character list. Presets, rotations and equipment references must be
+  // stripped even when the excluded character is already absent from
+  // `dataset.characters`.
+  const excluded = new Set<string>(EXCLUDED_CHARACTER_IDS)
+
+  const stripIds = (ids: string[] = []): string[] => ids.filter((id) => !excluded.has(id))
+  const stripAlternatives = (
+    alternatives: Record<string, string[]>,
+  ): Record<string, string[]> => {
+    const next: Record<string, string[]> = {}
+    for (const [characterId, values] of Object.entries(alternatives)) {
+      if (excluded.has(characterId)) continue
+      // Keep the key (even when emptied) so consumers can rely on its presence.
+      next[characterId] = values.filter((id) => !excluded.has(id))
+    }
+    return next
+  }
+
+  const teamPresets = dataset.teamPresets.flatMap((team) => {
+    const characterIds = stripIds(team.characterIds)
+    if (characterIds.length !== 4 || new Set(characterIds).size !== 4) {
+      return []
+    }
+    return [
+      {
+        ...team,
+        characterIds,
+        alternatives: stripAlternatives(team.alternatives),
+      },
+    ]
+  })
+
+  const teamPresetIds = new Set(teamPresets.map((team) => team.id))
+  const rotationPresets = dataset.rotationPresets.flatMap((rotation) => {
+    const characterIds = stripIds(rotation.characterIds)
+    // Keep the authored execution order, remove excluded-character steps, then
+    // close any gaps in `order` so the rotation remains 1..n.
+    const steps = rotation.steps
+      .filter((step) => !excluded.has(step.characterId))
+      .sort((a, b) => a.order - b.order)
+      .map((step, index) => ({ ...step, order: index + 1 }))
+    if (!characterIds.length || !steps.length) return []
+
+    return [
+      {
+        ...rotation,
+        // A rotation whose linked team was removed must not retain a dangling ID.
+        teamPresetId:
+          rotation.teamPresetId && teamPresetIds.has(rotation.teamPresetId)
+            ? rotation.teamPresetId
+            : null,
+        characterIds,
+        steps,
+      },
+    ]
+  })
+
+  const equipment = dataset.equipment.map((item) => ({
+    ...item,
+    recommendedFor: stripIds(item.recommendedFor),
+  }))
+
+  const missingSkillTypes = dataset.meta.missingSkillTypes.filter(
+    (entry) => !excluded.has(entry.split(':')[0]),
+  )
+  const countSkills = (type: SkillType): number =>
+    visibleCharacters.reduce(
+      (total, character) =>
+        total + character.skills.filter((skill) => skill.type === type).length,
+      0,
+    )
+  const battleSkills = countSkills('battle')
+  const comboSkills = countSkills('combo')
+  const ultimateSkills = countSkills('ultimate')
+  const sourceCoverage = asRecord(dataset.meta.coverage)
+  const sourceSkillCoverage = asRecord(sourceCoverage.skills)
+  const sourceEquipmentCoverage = asRecord(sourceCoverage.equipment)
+
+  const meta = {
+    ...dataset.meta,
+    // Drop B-form entries from the missing-skill list so the gap panel never
+    // surfaces an invisible character.
+    missingSkillTypes,
+    // `meta.coverage` is published alongside the raw dataset and is separate
+    // from the computed `dataset.coverage`. Recompute every character-dependent
+    // statistic so data panels cannot disclose the hidden B-form.
+    coverage: {
+      ...sourceCoverage,
+      charactersWithSourceIds: visibleCharacters.filter(
+        (character) => character.sourceIds.length > 0,
+      ).length,
+      playableCharacters: visibleCharacters.length,
+      missingSkillTypes,
+      skills: {
+        ...sourceSkillCoverage,
+        battle: battleSkills,
+        combo: comboSkills,
+        ultimate: ultimateSkills,
+        total: battleSkills + comboSkills + ultimateSkills,
+      },
+      teamPresets: teamPresets.length,
+      rotationPresets: rotationPresets.length,
+      rotationSteps: rotationPresets.reduce(
+        (total, rotation) => total + rotation.steps.length,
+        0,
+      ),
+      storyChapters: dataset.chapters.length,
+      equipment: {
+        ...sourceEquipmentCoverage,
+        total: equipment.length,
+        withFormula: equipment.filter((item) => item.formulaId !== null).length,
+        withMaterials: equipment.filter((item) => item.unlock.materials.length > 0)
+          .length,
+        withRecommendation: equipment.filter((item) => item.recommendedFor.length > 0)
+          .length,
+        withSet: equipment.filter((item) => item.setName !== null).length,
+        withWearLevelGate: equipment.filter((item) => item.unlock.playerLevel !== null)
+          .length,
+      },
+    },
+  }
+
+  const visibleDataset: Dataset = {
+    ...dataset,
+    meta,
+    characters: visibleCharacters,
+    teamPresets,
+    rotationPresets,
+    equipment,
+  }
+  visibleDataset.coverage = calculateCoverage(
+    visibleCharacters,
+    equipment,
+    rotationPresets,
+  )
+  return visibleDataset
+}

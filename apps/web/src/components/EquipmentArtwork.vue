@@ -66,8 +66,7 @@ const rarityLevel = () => {
   place-items: center;
   overflow: hidden;
   border: 2px solid var(--rarity-color);
-  background:
-    linear-gradient(145deg, color-mix(in srgb, var(--rarity-color) 14%, #ffffff), #f4f4f4 76%);
+  background: #f4f4f4;
   box-shadow:
     0 0 0 1px rgba(25, 25, 25, 0.08) inset,
     0 8px 20px rgba(25, 25, 25, 0.12);
@@ -127,28 +126,23 @@ const rarityLevel = () => {
   width: 100%;
   height: 100%;
   place-content: center;
-  background:
-    repeating-linear-gradient(
-      -45deg,
-      rgba(25, 25, 25, 0.04) 0 8px,
-      transparent 8px 16px
-    );
+  background: #f7f7f7;
   text-align: center;
 }
 
 .artwork-missing span {
-  color: var(--rarity-color);
+  /* Dark monogram; rarity colour stays on the border/decoration only. */
+  color: #191919;
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
   font-size: 2rem;
   font-weight: 700;
   line-height: 1;
-  opacity: 0.85;
 }
 
 .artwork-missing small {
   margin-top: 0.45rem;
-  color: #6b6b6b;
-  font-size: 0.65rem;
+  color: #3f3f3f;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
 }
 
@@ -166,11 +160,13 @@ figcaption {
 
 figcaption span {
   border: 1px solid color-mix(in srgb, var(--rarity-color) 80%, #ffffff);
-  background: rgba(255, 255, 255, 0.9);
+  background: #ffffff;
   padding: 0.12rem 0.3rem;
-  color: var(--rarity-color);
+  /* Rarity text is always dark for APCA body-text contrast; the rarity colour
+     is reserved for the border, bar and decorative marks only. */
+  color: #191919;
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.05em;
 }
@@ -192,7 +188,7 @@ figcaption b {
 }
 
 .compact figcaption span {
-  font-size: 0.58rem;
+  font-size: 0.75rem;
 }
 
 @media (max-width: 520px) {

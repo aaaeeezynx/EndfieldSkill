@@ -95,8 +95,7 @@ const shouldShowFallback = (character: CharacterFact): boolean => {
 }
 
 const displayName = (character: CharacterFact): string => {
-  if (character.id === 'chr_0002_endminm') return '管理員（A 形態）'
-  if (character.id === 'chr_0003_endminf') return '管理員（B 形態）'
+  if (character.id === 'chr_0002_endminm') return '管理員'
   return character.name
 }
 
@@ -265,7 +264,8 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
 }
 
 .search-field:focus-within {
-  border-color: var(--color-accent-primary);
+  border-color: var(--color-text-primary);
+  box-shadow: inset 0 0 0 1px var(--color-text-primary);
 }
 
 .search-field svg {
@@ -280,10 +280,15 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   min-width: 0;
   flex: 1;
   border: 0;
-  outline: 0;
   background: transparent;
   color: var(--color-text-primary);
   font-size: 0.8rem;
+}
+
+.search-field input:focus-visible,
+.compact-select select:focus-visible {
+  outline: 3px solid var(--color-text-primary);
+  outline-offset: 2px;
 }
 
 .search-field input::placeholder {
@@ -311,7 +316,6 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   height: 100%;
   max-width: 105px;
   border: 0;
-  outline: 0;
   background: transparent;
   padding: 0 1.5rem 0 0.45rem;
   color: var(--color-text-primary);
@@ -337,9 +341,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   min-height: 125px;
   overflow: hidden;
   border: 1px solid var(--color-border-primary);
-  background:
-    linear-gradient(130deg, rgba(255, 250, 0, 0.06), transparent 42%),
-    #ffffff;
+  background: #ffffff;
   padding: 1.05rem 0.9rem 0.8rem;
   color: var(--color-text-primary);
   text-align: left;
@@ -357,15 +359,15 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
 }
 
 .character-card:focus-visible {
-  outline: 2px solid var(--color-accent-blue);
-  outline-offset: 2px;
+  outline: 3px solid var(--color-text-primary);
+  outline-offset: 3px;
 }
 
 .character-card.selected {
-  border-color: var(--color-accent-primary);
-  background:
-    linear-gradient(130deg, rgba(255, 250, 0, 0.14), transparent 55%),
-    #fffef0;
+  /* Yellow is a fill-only accent; selection needs a dark-blue UI boundary. */
+  border-color: var(--color-accent-blue);
+  box-shadow: inset 0 0 0 1px var(--color-accent-blue);
+  background: #fffef0;
 }
 
 .card-sequence {
@@ -425,7 +427,6 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   justify-content: center;
   width: 100%;
   height: 100%;
-  opacity: 0.75;
 }
 
 .character-copy {
@@ -451,7 +452,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   margin-top: 0.15rem;
   color: var(--color-text-tertiary);
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.59rem;
+  font-size: 0.6rem;
   letter-spacing: 0.06em;
   text-overflow: ellipsis;
   text-transform: uppercase;
@@ -471,7 +472,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   border: 1px solid var(--color-border-primary);
   padding: 0.1rem 0.28rem;
   color: var(--color-text-secondary);
-  font-size: 0.55rem;
+  font-size: 0.6rem;
   line-height: 1.2;
 }
 
@@ -491,7 +492,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
 .missing-line {
   grid-column: 1 / -1;
   color: var(--color-accent-orange);
-  font-size: 0.58rem;
+  font-size: 0.6rem;
 }
 
 .missing-skill-row {
@@ -505,9 +506,9 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   border: 1px solid var(--color-accent-orange);
   background: #fff3e6;
   padding: 0.08rem 0.3rem;
-  color: #b3500a;
+  color: #8f3f00;
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 0.54rem;
+  font-size: 0.6rem;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -554,7 +555,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
 }
 
 .filter-empty button:hover {
-  border-color: var(--color-accent-primary);
+  border-color: var(--color-text-primary);
   color: var(--color-text-primary);
   background: var(--color-accent-primary);
 }
@@ -595,7 +596,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   }
 
   .character-card.selected {
-    box-shadow: inset 3px 0 0 var(--color-accent-primary);
+    box-shadow: inset 3px 0 0 var(--color-accent-blue);
   }
 
   .character-copy strong {
@@ -617,6 +618,6 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
     padding: 0.8rem 0.5rem 0.58rem;
   }
   .portrait { width: 44px; height: 54px; }
-  .character-meta span { font-size: 0.5rem; }
+  .character-meta span { font-size: 0.6rem; }
 }
 </style>

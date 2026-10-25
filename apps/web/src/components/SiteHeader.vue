@@ -52,8 +52,7 @@ const dataLabel = computed(() => {
   z-index: var(--z-header);
   top: 0;
   border-bottom: 1px solid var(--color-border-primary);
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(16px);
+  background: #ffffff;
 }
 
 .header-inner {
@@ -125,7 +124,7 @@ const dataLabel = computed(() => {
 
 .brand-kicker {
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   color: var(--color-text-tertiary);
@@ -168,7 +167,7 @@ const dataLabel = computed(() => {
 .nav-links a span {
   color: var(--color-text-tertiary);
   font-family: var(--font-display);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
@@ -238,8 +237,6 @@ const dataLabel = computed(() => {
 @media (max-width: 760px) {
   .site-header {
     position: relative;
-    /* Avoid creating a containing block for the fixed mobile navigation. */
-    backdrop-filter: none;
   }
 
   .header-inner {
@@ -281,9 +278,8 @@ const dataLabel = computed(() => {
     align-items: stretch;
     gap: 0;
     border-top: 1px solid var(--color-border-primary);
-    background: rgba(255, 255, 255, 0.98);
+    background: #ffffff;
     padding-bottom: env(safe-area-inset-bottom);
-    backdrop-filter: blur(18px);
   }
 
   .nav-links a {
@@ -303,7 +299,7 @@ const dataLabel = computed(() => {
   }
 
   .nav-links a span {
-    font-size: 0.58rem;
+    font-size: 0.75rem;
     letter-spacing: 0.1em;
   }
 

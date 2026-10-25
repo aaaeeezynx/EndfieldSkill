@@ -149,6 +149,8 @@ export interface DatasetCoverage {
 export interface Dataset {
   meta: DatasetMeta
   characters: CharacterFact[]
+  // The visible roster after excluded forms are removed (currently 33).
+  // `characters` is the visible, B-form-excluded view used by all UI paths.
   equipment: EquipmentFact[]
   chapters: StoryChapter[]
   teamPresets: TeamPreset[]

@@ -127,7 +127,10 @@ const fileStatus = (file: string): string => {
         </dl>
 
         <div class="count-grid">
-          <div><strong>{{ dataset?.characters.length ?? 0 }}</strong><span>角色</span></div>
+          <div>
+            <strong>{{ dataset?.characters.length ?? 0 }}</strong>
+            <span>可用角色</span>
+          </div>
           <div><strong>{{ dataset?.equipment.length ?? 0 }}</strong><span>裝備</span></div>
           <div :class="{ partial: hasUnverifiedProgressData }">
             <strong>{{ dataset?.chapters.length ?? 0 }}</strong>
@@ -326,6 +329,7 @@ const fileStatus = (file: string): string => {
 
 <style scoped>
 .data-page {
+  background: #ffffff;
   padding-top: clamp(2rem, 5vw, 4.5rem);
 }
 
@@ -449,7 +453,7 @@ const fileStatus = (file: string): string => {
 .gap-total {
   color: var(--color-text-tertiary);
   font-family: var(--font-display);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.07em;
   text-align: right;
@@ -472,7 +476,7 @@ const fileStatus = (file: string): string => {
 
 .meta-grid dt {
   color: var(--color-text-tertiary);
-  font-size: 0.66rem;
+  font-size: 0.75rem;
 }
 
 .meta-grid dd {
@@ -509,7 +513,7 @@ const fileStatus = (file: string): string => {
   display: block;
   margin-top: 0.3rem;
   color: var(--color-text-secondary);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
 }
 
 .count-grid div.partial {
@@ -519,7 +523,7 @@ const fileStatus = (file: string): string => {
 
 .count-grid div.partial strong,
 .count-grid div.partial span {
-  color: #9c4709;
+  color: #8a3400;
 }
 
 .progress-limits {
@@ -534,17 +538,17 @@ const fileStatus = (file: string): string => {
 .meta-notes > span,
 .load-errors > span,
 .missing-fields > span {
-  color: #a94b00;
+  color: #8a3400;
   font-family: var(--font-display);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.09em;
 }
 
 .progress-limits p {
   margin-top: 0.3rem;
-  color: #694b36;
-  font-size: 0.72rem;
+  color: #5a3a1a;
+  font-size: 0.75rem;
   line-height: 1.6;
 }
 
@@ -568,7 +572,7 @@ const fileStatus = (file: string): string => {
 .empty-line {
   margin-top: 0.8rem;
   color: var(--color-text-secondary);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   line-height: 1.6;
 }
 
@@ -589,7 +593,7 @@ const fileStatus = (file: string): string => {
 .coverage-label strong {
   color: var(--color-accent-blue);
   font-family: var(--font-display);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
@@ -609,7 +613,7 @@ const fileStatus = (file: string): string => {
 .gap-empty {
   margin-top: 1rem;
   color: var(--color-text-secondary);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
 }
 
 .missing-fields {
@@ -689,13 +693,13 @@ const fileStatus = (file: string): string => {
   overflow-wrap: anywhere;
   color: var(--color-text-tertiary);
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.75rem;
 }
 
 .gap-list article > span {
   flex: 0 0 auto;
-  color: #9c4709;
-  font-size: 0.68rem;
+  color: #8a3400;
+  font-size: 0.75rem;
 }
 
 .image-gap-list {
@@ -718,8 +722,8 @@ const fileStatus = (file: string): string => {
 .image-gap-list span {
   display: block;
   margin-top: 0.25rem;
-  color: #9c4709;
-  font-size: 0.63rem;
+  color: #8a3400;
+  font-size: 0.75rem;
   line-height: 1.45;
 }
 
@@ -767,14 +771,14 @@ const fileStatus = (file: string): string => {
 .file-row code {
   overflow: hidden;
   color: var(--color-text-primary);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   text-overflow: ellipsis;
 }
 
 .file-row > span:last-child {
   color: var(--color-text-tertiary);
   font-family: var(--font-display);
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.07em;
 }
@@ -782,7 +786,7 @@ const fileStatus = (file: string): string => {
 .contract-note {
   margin-top: 0.8rem;
   color: var(--color-text-secondary);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   line-height: 1.65;
 }
 
@@ -808,13 +812,13 @@ const fileStatus = (file: string): string => {
   overflow-wrap: anywhere;
   color: var(--color-text-tertiary);
   font-family: var(--font-display);
-  font-size: 0.58rem;
+  font-size: 0.75rem;
 }
 
 .source-head a {
   flex: 0 0 auto;
   color: var(--color-accent-blue);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   text-decoration: none;
 }
 
@@ -833,7 +837,7 @@ const fileStatus = (file: string): string => {
 .source-list article > p {
   margin-top: 0.2rem;
   color: var(--color-text-secondary);
-  font-size: 0.63rem;
+  font-size: 0.75rem;
 }
 
 .source-fields {
@@ -847,7 +851,7 @@ const fileStatus = (file: string): string => {
   background: #ededed;
   padding: 0.15rem 0.3rem;
   color: var(--color-text-secondary);
-  font-size: 0.56rem;
+  font-size: 0.75rem;
 }
 
 .source-empty {
@@ -858,7 +862,7 @@ const fileStatus = (file: string): string => {
 }
 
 .source-empty strong {
-  color: #9c4709;
+  color: #8a3400;
   font-family: var(--font-display);
   font-size: 0.7rem;
   letter-spacing: 0.1em;
@@ -888,7 +892,7 @@ const fileStatus = (file: string): string => {
 
 .unresolved-list span {
   display: block;
-  color: #9c4709;
+  color: #8a3400;
   font-family: var(--font-display);
   font-size: 0.6rem;
   font-weight: 700;
@@ -913,7 +917,7 @@ const fileStatus = (file: string): string => {
   margin-top: 0.3rem;
   color: var(--color-text-tertiary);
   font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   overflow-wrap: anywhere;
 }
 
@@ -933,7 +937,7 @@ const fileStatus = (file: string): string => {
   padding: 0.25rem 0.4rem;
   color: var(--color-text-primary);
   font-family: var(--font-display);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.09em;
 }
@@ -948,7 +952,7 @@ const fileStatus = (file: string): string => {
 .method-note a {
   flex: 0 0 auto;
   color: var(--color-accent-blue);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   text-decoration: none;
 }
 

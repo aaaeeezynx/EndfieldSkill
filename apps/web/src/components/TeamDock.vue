@@ -29,8 +29,7 @@ const handleImageError = (characterId: string): void => {
 const monogram = (name: string): string => name.slice(0, 1)
 
 const displayName = (characterId: string, name: string): string => {
-  if (characterId === 'chr_0002_endminm') return '管理員（A 形態）'
-  if (characterId === 'chr_0003_endminf') return '管理員（B 形態）'
+  if (characterId === 'chr_0002_endminm') return '管理員'
   return name
 }
 
@@ -249,7 +248,7 @@ const submit = async (): Promise<void> => {
 .squad-slot.filled {
   border-style: solid;
   border-color: var(--color-border-strong);
-  background: linear-gradient(90deg, rgba(255, 250, 0, 0.08), transparent);
+  background: #fffde7;
 }
 
 .slot-number {
@@ -288,7 +287,6 @@ const submit = async (): Promise<void> => {
   justify-content: center;
   width: 100%;
   height: 100%;
-  opacity: 0.7;
 }
 
 .slot-copy {
@@ -356,7 +354,7 @@ const submit = async (): Promise<void> => {
   border-left: 2px solid var(--color-accent-orange);
   background: #fff8ec;
   padding: 0.48rem 0.6rem;
-  color: #8a5a1c;
+  color: #5c3a00;
   font-size: 0.68rem;
 }
 
@@ -405,7 +403,8 @@ const submit = async (): Promise<void> => {
 }
 
 .level-field:focus-within {
-  border-color: var(--color-accent-primary);
+  border-color: var(--color-text-primary);
+  box-shadow: inset 0 0 0 1px var(--color-text-primary);
 }
 
 .level-field span {
@@ -420,8 +419,7 @@ const submit = async (): Promise<void> => {
   width: 100%;
   height: 100%;
   border: 0;
-  outline: 0;
-  background: transparent;
+  background: #ffffff;
   padding: 0 0.7rem;
   color: var(--color-text-primary);
   font-family: "Rajdhani", sans-serif;
@@ -429,19 +427,25 @@ const submit = async (): Promise<void> => {
   font-weight: 500;
 }
 
+.level-field input::placeholder {
+  color: #3f3f3f;
+  opacity: 1;
+}
+
 .chapter-select {
   width: 100%;
   height: 43px;
   border: 1px solid var(--color-border-primary);
-  outline: 0;
   background: #ffffff;
   padding: 0 0.7rem;
   color: var(--color-text-primary);
   font-size: 0.76rem;
 }
 
-.chapter-select:focus {
-  border-color: var(--color-accent-primary);
+.level-field input:focus-visible,
+.chapter-select:focus-visible {
+  outline: 3px solid var(--color-text-primary);
+  outline-offset: 2px;
 }
 
 .chapter-select option {
@@ -452,19 +456,19 @@ const submit = async (): Promise<void> => {
   margin-top: 0.42rem;
   color: var(--color-text-tertiary);
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.59rem;
+  font-size: 0.6rem;
   letter-spacing: 0.08em;
 }
 
 .chapter-meta.unverified {
-  color: #8a6f1c;
+  color: #5c3a00;
   line-height: 1.45;
 }
 
 .chapter-meta.unverified span {
   display: block;
   margin-top: 0.18rem;
-  color: #8e8260;
+  color: #3f3f3f;
   font-family: "Noto Sans TC", sans-serif;
   letter-spacing: 0;
 }
@@ -556,10 +560,9 @@ const submit = async (): Promise<void> => {
 .generate-button small {
   margin-top: 0.1rem;
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.53rem;
+  font-size: 0.6rem;
   font-weight: 600;
   letter-spacing: 0.13em;
-  opacity: 0.65;
 }
 
 .generate-arrow {
@@ -616,7 +619,7 @@ const submit = async (): Promise<void> => {
   }
 
   .slot-copy small {
-    font-size: 0.52rem;
+    font-size: 0.6rem;
   }
 
   .progress-section {
@@ -642,7 +645,7 @@ const submit = async (): Promise<void> => {
   }
   .slot-avatar, .empty-cross { width: 30px; height: 34px; }
   .slot-copy strong { font-size: 0.72rem; }
-  .slot-copy small { font-size: 0.48rem; }
+  .slot-copy small { font-size: 0.6rem; }
   .generate-button { min-height: 58px; }
 }
 </style>

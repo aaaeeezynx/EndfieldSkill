@@ -26,6 +26,8 @@
 
 html {
   min-width: 320px;
+  /* Scale the whole UI ~1.3x via root em; components use rem, never scale() transforms. */
+  font-size: 130%;
   background: var(--color-bg-primary);
   scroll-behavior: smooth;
 }
@@ -82,7 +84,8 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-accent-primary);
+  /* Dark focus ring on white: yellow fails APCA as a stroke on light bg. */
+  outline: 3px solid var(--color-text-primary);
   outline-offset: 3px;
 }
 
@@ -113,10 +116,9 @@ a {
   align-items: center;
   justify-content: space-between;
   border-color: var(--color-border-primary);
-  background: rgba(255, 255, 255, 0.94);
+  background: #ffffff;
   padding: 1.2rem 0;
   pointer-events: none;
-  backdrop-filter: blur(12px);
 }
 
 .app-rail::before {
@@ -155,7 +157,7 @@ a {
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-family: var(--font-display);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   transform: rotate(45deg);
@@ -180,7 +182,7 @@ a {
   background: var(--color-bg-primary);
   color: var(--color-text-secondary);
   font-family: var(--font-display);
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   writing-mode: vertical-rl;
@@ -221,18 +223,35 @@ a {
   z-index: var(--z-base);
   margin-top: 4.5rem;
   border-top: 8px solid var(--color-accent-primary);
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-    var(--color-bg-inverse);
-  background-size: 32px 32px;
+  background: #191919;
   padding: 2rem 0 2.25rem;
-  color: rgba(255, 255, 255, 0.7);
+  /* Opaque enough white on #191919 dark footer to pass APCA body text (|Lc|>=75). */
+  color: #f2f2f2;
   font-family: var(--font-display);
   font-size: 0.78rem;
   letter-spacing: 0.08em;
 }
 
+.site-footer::before {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 1px,
+    transparent 1px
+  );
+  background-size: 32px 32px;
+  content: "";
+  pointer-events: none;
+}
+
+.site-footer :focus-visible {
+  outline-color: #ffffff;
+}
+
 .footer-inner {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -259,7 +278,8 @@ a {
 .footer-note {
   max-width: 52rem;
   margin-top: 0.45rem;
-  color: rgba(255, 255, 255, 0.55);
+  /* Raise to 0.9 alpha so the longer note still clears APCA body contrast. */
+  color: #ffffff;
   font-family: var(--font-body);
   font-size: 0.78rem;
   line-height: 1.65;
@@ -269,7 +289,7 @@ a {
 .footer-index {
   flex: 0 0 auto;
   color: var(--color-accent-primary);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.16em;
 }
@@ -308,7 +328,7 @@ a {
 .technical-label {
   color: var(--color-text-secondary);
   font-family: var(--font-display);
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -342,6 +362,12 @@ input,
 select,
 button {
   min-width: 0;
+}
+
+/* Keep browser-default placeholder alpha from lowering text below APCA body. */
+::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 1;
 }
 
 .reveal {

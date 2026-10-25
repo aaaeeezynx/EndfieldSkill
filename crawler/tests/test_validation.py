@@ -19,9 +19,15 @@ class ValidationTests(unittest.TestCase):
         result = validate_dataset(CANONICAL_DATA, SCHEMA_DATA)
 
         self.assertTrue(result.ok, result.format())
-        self.assertEqual(34, result.record_counts["characters"])
+        self.assertEqual(33, result.record_counts["characters"])
         self.assertEqual(276, result.record_counts["equipment"])
         self.assertGreaterEqual(result.record_counts["rotationSteps"], 1)
+        characters = json.loads(
+            (CANONICAL_DATA / "characters.json").read_text(encoding="utf-8")
+        )["characters"]
+        character_ids = {character["id"] for character in characters}
+        self.assertIn("chr_0002_endminm", character_ids)
+        self.assertNotIn("chr_0003_endminf", character_ids)
         progressions = json.loads(
             (CANONICAL_DATA / "progressions.json").read_text(encoding="utf-8")
         )

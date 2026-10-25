@@ -69,8 +69,7 @@ const resourceLabels = (step: RotationStep): string[] => {
 }
 
 const characterName = (characterId: string): string => {
-  if (characterId === 'chr_0002_endminm') return '管理員（A 形態）'
-  if (characterId === 'chr_0003_endminf') return '管理員（B 形態）'
+  if (characterId === 'chr_0002_endminm') return '管理員'
   return characterById.value.get(characterId)?.name ?? characterId
 }
 </script>
@@ -250,7 +249,7 @@ const characterName = (characterId: string): string => {
 }
 
 .rotation-kind.rule-generated {
-  color: #a94b00;
+  color: #8f3f00;
 }
 
 .rotation-kind span {
@@ -343,12 +342,12 @@ const characterName = (characterId: string): string => {
   margin-top: 1rem;
   overflow-x: auto;
   padding-bottom: 0.3rem;
-  scrollbar-color: #bcbcbc transparent;
+  scrollbar-color: #949494 transparent;
 }
 
 .rotation-tabs button {
   flex: 0 0 auto;
-  border: 1px solid #bdbdbd;
+  border: 1px solid #949494;
   background: #fff;
   padding: 0.52rem 0.75rem;
   color: var(--color-text-secondary);
@@ -380,14 +379,14 @@ const characterName = (characterId: string): string => {
   grid-template-columns: auto minmax(0, 1fr);
   gap: 0.8rem;
   margin-top: 0.75rem;
-  border: 1px solid #f0c9a7;
+  border: 1px solid #8f3f00;
   border-left: 5px solid var(--color-accent-orange);
   background: #fff8f1;
   padding: 0.75rem 0.85rem;
 }
 
 .fallback-banner span {
-  color: #a94b00;
+  color: #8f3f00;
   font-family: var(--font-display);
   font-size: 0.64rem;
   font-weight: 700;
@@ -396,7 +395,7 @@ const characterName = (characterId: string): string => {
 }
 
 .fallback-banner p {
-  color: #694b36;
+  color: #5c3a00;
   font-size: 0.73rem;
   line-height: 1.6;
 }
@@ -430,7 +429,7 @@ const characterName = (characterId: string): string => {
   padding: 0.2rem 0.38rem;
   color: var(--color-text-secondary);
   font-family: var(--font-display);
-  font-size: 0.58rem;
+  font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -471,11 +470,11 @@ const characterName = (characterId: string): string => {
   width: 1px;
   min-height: 24px;
   flex: 1;
-  background: #c9c9c9;
+  background: #949494;
 }
 
 .step-card:last-child .step-rail i {
-  background: linear-gradient(#c9c9c9, transparent);
+  background: linear-gradient(#949494, transparent);
 }
 
 .step-content {
@@ -528,7 +527,7 @@ const characterName = (characterId: string): string => {
 
 .skill-type {
   flex: 0 0 auto;
-  border: 1px solid #bdbdbd;
+  border: 1px solid #949494;
   background: #f7f7f7;
   padding: 0.2rem 0.4rem;
   color: var(--color-text-secondary);
@@ -551,7 +550,7 @@ const characterName = (characterId: string): string => {
 .skill-type.ultimate {
   border-color: var(--color-accent-orange);
   background: #fff4ec;
-  color: #a94b00;
+  color: #8f3f00;
 }
 
 .resource-badges {
@@ -562,7 +561,7 @@ const characterName = (characterId: string): string => {
 }
 
 .resource-badges span {
-  border: 1px solid #dedede;
+  border: 1px solid #949494;
   background: #f7f7f7;
   padding: 0.2rem 0.38rem;
   color: var(--color-text-secondary);
@@ -575,8 +574,8 @@ const characterName = (characterId: string): string => {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
   margin-top: 0.6rem;
-  border: 1px solid #dedede;
-  background: #dedede;
+  border: 1px solid #949494;
+  background: #949494;
 }
 
 .condition-grid div {
@@ -618,7 +617,7 @@ const characterName = (characterId: string): string => {
   border-left: 3px solid var(--color-accent-orange);
   background: #fff7ef;
   padding: 0.2rem 0.38rem;
-  color: #7d4b1d;
+  color: #5c3a00;
   font-size: 0.65rem;
 }
 
@@ -632,7 +631,7 @@ const characterName = (characterId: string): string => {
 .rotation-warnings p {
   display: flex;
   gap: 0.45rem;
-  color: #7d4b1d;
+  color: #5c3a00;
   font-size: 0.72rem;
 }
 
@@ -643,14 +642,14 @@ const characterName = (characterId: string): string => {
 }
 
 .rotation-empty {
-  border: 1px dashed #bdbdbd;
+  border: 1px dashed #949494;
   background: #f7f7f7;
   padding: 2.5rem 1rem;
   text-align: center;
 }
 
 .rotation-empty strong {
-  color: #a94b00;
+  color: #8f3f00;
   font-family: var(--font-display);
   font-size: 0.8rem;
   letter-spacing: 0.12em;
@@ -696,7 +695,7 @@ const characterName = (characterId: string): string => {
   }
 
   .rotation-kind span {
-    font-size: 0.56rem;
+    font-size: 0.6rem;
   }
 
   .resource-doctrine {

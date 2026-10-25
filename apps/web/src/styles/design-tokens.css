@@ -10,17 +10,17 @@
   --color-bg-inverse: #191919;
 
   --color-text-primary: #191919;
-  --color-text-secondary: #595959;
-  --color-text-tertiary: #828282;
+  --color-text-secondary: #3f3f3f;
+  --color-text-tertiary: #3f3f3f;
   --color-text-inverse: #ffffff;
 
   --color-accent-primary: #fffa00;
-  --color-accent-blue: #2257d6;
-  --color-accent-orange: #ff6b00;
-  --color-danger: #c83b2e;
-  --color-success: #19864b;
+  --color-accent-blue: #1744ad;
+  --color-accent-orange: #8f3f00;
+  --color-danger: #9e332a;
+  --color-success: #145c35;
 
-  --color-border-primary: #d9d9d9;
+  --color-border-primary: #949494;
   --color-border-strong: #191919;
   --color-grid-line: rgba(25, 25, 25, 0.055);
 
@@ -28,14 +28,14 @@
   --ink: #ffffff;
   --carbon: #f0f0f0;
   --panel: #ffffff;
-  --line: #d9d9d9;
+  --line: #949494;
   --paper: #191919;
-  --muted: #5f5f5f;
+  --muted: #3f3f3f;
   --acid: #fffa00;
-  --cyan: #2257d6;
-  --ember: #e96500;
-  --danger: #c83b2e;
-  --steel: #777777;
+  --cyan: #1744ad;
+  --ember: #8f3f00;
+  --danger: #9e332a;
+  --steel: #3f3f3f;
   --surface-glass: #ffffff;
 
   --font-display: "Rajdhani", "Noto Sans TC", "Microsoft JhengHei", sans-serif;

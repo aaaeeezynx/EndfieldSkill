@@ -6,9 +6,9 @@ const scriptDir = dirname(fileURLToPath(import.meta.url))
 const webRoot = resolve(scriptDir, '..')
 const outputDir = resolve(webRoot, 'public', 'assets', 'official')
 
+// Official character key visuals and hero artwork are intentionally excluded.
+// The landing hero is original CSS geometry to avoid licensing ambiguity.
 const assets = {
-  'kv_v1d6.32f51a5b.jpg':
-    'https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/kv_v1d6.32f51a5b.jpg',
   'block-bg.f05eda37.svg':
     'https://web-static.hg-cdn.com/endfield/official-v4/_next/static/media/block-bg.f05eda37.svg',
   'pag-button-texture.e4e732ad.png':

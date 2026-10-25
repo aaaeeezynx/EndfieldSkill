@@ -1,6 +1,6 @@
 {
   "coverage": {
-    "charactersWithSourceIds": 34,
+    "charactersWithSourceIds": 33,
     "equipment": {
       "total": 276,
       "withFormula": 276,
@@ -22,14 +22,14 @@
       "equipment.elementTags",
       "progressions.chapters"
     ],
-    "playableCharacters": 34,
+    "playableCharacters": 33,
     "rotationPresets": 1,
     "rotationSteps": 8,
     "skills": {
-      "battle": 32,
-      "combo": 33,
-      "total": 99,
-      "ultimate": 34
+      "battle": 31,
+      "combo": 32,
+      "total": 96,
+      "ultimate": 33
     },
     "storyChapters": 0,
     "teamPresets": 2

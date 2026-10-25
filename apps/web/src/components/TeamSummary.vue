@@ -29,8 +29,7 @@ const selectedCharacters = computed(() =>
 const bestMatch = computed(() => props.report.exactTeam ?? props.report.teamMatches[0] ?? null)
 
 const displayCharacterName = (id: string): string => {
-  if (id === 'chr_0002_endminm') return '管理員（A 形態）'
-  if (id === 'chr_0003_endminf') return '管理員（B 形態）'
+  if (id === 'chr_0002_endminm') return '管理員'
   return characterById.value.get(id)?.name ?? id
 }
 
@@ -259,7 +258,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
 .token-index {
   color: var(--color-text-primary);
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.58rem;
+  font-size: 0.6rem;
 }
 
 .token-avatar {
@@ -287,7 +286,6 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   justify-content: center;
   width: 100%;
   height: 100%;
-  opacity: 0.7;
 }
 
 .token-copy {
@@ -310,7 +308,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   overflow: hidden;
   margin-top: 0.1rem;
   color: var(--color-text-secondary);
-  font-size: 0.54rem;
+  font-size: 0.6rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -326,9 +324,9 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   border: 1px solid var(--color-accent-orange);
   background: #fff3e6;
   padding: 0.06rem 0.28rem;
-  color: #b3500a;
+  color: #8f3f00;
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 0.52rem;
+  font-size: 0.6rem;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
@@ -348,7 +346,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   border: 1px solid var(--color-border-primary);
   padding: 0.16rem 0.35rem;
   color: var(--color-text-secondary);
-  font-size: 0.57rem;
+  font-size: 0.6rem;
 }
 
 .match-readout {
@@ -387,7 +385,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
 
 .match-readout dt {
   color: var(--color-text-secondary);
-  font-size: 0.58rem;
+  font-size: 0.6rem;
 }
 
 .match-readout dd {
@@ -400,7 +398,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
 .source-id {
   color: var(--color-text-tertiary) !important;
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.56rem !important;
+  font-size: 0.6rem !important;
   letter-spacing: 0.08em;
   overflow-wrap: anywhere;
 }
@@ -441,7 +439,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   display: flex;
   gap: 0.45rem;
   margin: 0;
-  color: #8a5a1c;
+  color: #5c3a00;
   font-size: 0.64rem;
   line-height: 1.45;
 }
