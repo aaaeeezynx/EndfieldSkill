@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest'
 import {
   buildRecommendationReport,
   buildRotationChoices,
-  buildRuleRotation,
   matchTeamPresets,
   recommendEquipmentForCharacter,
 } from '@/lib/recommendation'
@@ -27,6 +26,8 @@ const makeRotation = (
   name: id,
   teamPresetId: null,
   characterIds,
+  matchType: 'complete',
+  dependencies: [],
   scenario: null,
   description: null,
   steps: characterIds.map((characterId, index) => ({
@@ -48,6 +49,12 @@ const makeRotation = (
   })),
   sourceIds: ['source-guide'],
   confidence: 0.8,
+  author: '測試作者',
+  videoTimestamp: '03:25',
+  publishedAt: '2026-10-20',
+  triggerConditions: ['條件成立'],
+  waitConditions: ['等待窗口開啟'],
+  limitations: ['僅記錄來源可核驗部分'],
   ...overrides,
 })
 
@@ -71,7 +78,7 @@ describe('team matching', () => {
     })
   })
 
-  it('prefers a verified exact-team rotation and otherwise labels the rule fallback', () => {
+  it('prefers a verified exact-team rotation and otherwise reports unavailable', () => {
     const team = makeTeamPreset('team-exact', ['a', 'b', 'c', 'd'])
     const rotation = makeRotation('rotation-exact', ['a', 'b', 'c', 'd'], {
       teamPresetId: team.id,
@@ -105,13 +112,13 @@ describe('team matching', () => {
 
     expect(fallbackReport.exactTeam).toBeNull()
     expect(fallbackReport.rotations).toHaveLength(1)
-    expect(fallbackReport.rotations[0].kind).toBe('rule-generated')
-    expect(fallbackReport.rotations[0].warnings).toContain('規則生成，待人工核對')
+    expect(fallbackReport.rotations[0].kind).toBe('unavailable')
+    expect(fallbackReport.rotations[0].steps).toEqual([])
     expect(fallbackReport.warnings).toContain(
-      '沿用標籤規則回退循環，不能視為已驗證攻略。',
+      '目前隊伍尚無可核驗的完整攻略循環。',
     )
     expect(buildRotationChoices(makeDataset({ characters: roster }), ['a'], null)[0].kind).toBe(
-      'rule-generated',
+      'unavailable',
     )
   })
 
@@ -128,7 +135,7 @@ describe('team matching', () => {
     })
   })
 
-  it('falls back to a rule rotation when only a subset of a source team is selected', () => {
+  it('keeps a same-source fragment when only a subset of a source team is selected', () => {
     const team = makeTeamPreset('team-source', ['a', 'b', 'c', 'd'])
     const rotation = makeRotation('rotation-source', ['a', 'b', 'c', 'd'], {
       teamPresetId: team.id,
@@ -150,7 +157,13 @@ describe('team matching', () => {
       matchedCharacterIds: ['a', 'b', 'c'],
       missingCharacterIds: ['d'],
     })
-    expect(report.rotations[0].kind).toBe('rule-generated')
+    expect(report.rotations[0]).toMatchObject({
+      id: rotation.id,
+      kind: 'source-fragment',
+      matchedCharacterIds: ['a', 'b', 'c'],
+    })
+    expect(report.rotations[0].steps.map((step) => step.characterId)).toEqual(['a', 'b', 'c'])
+    expect(report.rotations[0].warnings).toContain('這是來源循環片段，不能視為完整隊伍攻略。')
     expect(report.warnings).toContain(
       '目前選擇的 3 名角色未與任何攻略隊伍完全一致；隊伍摘要來自部分匹配，不代表攻略隊伍已完整重現。',
     )
@@ -184,7 +197,7 @@ describe('team matching', () => {
     [['a', 'b']],
     [['a', 'b', 'c']],
     [['a', 'b', 'c', 'd']],
-  ])('returns equipment and a skill loop for a %j roster', (selectedIds) => {
+  ])('returns equipment and an explicit unavailable rotation for a %j roster', (selectedIds) => {
     const report = buildRecommendationReport(makeDataset({ characters: roster }), selectedIds, {
       playerLevel: 20,
       chapterId: null,
@@ -192,111 +205,180 @@ describe('team matching', () => {
 
     expect(report.equipment.map((loadout) => loadout.characterId)).toEqual(selectedIds)
     expect(report.rotations).toHaveLength(1)
-    expect(report.rotations[0].kind).toBe('rule-generated')
-    expect(new Set(report.rotations[0].steps.map((step) => step.characterId))).toEqual(
-      new Set(selectedIds),
-    )
+    expect(report.rotations[0].kind).toBe('unavailable')
+    expect(report.rotations[0].steps).toEqual([])
+  })
+
+  it('returns identical rotations regardless of selected character order', () => {
+    const rotation = makeRotation('rotation-order', ['a', 'b', 'c'])
+    const dataset = makeDataset({ characters: roster, rotationPresets: [rotation] })
+
+    const forward = buildRotationChoices(dataset, ['a', 'b', 'c'], null)
+    const reversed = buildRotationChoices(dataset, ['c', 'b', 'a'], null)
+
+    expect(reversed).toEqual(forward)
+    expect(forward[0].steps.map((step) => step.characterId)).toEqual(['a', 'b', 'c'])
+  })
+
+  it('keeps source step order for exact and fragment choices', () => {
+    const rotation = makeRotation('rotation-authored-order', ['a', 'b', 'c'])
+    rotation.steps = [
+      { ...rotation.steps[2] },
+      { ...rotation.steps[0] },
+      { ...rotation.steps[1] },
+    ].map((step, index) => ({ ...step, order: index + 1 }))
+    const dataset = makeDataset({ characters: roster, rotationPresets: [rotation] })
+
+    const exact = buildRotationChoices(dataset, ['c', 'b', 'a'], null)
+    const fragment = buildRotationChoices(dataset, ['b', 'a'], null)
+
+    expect(exact[0].steps.map((step) => step.characterId)).toEqual(['c', 'a', 'b'])
+    expect(fragment[0].steps.map((step) => step.characterId)).toEqual(['a', 'b'])
+  })
+
+  it('never promotes an authored fragment to a complete rotation', () => {
+    const rotation = makeRotation('rotation-fragment', ['a', 'b'], {
+      matchType: 'fragment',
+      dependencies: [{ characterId: 'a', reason: '需要另一段尚未核驗的連攜。' }],
+    })
+    const dataset = makeDataset({ characters: roster, rotationPresets: [rotation] })
+
+    const choices = buildRotationChoices(dataset, ['b', 'a'], null)
+
+    expect(choices[0]).toMatchObject({
+      kind: 'source-fragment',
+      matchType: 'fragment',
+      dependencies: [{ characterId: 'a', reason: '需要另一段尚未核驗的連攜。' }],
+    })
+    expect(choices[0].warnings).toContain('這是來源循環片段，不能視為完整隊伍攻略。')
+  })
+
+  it('uses the exact team fallback only when a rotation has no authored character ids', () => {
+    const team = makeTeamPreset('team-fallback', ['a', 'b'])
+    const rotation = makeRotation('rotation-fallback', [])
+    const [exactTeam] = matchTeamPresets(['b', 'a'], [team])
+    const dataset = makeDataset({
+      characters: roster,
+      teamPresets: [team],
+      rotationPresets: [rotation],
+    })
+
+    const exact = buildRotationChoices(dataset, ['a', 'b'], exactTeam)
+    const noTeam = buildRotationChoices(dataset, ['a', 'b'], null)
+
+    expect(exact[0]).toMatchObject({ id: rotation.id, kind: 'source-backed' })
+    expect(noTeam[0].kind).toBe('unavailable')
+    expect(noTeam[0].steps).toEqual([])
+  })
+
+  it('does not combine steps from different sources into a complete rotation', () => {
+    const first = makeRotation('rotation-a', ['a', 'b'])
+    const second = makeRotation('rotation-b', ['c', 'd'])
+    const dataset = makeDataset({
+      characters: roster,
+      rotationPresets: [first, second],
+    })
+
+    const choices = buildRotationChoices(dataset, ['a', 'b', 'c', 'd'], null)
+
+    expect(choices).toHaveLength(2)
+    expect(choices.every((choice) => choice.kind === 'source-fragment')).toBe(true)
+    expect(choices.every((choice) => choice.matchedCharacterIds.length < 4)).toBe(true)
+    expect(
+      choices.every((choice) =>
+        choice.steps.every((step) =>
+          choice.id === first.id
+            ? first.characterIds.includes(step.characterId)
+            : second.characterIds.includes(step.characterId),
+        ),
+      ),
+    ).toBe(true)
+    expect(choices.flatMap((choice) => choice.steps.map((step) => step.characterId)).sort()).toEqual([
+      'a',
+      'b',
+      'c',
+      'd',
+    ])
+  })
+
+  it('never reports a single-character hit as a same-source fragment', () => {
+    const rotation = makeRotation('rotation-four', ['a', 'b', 'c', 'd'])
+    const dataset = makeDataset({ characters: roster, rotationPresets: [rotation] })
+
+    const single = buildRotationChoices(dataset, ['a'], null)
+
+    expect(single).toHaveLength(1)
+    expect(single[0]).toMatchObject({
+      id: 'rotation-unavailable',
+      kind: 'unavailable',
+      name: '尚無可核驗隊伍循環',
+      matchType: null,
+      steps: [],
+      matchedCharacterIds: [],
+    })
+    expect(single[0].warnings).toContain('目前隊伍尚無可核驗的完整攻略循環。')
+  })
+
+  it('keeps a same-source fragment once two or more characters match', () => {
+    const rotation = makeRotation('rotation-four', ['a', 'b', 'c', 'd'])
+    const dataset = makeDataset({ characters: roster, rotationPresets: [rotation] })
+
+    const two = buildRotationChoices(dataset, ['b', 'a'], null)
+    const three = buildRotationChoices(dataset, ['c', 'a', 'b'], null)
+
+    expect(two[0]).toMatchObject({ id: rotation.id, kind: 'source-fragment' })
+    expect(two[0].matchedCharacterIds).toEqual(['a', 'b'])
+    expect(two[0].steps.map((step) => step.characterId)).toEqual(['a', 'b'])
+    expect(three[0]).toMatchObject({ id: rotation.id, kind: 'source-fragment' })
+    expect(three[0].matchedCharacterIds).toEqual(['a', 'b', 'c'])
+  })
+
+  it('does not let the selection order decide the fragment', () => {
+    const rotation = makeRotation('rotation-order-fragment', ['a', 'b', 'c', 'd'])
+    const dataset = makeDataset({ characters: roster, rotationPresets: [rotation] })
+
+    const forward = buildRotationChoices(dataset, ['a', 'b'], null)
+    const reversed = buildRotationChoices(dataset, ['b', 'a'], null)
+
+    expect(reversed).toEqual(forward)
+    expect(forward[0].kind).toBe('source-fragment')
+    expect(forward[0].steps.map((step) => step.characterId)).toEqual(['a', 'b'])
+  })
+
+  it('exposes the unavailable placeholder at report level for a single-character hit', () => {
+    const rotation = makeRotation('rotation-four', ['a', 'b', 'c', 'd'])
+    const dataset = makeDataset({ characters: roster, rotationPresets: [rotation] })
+
+    const report = buildRecommendationReport(dataset, ['a'], {
+      playerLevel: 20,
+      chapterId: null,
+    })
+
+    expect(report.rotations).toHaveLength(1)
+    expect(report.rotations[0]).toMatchObject({
+      kind: 'unavailable',
+      name: '尚無可核驗隊伍循環',
+    })
+    expect(report.warnings).toContain('目前隊伍尚無可核驗的完整攻略循環。')
+  })
+
+  it('does not synthesise a fragment from single-character hits across separate sources', () => {
+    const first = makeRotation('rotation-a', ['a', 'x'])
+    const second = makeRotation('rotation-b', ['b', 'y'])
+    const dataset = makeDataset({
+      characters: roster,
+      rotationPresets: [first, second],
+    })
+
+    const choices = buildRotationChoices(dataset, ['a', 'b'], null)
+
+    expect(choices).toHaveLength(1)
+    expect(choices[0]).toMatchObject({
+      kind: 'unavailable',
+      name: '尚無可核驗隊伍循環',
+    })
   })
 })
-
-describe('rule rotation battle mechanics', () => {
-  it('keeps shared SP, combo trigger/window, and ultimate energy as distinct constraints', () => {
-    const hero = makeCharacter('a', {
-      name: '測試幹員',
-      skills: [
-        makeSkill('battle', {
-          name: '戰術戰技',
-          type: 'battle',
-          resource: 'shared_skill_points',
-          sharedSkillPointCost: 2,
-          tags: ['debuff-enemy'],
-        }),
-        makeSkill('combo', {
-          name: '條件連攜',
-          type: 'combo',
-          resource: 'none',
-          sharedSkillPointCost: null,
-          triggerConditions: ['目標處於失衡'],
-          cooldownSeconds: 14,
-          tags: ['break-shield'],
-        }),
-        makeSkill('ultimate', {
-          name: '終結打擊',
-          type: 'ultimate',
-          resource: 'energy',
-          energyCost: 80,
-          sharedSkillPointCost: null,
-        }),
-      ],
-    })
-
-    const rotation = buildRuleRotation([hero])
-    const battle = rotation.steps.find((step) => step.skillType === 'battle')
-    const combo = rotation.steps.find((step) => step.skillType === 'combo')
-    const ultimate = rotation.steps.find((step) => step.skillType === 'ultimate')
-
-    expect(battle?.sharedSkillPointCost).toBe(2)
-    expect(combo).toMatchObject({
-      sharedSkillPointCost: null,
-      triggerCondition: '目標處於失衡',
-      comboWindowSeconds: null,
-      cooldownSeconds: 14,
-    })
-    expect(combo?.waitFor).toBe('目標處於失衡')
-    expect(combo?.warnings).toContain('規則生成，待人工核對')
-    expect(ultimate).toMatchObject({
-      energyCost: 80,
-      sharedSkillPointCost: null,
-    })
-  })
-
-  it('deduplicates only identical character-skill records and keeps duplicate ids across characters', () => {
-    const first = makeCharacter('a', {
-      skills: [
-        makeSkill('shared-id', { type: 'battle' }),
-        makeSkill('shared-id', { type: 'battle' }),
-      ],
-    })
-    const second = makeCharacter('b', {
-      skills: [makeSkill('shared-id', { type: 'battle' })],
-    })
-
-    const rotation = buildRuleRotation([first, second])
-
-    expect(rotation.steps).toHaveLength(2)
-    expect(rotation.steps.map((step) => step.characterId)).toEqual(['a', 'b'])
-  })
-
-  it('caps rule output at 12 steps while preserving ultimate skills', () => {
-    const characters = Array.from({ length: 14 }, (_, index) =>
-      makeCharacter(`hero-${index + 1}`, {
-        skills: [
-          makeSkill(`battle-${index + 1}`, { type: 'battle' }),
-          makeSkill(`combo-${index + 1}`, {
-            type: 'combo',
-            resource: 'none',
-            sharedSkillPointCost: null,
-            triggerConditions: ['條件成立'],
-          }),
-          makeSkill(`ultimate-${index + 1}`, {
-            type: 'ultimate',
-            resource: 'energy',
-            sharedSkillPointCost: null,
-            energyCost: 80,
-          }),
-        ],
-      }),
-    )
-
-    const rotation = buildRuleRotation(characters)
-    const ultimateCount = rotation.steps.filter((step) => step.skillType === 'ultimate').length
-
-    expect(rotation.steps).toHaveLength(12)
-    expect(ultimateCount).toBe(12)
-    expect(new Set(rotation.steps.map((step) => step.characterId)).size).toBe(12)
-  })
-})
-
 describe('three-slot equipment gates', () => {
   const hero = makeCharacter('a', {
     roles: ['dps'],

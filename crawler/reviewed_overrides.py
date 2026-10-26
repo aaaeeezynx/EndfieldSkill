@@ -52,6 +52,29 @@ WULFA_SOURCE_IDS = [
 ]
 
 
+# Typhoeus has no BWiki page and its battle skill is absent from the
+# structured tables. These two community-reviewed fields are kept separate
+# from REVIEWED_SKILL_OVERRIDES, whose fixed table has its own contract.
+TYPHOEUS_SOURCE_ID = "src_warfarin_typhoeus"
+SUPPLEMENTAL_SKILL_OVERRIDES: dict[str, dict[str, dict[str, Any]]] = {
+    "chr_0034_typhoea": {
+        "battle": {
+            "name": "風矢穿林",
+            "description": "以風矢貫穿林間，攻擊前方敵人並造成自然傷害。",
+            "sourceIds": [TYPHOEUS_SOURCE_ID],
+        },
+        "combo": {
+            "name": "野棘叢生",
+            "description": "召喚野棘叢生，造成自然傷害並減速。",
+            "sourceIds": [
+                *STRUCTURED_SKILL_SOURCE_IDS,
+                TYPHOEUS_SOURCE_ID,
+            ],
+        },
+    },
+}
+
+
 REVIEWED_SKILL_OVERRIDES: dict[str, dict[str, dict[str, Any]]] = {
     "chr_0002_endminm": {
         "battle": {
@@ -981,11 +1004,13 @@ def _merge_description(existing: Any, override: Any) -> Any:
     return override
 
 
-def apply_reviewed_skill_overrides(characters: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Apply reviewed character-specific skill data without changing stable IDs."""
+def _apply_skill_overrides(
+    characters: list[dict[str, Any]],
+    overrides: dict[str, dict[str, dict[str, Any]]],
+) -> list[dict[str, Any]]:
     result = deepcopy(characters)
     by_id = {character["id"]: character for character in result}
-    for character_id, skill_overrides in REVIEWED_SKILL_OVERRIDES.items():
+    for character_id, skill_overrides in overrides.items():
         character = by_id.get(character_id)
         if not character:
             continue
@@ -1035,3 +1060,15 @@ def apply_reviewed_skill_overrides(characters: list[dict[str, Any]]) -> list[dic
                     if optional_field in override:
                         skill[optional_field] = override[optional_field]
     return result
+
+
+def apply_reviewed_skill_overrides(characters: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Apply reviewed character-specific skill data without changing stable IDs."""
+    return _apply_skill_overrides(characters, REVIEWED_SKILL_OVERRIDES)
+
+
+def apply_supplemental_skill_overrides(
+    characters: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Fill reviewed skills absent from the structured source tables."""
+    return _apply_skill_overrides(characters, SUPPLEMENTAL_SKILL_OVERRIDES)

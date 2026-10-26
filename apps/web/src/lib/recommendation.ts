@@ -32,6 +32,11 @@ const unique = <T>(values: T[]): T[] => [...new Set(values)]
 
 const EQUIPMENT_SLOTS: EquipmentSlot[] = ['body', 'hand', 'edc']
 
+// A same-source fragment needs at least two verified character hits. A single
+// hit is not enough evidence and must fall through to the explicit
+// "尚無可核驗隊伍循環" placeholder instead of a fragment.
+const MIN_FRAGMENT_MATCHES = 2
+
 export const EQUIPMENT_SLOT_LABELS: Record<EquipmentSlot, string> = {
   body: '身體防具',
   hand: '手部裝備',
@@ -129,213 +134,129 @@ export const matchTeamPresets = (
         a.preset.id.localeCompare(b.preset.id),
     )
 
-const rotationMatchesSelection = (
+type RotationMatch = 'exact' | 'fragment' | null
+
+const matchRotation = (
   rotation: RotationPreset,
   selectedCharacterIds: string[],
   exactTeam: TeamMatch | null,
-): boolean => {
+): RotationMatch => {
   const selected = unique(selectedCharacterIds).sort()
-  const rotationIds = unique(rotation.characterIds).sort()
-  const sameCharacters =
-    rotationIds.length > 0 &&
-    rotationIds.length === selected.length &&
-    rotationIds.every((id, index) => id === selected[index])
+  const authoredIds = unique(rotation.characterIds)
+  const teamIds = authoredIds.length
+    ? authoredIds.sort()
+    : unique(exactTeam?.preset.characterIds ?? []).sort()
+  if (!selected.length) return null
+  if (!teamIds.length) return null
 
-  if (sameCharacters) return true
-  return Boolean(
-    exactTeam &&
-      rotation.teamPresetId &&
-      rotation.teamPresetId === exactTeam.preset.id &&
-      !rotation.characterIds.length,
-  )
+  // Compare as sets so the selection order can never decide the rotation kind.
+  const isSameTeam =
+    teamIds.length === selected.length &&
+    teamIds.every((id, index) => id === selected[index])
+  if (isSameTeam) return rotation.matchType === 'fragment' ? 'fragment' : 'exact'
+
+  const matched = selected.filter((id) => teamIds.includes(id))
+  const isPartialSubset =
+    matched.length < selected.length || matched.length < teamIds.length
+  const hasEnoughFragmentEvidence = matched.length >= MIN_FRAGMENT_MATCHES
+  return isPartialSubset && hasEnoughFragmentEvidence ? 'fragment' : null
 }
 
-const rotationToChoice = (rotation: RotationPreset): RotationChoice => ({
-  id: rotation.id,
-  name: rotation.name,
-  kind: 'source-backed',
-  description: `攻略來源循環 · 條件式順序${
-    rotation.scenario ? ` · ${rotation.scenario}` : ''
-  }${rotation.description ? `。${rotation.description}` : ''}`,
-  steps: rotation.steps,
-  warnings: unique([
-    ...(rotation.sourceIds.length ? [] : ['此循環沒有來源 ID，請人工核對。']),
-    '攻略只提供條件式順序，並非幀級最佳或角色專屬最佳。',
-    ...rotation.steps.flatMap((step) => step.warnings),
-  ]),
-  sourceIds: rotation.sourceIds,
-  confidence: rotation.confidence,
-  presetId: rotation.id,
+const rotationToChoice = (
+  rotation: RotationPreset,
+  kind: 'source-backed' | 'source-fragment',
+  selectedCharacterIds: string[],
+): RotationChoice => {
+  const selected = new Set(selectedCharacterIds)
+  const steps = kind === 'source-fragment'
+    ? rotation.steps
+        .filter((step) => selected.has(step.characterId))
+        .sort((a, b) => a.order - b.order)
+        .map((step, index) => ({ ...step, order: index + 1 }))
+    : [...rotation.steps].sort((a, b) => a.order - b.order)
+
+  return {
+    id: rotation.id,
+    name: rotation.name,
+    kind,
+    matchType: rotation.matchType,
+    dependencies: rotation.dependencies,
+    description: kind === 'source-fragment'
+      ? `來源循環片段 · ${rotation.scenario ?? '條件式順序'}。僅保留所選角色步驟，不代表完整隊伍循環。`
+      : `完整攻略循環 · ${rotation.scenario ?? '條件式順序'}${rotation.description ? `。${rotation.description}` : ''}`,
+    steps,
+    warnings: unique([
+      ...(rotation.sourceIds.length ? [] : ['此循環沒有來源 ID，請人工核對。']),
+      ...(kind === 'source-fragment' ? ['這是來源循環片段，不能視為完整隊伍攻略。'] : []),
+      '攻略提供的是條件式順序，並非幀級最佳。',
+      ...rotation.limitations,
+      ...steps.flatMap((step) => step.warnings),
+    ]),
+    sourceIds: rotation.sourceIds,
+    confidence: rotation.confidence,
+    presetId: rotation.teamPresetId,
+    author: rotation.author,
+    videoTimestamp: rotation.videoTimestamp,
+    publishedAt: rotation.publishedAt,
+    triggerConditions: rotation.triggerConditions,
+    waitConditions: rotation.waitConditions,
+    limitations: rotation.limitations,
+    matchedCharacterIds: unique(steps.map((step) => step.characterId)).sort(),
+  }
+}
+
+const unavailableRotation = (): RotationChoice => ({
+  id: 'rotation-unavailable',
+  name: '尚無可核驗隊伍循環',
+  kind: 'unavailable',
+  matchType: null,
+  dependencies: [],
+  description: '目前沒有找到能完整重現此隊伍的可核驗循環。',
+  steps: [],
+  warnings: ['目前隊伍尚無可核驗的完整攻略循環。'],
+  sourceIds: [],
+  confidence: null,
+  presetId: null,
+  author: null,
+  videoTimestamp: null,
+  publishedAt: null,
+  triggerConditions: [],
+  waitConditions: [],
+  limitations: [],
+  matchedCharacterIds: [],
 })
-
-const battleRule = (skill: SkillFact): { phase: string; rank: number } => {
-  if (
-    hasAnyTag(skill.tags, [
-      'buff-team',
-      'team-buff',
-      'heal',
-      'shield',
-      'survival',
-      'heal-over-time',
-    ])
-  ) {
-    return { phase: '建立增益 / 生存底稿', rank: 10 }
-  }
-  if (
-    hasAnyTag(skill.tags, [
-      'debuff-enemy',
-      'control',
-      'break-shield',
-      'vulnerable',
-      'energy-gain',
-    ])
-  ) {
-    return { phase: '鋪設破韌 / 減益', rank: 20 }
-  }
-  return { phase: '戰技窗口', rank: 40 }
-}
-
-const skillRule = (skill: SkillFact): { phase: string; rank: number } => {
-  if (skill.type === 'battle') return battleRule(skill)
-  if (skill.type === 'combo') {
-    return {
-      phase: '連攜觸發窗口',
-      rank: hasAnyTag(skill.tags, ['debuff-enemy', 'control', 'break-shield']) ? 25 : 35,
-    }
-  }
-  if (skill.type === 'ultimate') return { phase: '終結技能量窗口', rank: 50 }
-  return { phase: '其他技能', rank: 60 }
-}
-
-const ruleWaitFor = (skill: SkillFact): string => {
-  if (skill.type === 'battle') return '確認共享技力足夠，且目標已進入本步效果窗口'
-  if (skill.type === 'combo') {
-    return skill.triggerConditions[0] ?? '等待角色連攜條件亮起；僅在連攜窗口內接續'
-  }
-  if (skill.type === 'ultimate') return '確認終結技能量已滿，且增益或破韌窗口尚未結束'
-  return '確認技能條件滿足後再執行'
-}
-
-const ruleTrigger = (skill: SkillFact): string => {
-  if (skill.type === 'combo') {
-    return skill.triggerConditions.join(' / ') || '角色條件觸發，不可當作普通戰技主動釋放'
-  }
-  if (skill.type === 'ultimate') return '終結技能量達到需求'
-  return skill.triggerConditions.join(' / ') || '主動戰技；共享全隊技力'
-}
-
-const createRuleStep = (character: CharacterFact, skill: SkillFact, order: number): RotationStep => {
-  const rule = skillRule(skill)
-  const warnings = ['規則生成，待人工核對']
-  if (!skill.triggerConditions.length && skill.type === 'combo') {
-    warnings.push('連攜觸發條件缺失')
-  }
-  if (skill.type === 'ultimate' && skill.energyCost === null) {
-    warnings.push('終結技能量消耗未標註')
-  }
-
-  return {
-    id: `rule-${character.id}-${skill.id}-${order}`,
-    order,
-    phase: rule.phase,
-    characterId: character.id,
-    skillId: skill.id,
-    skillName: skill.name,
-    skillType: skill.type,
-    triggerCondition: ruleTrigger(skill),
-    waitFor: ruleWaitFor(skill),
-    // A combo cooldown is not the same as the source-defined combo window.
-    comboWindowSeconds: null,
-    sharedSkillPointCost: skill.type === 'battle' ? skill.sharedSkillPointCost : null,
-    energyCost: skill.type === 'ultimate' ? skill.energyCost : null,
-    cooldownSeconds: skill.cooldownSeconds,
-    warnings,
-    note: skill.description,
-  }
-}
-
-export const buildRuleRotation = (characters: CharacterFact[]): RotationChoice => {
-  const deduplicated = characters.flatMap((character, characterIndex) =>
-    character.skills.map((skill, skillIndex) => ({
-      character,
-      characterIndex,
-      skillIndex,
-      skill,
-      rule: skillRule(skill),
-      candidateKey: `${character.id}:${skill.id}:${skill.type}`,
-    })),
-  )
-
-  const candidates = [...deduplicated]
-    .sort(
-      (a, b) =>
-        a.rule.rank - b.rule.rank ||
-        a.characterIndex - b.characterIndex ||
-        a.skillIndex - b.skillIndex ||
-        a.skill.id.localeCompare(b.skill.id),
-    )
-    .filter(
-      (candidate, index, all) =>
-        all.findIndex((other) => other.candidateKey === candidate.candidateKey) === index,
-    )
-
-  const ultimates = candidates
-    .filter((candidate) => candidate.skill.type === 'ultimate')
-    .slice(0, 12)
-  const regularSlots = Math.max(0, 12 - ultimates.length)
-  const regulars = candidates
-    .filter(
-      (candidate) =>
-        candidate.skill.type !== 'ultimate' &&
-        !ultimates.some((ultimate) => ultimate.candidateKey === candidate.candidateKey),
-    )
-    .slice(0, regularSlots)
-  const selectedKeys = new Set(
-    [...ultimates, ...regulars].map((candidate) => candidate.candidateKey),
-  )
-  const ordered = candidates
-    .filter((candidate) => selectedKeys.has(candidate.candidateKey))
-    .slice(0, 12)
-
-  const warnings = ['規則生成，待人工核對']
-  if (!candidates.length) warnings.push('所選角色缺少可用技能欄位，無法生成步驟')
-
-  return {
-    id: 'rule-generated',
-    name: '標籤規則編排',
-    kind: 'rule-generated',
-    description: '沒有完全符合的攻略循環。以下順序僅由角色、技能類型與效果標籤確定性推導。',
-    steps: ordered.map((candidate, index) =>
-      createRuleStep(candidate.character, candidate.skill, index + 1),
-    ),
-    warnings,
-    sourceIds: [],
-    confidence: null,
-    presetId: null,
-  }
-}
 
 export const buildRotationChoices = (
   dataset: Dataset,
   selectedCharacterIds: string[],
   exactTeam: TeamMatch | null,
 ): RotationChoice[] => {
-  const byId = new Map(dataset.characters.map((character) => [character.id, character]))
-  const selectedCharacters = selectedCharacterIds
-    .map((id) => byId.get(id))
-    .filter((character): character is CharacterFact => Boolean(character))
-
-  const sourceBacked = dataset.rotationPresets
-    .filter((rotation) => rotationMatchesSelection(rotation, selectedCharacterIds, exactTeam))
-    .sort(
-      (a, b) =>
-        b.sourceIds.length - a.sourceIds.length ||
-        b.steps.length - a.steps.length ||
-        a.id.localeCompare(b.id),
-    )
-    .map(rotationToChoice)
-
-  return sourceBacked.length ? sourceBacked : [buildRuleRotation(selectedCharacters)]
+  const matches: Array<{
+    rotation: RotationPreset
+    match: 'exact' | 'fragment'
+  }> = []
+  for (const rotation of dataset.rotationPresets) {
+    const match = matchRotation(rotation, selectedCharacterIds, exactTeam)
+    if (match) matches.push({ rotation, match })
+  }
+  matches.sort(
+    (a, b) =>
+      Number(b.match === 'exact') - Number(a.match === 'exact') ||
+      b.rotation.sourceIds.length - a.rotation.sourceIds.length ||
+      b.rotation.steps.length - a.rotation.steps.length ||
+      a.rotation.id.localeCompare(b.rotation.id),
+  )
+  const exact = matches.filter((item) => item.match === 'exact')
+  const chosen = exact.length ? exact : matches
+  return chosen.length
+    ? chosen.map(({ rotation, match }) =>
+        rotationToChoice(
+          rotation,
+          match === 'exact' ? 'source-backed' : 'source-fragment',
+          selectedCharacterIds,
+        ),
+      )
+    : [unavailableRotation()]
 }
 
 const equipmentMatchScore = (character: CharacterFact, equipment: EquipmentFact): number => {
@@ -550,8 +471,8 @@ export const buildRecommendationReport = (
         : `目前選擇的 ${characters.length} 名角色沒有可用的攻略隊伍匹配；隊伍摘要僅依角色標籤整理。`,
     )
   }
-  if (rotations.every((rotation) => rotation.kind === 'rule-generated')) {
-    warnings.push('沿用標籤規則回退循環，不能視為已驗證攻略。')
+  if (rotations.every((rotation) => rotation.kind === 'unavailable')) {
+    warnings.push('目前隊伍尚無可核驗的完整攻略循環。')
   }
   if (!dataset.teamPresets.length) warnings.push('team-presets.json 沒有可用記錄。')
   if (!dataset.rotationPresets.length) warnings.push('rotation-presets.json 沒有可用記錄。')

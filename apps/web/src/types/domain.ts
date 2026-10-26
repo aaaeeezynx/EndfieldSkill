@@ -60,16 +60,29 @@ export interface RotationStep {
   note: string | null
 }
 
+export interface RotationDependency {
+  characterId: string
+  reason: string
+}
+
 export interface RotationPreset {
   id: string
   name: string
   teamPresetId: string | null
   characterIds: string[]
+  matchType: 'complete' | 'fragment'
+  dependencies: RotationDependency[]
   scenario: string | null
   description: string | null
   steps: RotationStep[]
   sourceIds: string[]
   confidence: number | null
+  author: string | null
+  videoTimestamp: string | null
+  publishedAt: string | null
+  triggerConditions: string[]
+  waitConditions: string[]
+  limitations: string[]
 }
 
 export interface EquipmentUnlock {
@@ -116,6 +129,10 @@ export interface SourceRecord {
   url: string | null
   fetchedAt: string | null
   fields: string[]
+  author: string | null
+  publishedAt: string | null
+  videoTimestamp: string | null
+  notes: string[]
 }
 
 export interface DatasetMeta {
@@ -172,18 +189,27 @@ export interface TeamMatch {
   sourceBacked: boolean
 }
 
-export type RotationChoiceKind = 'source-backed' | 'rule-generated'
+export type RotationChoiceKind = 'source-backed' | 'source-fragment' | 'unavailable'
 
 export interface RotationChoice {
   id: string
   name: string
   kind: RotationChoiceKind
+  matchType: 'complete' | 'fragment' | null
+  dependencies: RotationDependency[]
   description: string
   steps: RotationStep[]
   warnings: string[]
   sourceIds: string[]
   confidence: number | null
   presetId: string | null
+  author: string | null
+  videoTimestamp: string | null
+  publishedAt: string | null
+  triggerConditions: string[]
+  waitConditions: string[]
+  limitations: string[]
+  matchedCharacterIds: string[]
 }
 
 export type UnlockState = 'unlocked' | 'locked' | 'unknown' | 'not-craftable'

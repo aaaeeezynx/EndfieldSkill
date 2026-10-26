@@ -136,7 +136,7 @@ const fileStatus = (file: string): string => {
             <strong>{{ dataset?.chapters.length ?? 0 }}</strong>
             <span>{{ hasUnverifiedProgressData ? '章節／未核驗' : '章節' }}</span>
           </div>
-          <div><strong>{{ dataset?.rotationPresets.length ?? 0 }}</strong><span>循環預設</span></div>
+          <div><strong>{{ dataset?.rotationPresets.length ?? 0 }}</strong><span>來源循環</span></div>
         </div>
 
         <div v-if="hasUnverifiedProgressData" class="progress-limits">
@@ -233,7 +233,12 @@ const fileStatus = (file: string): string => {
               <span>來源缺圖；介面顯示替代標記，不捏造圖像。</span>
             </article>
           </div>
-          <p v-else class="gap-empty">目前裝備資料均有本地圖片映射。</p>
+          <p v-else class="gap-empty">
+            目前 {{ dataset?.equipment.length ?? 0 }} 件裝備資料均有本地圖片映射。
+          </p>
+          <p class="gap-source-note">
+            裝備圖以本地鏡像提供；其中 18 張由 Warfarin 社群資料庫／社群鏡像補齊，非官方 CDN。
+          </p>
         </div>
       </div>
     </section>
@@ -317,8 +322,10 @@ const fileStatus = (file: string): string => {
     <section class="method-note reveal">
       <span>METHOD / 01</span>
       <p>
-        推薦採用「來源預設優先，標籤規則回退」的確定性流程。共享技力、連攜觸發條件與終結技能量分別建模，
-        不以普通秒錶時間軸替代戰鬥機制。任何規則生成內容均明確標註待人工核對。
+        推薦循環採用「完整來源命中／同來源片段／無可核驗資料」三態：完整命中要求隊伍角色集合與攻略一致；
+        部分命中只展示同來源片段，並標示不足以代表完整隊伍軸；沒有可靠來源時顯示無資料，
+        不以標籤規則推導或拼接不同來源生成順序。共享技力、連攜觸發條件與終結技能量分別建模，
+        不以普通秒錶時間軸替代戰鬥機制。
       </p>
       <a href="https://endfield.gryphline.com/zh-tw#home" target="_blank" rel="noreferrer">
         官方網站 ↗
@@ -614,6 +621,15 @@ const fileStatus = (file: string): string => {
   margin-top: 1rem;
   color: var(--color-text-secondary);
   font-size: 0.75rem;
+}
+
+.gap-source-note {
+  margin-top: 0.65rem;
+  border-left: 3px solid var(--color-accent-blue);
+  padding-left: 0.55rem;
+  color: var(--color-text-tertiary);
+  font-size: 0.75rem;
+  line-height: 1.55;
 }
 
 .missing-fields {

@@ -168,8 +168,20 @@ const characterName = (characterId: string): string => {
         <h2>技能釋放順序</h2>
       </div>
       <div class="rotation-kind" :class="activeChoice.kind">
-        <span>{{ activeChoice.kind === 'source-backed' ? 'SOURCE BACKED' : 'RULE FALLBACK' }}</span>
-        <strong>{{ activeChoice.kind === 'source-backed' ? '攻略預設' : '規則生成' }}</strong>
+        <span>{{
+          activeChoice.kind === 'source-backed'
+            ? '完整攻略循環'
+            : activeChoice.kind === 'source-fragment'
+              ? '來源循環片段'
+              : '尚無可核驗循環'
+        }}</span>
+        <strong>{{
+          activeChoice.kind === 'source-backed'
+            ? '來源完整命中'
+            : activeChoice.kind === 'source-fragment'
+              ? '僅部分命中'
+              : '無可靠資料'
+        }}</strong>
       </div>
     </div>
 
@@ -215,27 +227,92 @@ const characterName = (characterId: string): string => {
         :class="{ active: activeChoice.id === choice.id }"
         @click="activeChoiceId = choice.id"
       >
-        <span>{{ choice.kind === 'source-backed' ? 'SOURCE' : 'RULE' }}</span>
+        <span>{{
+          choice.kind === 'source-backed'
+            ? '完整'
+            : choice.kind === 'source-fragment'
+              ? '片段'
+              : '無資料'
+        }}</span>
         {{ choice.name }}
       </button>
     </div>
 
-    <div v-if="activeChoice.kind === 'rule-generated'" class="fallback-banner">
-      <span>RULE GENERATED / 待核對</span>
+    <div
+      v-if="activeChoice.kind === 'source-fragment' || activeChoice.kind === 'unavailable'"
+      class="fallback-banner"
+    >
+      <span>{{ activeChoice.kind === 'source-fragment' ? '部分匹配 / 待核對' : '尚無可核驗資料' }}</span>
       <p>
-        目前隊伍沒有完整攻略循環。以下依職業、技能類型、效果標籤與技能順序產生確定性回退方案，
-        不是攻略原文，也不代表逐幀最佳。
+        {{
+          activeChoice.kind === 'source-fragment'
+            ? '此循環只命中目前隊伍中的部分角色；同一來源至少要有兩名角色命中才會顯示片段。步驟保留自同一來源，未跨來源拼接，也不能視為完整隊伍循環。'
+            : '目前沒有找到能完整重現此隊伍的可核驗循環；同一來源只有一名角色命中時不算片段，因此不會以規則推導或跨來源拼接冒充攻略。'
+        }}
       </p>
     </div>
+
+    <section
+      v-if="activeChoice.dependencies.length"
+      class="dependency-panel"
+      aria-label="循環依賴條件"
+    >
+      <span>依賴條件 / DEPENDENCIES</span>
+      <ul>
+        <li v-for="dependency in activeChoice.dependencies" :key="`${dependency.characterId}-${dependency.reason}`">
+          <strong>{{ characterName(dependency.characterId) }}</strong>
+          <p>{{ dependency.reason }}</p>
+        </li>
+      </ul>
+    </section>
 
     <div class="rotation-overview">
       <p>{{ activeChoice.description }}</p>
       <div>
-        <span>{{ orderedSteps.length }} STEPS</span>
-        <span v-if="activeChoice.confidence !== null">CONFIDENCE {{ activeChoice.confidence }}</span>
-        <span>NO AI RUNTIME</span>
+        <span>{{ orderedSteps.length }} 個步驟</span>
+        <span v-if="activeChoice.confidence !== null">信心 {{ Math.round(activeChoice.confidence * 100) }}%</span>
+        <span>未使用執行期 AI</span>
       </div>
     </div>
+
+    <dl v-if="activeChoice.kind !== 'unavailable'" class="source-facts">
+      <div>
+        <dt>資料完整度</dt>
+        <dd>
+          {{
+            activeChoice.matchType === 'complete'
+              ? '完整循環'
+              : activeChoice.matchType === 'fragment'
+                ? '來源片段'
+                : '無可靠資料'
+          }}
+        </dd>
+      </div>
+      <div>
+        <dt>來源</dt>
+        <dd>{{ activeChoice.sourceIds.length ? activeChoice.sourceIds.join(' / ') : '來源未標註' }}</dd>
+      </div>
+      <div>
+        <dt>作者／網站</dt>
+        <dd>{{ activeChoice.author ?? '來源未標註' }}</dd>
+      </div>
+      <div>
+        <dt>影片時間戳</dt>
+        <dd>{{ activeChoice.videoTimestamp ?? '來源未標註' }}</dd>
+      </div>
+      <div>
+        <dt>發布日期</dt>
+        <dd>{{ activeChoice.publishedAt ?? '來源未標註' }}</dd>
+      </div>
+      <div>
+        <dt>觸發條件</dt>
+        <dd>{{ activeChoice.triggerConditions.join(' / ') || '來源未標註觸發條件' }}</dd>
+      </div>
+      <div>
+        <dt>等待／承接條件</dt>
+        <dd>{{ activeChoice.waitConditions.join(' / ') || '來源未標註等待／承接條件' }}</dd>
+      </div>
+    </dl>
 
     <section
       v-if="orderedSteps.length"
@@ -388,8 +465,8 @@ const characterName = (characterId: string): string => {
     </ol>
 
     <div v-else class="rotation-empty">
-      <strong>NO EXECUTABLE STEPS</strong>
-      <p>目前資料沒有可展示的技能步驟。等待技能欄位補齊後再編排。</p>
+      <strong>尚無可核驗隊伍循環</strong>
+      <p>目前隊伍沒有能完整重現的來源循環。系統不會以規則推導或跨來源拼接產生未經證實的攻略步驟。</p>
     </div>
 
     <div v-if="activeChoice.warnings.length" class="rotation-warnings">
@@ -398,13 +475,12 @@ const characterName = (characterId: string): string => {
       </p>
     </div>
 
-    <p class="source-line">
-      {{
-        activeChoice.sourceIds.length
-          ? `SOURCES ${activeChoice.sourceIds.join(' / ')}`
-          : 'SOURCES 未標註 · 規則生成'
-      }}
-    </p>
+    <div v-if="activeChoice.limitations.length" class="source-limitations">
+      <strong>來源限制</strong>
+      <ul>
+        <li v-for="limitation in activeChoice.limitations" :key="limitation">{{ limitation }}</li>
+      </ul>
+    </div>
   </section>
 </template>
 
@@ -441,8 +517,12 @@ const characterName = (characterId: string): string => {
   color: var(--color-accent-blue);
 }
 
-.rotation-kind.rule-generated {
+.rotation-kind.source-fragment {
   color: #8f3f00;
+}
+
+.rotation-kind.unavailable {
+  color: var(--color-text-secondary);
 }
 
 .rotation-kind span {
@@ -456,6 +536,51 @@ const characterName = (characterId: string): string => {
   font-family: var(--font-display);
   font-size: 1.08rem;
   font-weight: 700;
+}
+
+.dependency-panel {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.3fr) 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+  border: 1px solid #8f3f00;
+  background: #fff4e8;
+  padding: 0.9rem 1rem;
+}
+
+.dependency-panel > span {
+  color: #8f3f00;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+}
+
+.dependency-panel ul {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dependency-panel li {
+  display: grid;
+  grid-template-columns: minmax(5rem, auto) 1fr;
+  gap: 0.65rem;
+  align-items: baseline;
+}
+
+.dependency-panel strong {
+  color: #6f3100;
+  font-size: 0.82rem;
+}
+
+.dependency-panel p {
+  margin: 0;
+  color: #3d1c00;
+  font-size: 0.82rem;
+  line-height: 1.55;
 }
 
 .resource-doctrine {
@@ -625,6 +750,35 @@ const characterName = (characterId: string): string => {
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.08em;
+}
+
+.source-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0 0 1.2rem;
+  border: 1px solid var(--color-border-primary);
+  background: var(--color-border-primary);
+}
+
+.source-facts div {
+  min-width: 0;
+  background: #fafafa;
+  padding: 0.7rem;
+}
+
+.source-facts dt {
+  color: var(--color-text-tertiary);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.source-facts dd {
+  margin-top: 0.25rem;
+  overflow-wrap: anywhere;
+  color: var(--color-text-primary);
+  font-size: 0.8rem;
+  line-height: 1.5;
 }
 
 .step-controller {
@@ -1096,6 +1250,26 @@ const characterName = (characterId: string): string => {
   letter-spacing: 0.08em;
 }
 
+.source-limitations {
+  margin-top: 0.85rem;
+  border-left: 5px solid var(--color-accent-orange);
+  background: #fff7ef;
+  padding: 0.7rem 0.8rem;
+}
+
+.source-limitations strong {
+  color: #5c3a00;
+  font-size: 0.76rem;
+}
+
+.source-limitations ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1.1rem;
+  color: #5c3a00;
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
 @keyframes frequency-enter {
   from {
     opacity: 0;
@@ -1172,6 +1346,20 @@ const characterName = (characterId: string): string => {
 
   .rotation-overview > div {
     justify-content: flex-start;
+  }
+
+  .source-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .dependency-panel {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .dependency-panel li {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
   }
 
   .frequency-decoration {

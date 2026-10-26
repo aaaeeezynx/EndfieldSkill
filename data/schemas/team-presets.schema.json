@@ -18,7 +18,7 @@
           "description": { "type": ["string", "null"] },
           "characterIds": {
             "type": "array",
-            "minItems": 4,
+            "minItems": 1,
             "maxItems": 4,
             "uniqueItems": true,
             "items": { "type": "string" }

@@ -42,6 +42,96 @@
         "fire",
         "single-target"
       ]
+    },
+    {
+      "alternatives": {},
+      "characterIds": [
+        "chr_0019_karin",
+        "chr_0021_whiten",
+        "chr_0005_chen",
+        "chr_0002_endminm"
+      ],
+      "confidence": 0.72,
+      "description": "秋栗、埃特拉、小陳與管理員組成的 Boss 碎冰隊。",
+      "id": "team_physical_shatter_202601",
+      "name": "物理碎冰隊",
+      "sourceIds": [
+        "src_gamersky_shatter_2078431",
+        "src_nga_shatter_46010223",
+        "src_taptap_shatter_763416813445841179"
+      ],
+      "tags": [
+        "guide-backed",
+        "physical",
+        "shatter",
+        "boss"
+      ]
+    },
+    {
+      "alternatives": {},
+      "characterIds": [
+        "chr_0017_yvonne",
+        "chr_0027_tangtang",
+        "chr_0011_seraph",
+        "chr_0013_aglina"
+      ],
+      "confidence": 0.76,
+      "description": "伊馮、湯湯、賽希與潔爾佩塔組成的冰隊。",
+      "id": "team_tangtang_ice_202603",
+      "name": "湯湯冰隊",
+      "sourceIds": [
+        "src_17173_tangtang_134210910",
+        "src_dvg_tangtang_131046",
+        "src_bilibili_tangtang_bv1ltw8zYE9C",
+        "src_gamekee_tangtang_696877"
+      ],
+      "tags": [
+        "guide-backed",
+        "ice",
+        "rotation"
+      ]
+    },
+    {
+      "alternatives": {},
+      "characterIds": [
+        "chr_0026_lastrite",
+        "chr_0027_tangtang",
+        "chr_0011_seraph",
+        "chr_0004_pelica"
+      ],
+      "confidence": 0.7,
+      "description": "別禮、湯湯、賽希與佩麗卡組成的冰隊。",
+      "id": "team_lastrite_tangtang_ice_202603",
+      "name": "別禮湯湯冰隊",
+      "sourceIds": [
+        "src_gamekee_lastrite_690813"
+      ],
+      "tags": [
+        "guide-backed",
+        "ice",
+        "rotation"
+      ]
+    },
+    {
+      "alternatives": {},
+      "characterIds": [
+        "chr_0028_wulfa",
+        "chr_0019_karin",
+        "chr_0002_endminm",
+        "chr_0029_pograni"
+      ],
+      "confidence": 0.68,
+      "description": "洛茜、秋栗、管理員與駿衛的爆發／充能循環。",
+      "id": "team_wulfa_karin_endminm_pograni_202601",
+      "name": "洛茜秋栗管理員駿衛隊",
+      "sourceIds": [
+        "src_gamekee_lastrite_690813"
+      ],
+      "tags": [
+        "guide-backed",
+        "physical",
+        "burst"
+      ]
     }
   ]
 }

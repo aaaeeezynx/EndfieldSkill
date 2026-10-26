@@ -11,12 +11,25 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-          "required": ["id", "name", "teamPresetId", "characterIds", "scenario", "description", "steps", "warnings", "sourceIds", "confidence"],
+          "required": ["id", "name", "teamPresetId", "characterIds", "matchType", "scenario", "description", "steps", "warnings", "sourceIds", "confidence"],
         "properties": {
           "id": { "type": "string", "minLength": 1 },
           "name": { "type": "string", "minLength": 1 },
           "teamPresetId": { "type": ["string", "null"] },
           "characterIds": { "type": "array", "uniqueItems": true, "items": { "type": "string" } },
+          "matchType": { "enum": ["complete", "fragment"] },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["characterId", "reason"],
+              "properties": {
+                "characterId": { "type": "string", "minLength": 1 },
+                "reason": { "type": "string", "minLength": 1 }
+              }
+            }
+          },
           "scenario": { "type": ["string", "null"] },
           "description": { "type": ["string", "null"] },
           "steps": {

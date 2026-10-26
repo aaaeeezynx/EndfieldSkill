@@ -66,6 +66,12 @@ const squadSize = computed(() => planner.selectedCharacters.length)
         </div>
       </section>
 
+      <div class="partial-banner skill-warning reveal" role="status">
+        <span>SKILL GAPS</span>
+        <p><strong>技能資料缺失標示：</strong>目前資料庫中，角色<strong>「弭弗」</strong>、<strong>「提弗洛斯」</strong>在官方原始資料缺少戰技；角色<strong>「湯湯」</strong>、<strong>「訣」</strong>、<strong>「梨諾」</strong>、<strong>「噗切娜」</strong>、<strong>「祀」</strong>等尚缺專屬戰技與完整連攜技能核驗。本工具嚴守客觀資料邊界，缺失部分清楚標明，絕不憑空虛構。</p>
+        <RouterLink to="/data">查看資料邊界 →</RouterLink>
+      </div>
+
       <div v-if="partialFiles.length" class="partial-banner reveal">
         <span>PARTIAL DATA</span>
         <p>資料鏈路部分缺失：{{ partialFiles.join(' / ') }}。可用資料仍會呈現，缺失欄位不會被補造。</p>
@@ -103,7 +109,7 @@ const squadSize = computed(() => planner.selectedCharacters.length)
 </template>
 
 <style scoped>
-.planner-page { --hero-muted: #c9c9c9; --planner-ui-line: #767676; background: #fff; padding-top: clamp(1rem, 3vw, 2.2rem); }
+.planner-page { --planner-ui-line: #767676; background: #fff; padding-top: clamp(1rem, 3vw, 2.2rem); }
 .hero { position: relative; isolation: isolate; overflow: hidden; min-height: 520px; border: 1px solid #191919; background: #191919; color: #fff; }
 .hero-grid { position: absolute; z-index: -1; inset: 0; background-image: linear-gradient(rgba(255,255,255,.065) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.065) 1px, transparent 1px); background-size: 38px 38px; mask-image: linear-gradient(90deg, transparent 10%, #000 100%); }
 .hero-contours { position: absolute; z-index: -1; right: -4%; bottom: -10%; width: 66%; color: #fffa00; opacity: .23; }

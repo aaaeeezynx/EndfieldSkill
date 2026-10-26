@@ -8,8 +8,10 @@
         "chr_0025_ardelia"
       ],
       "confidence": 0.74,
+      "dependencies": [],
       "description": "Reviewed order from Game8. Use Ardelia before Camille to preserve the stated trigger order. Verify the in-game label behind 'Final Strike'.",
       "id": "rotation_game8_laevatain_577071",
+      "matchType": "complete",
       "name": "Game8 Laevatain single-target rotation",
       "scenario": "single-enemy",
       "sourceIds": [
@@ -29,7 +31,7 @@
           "phase": null,
           "sharedSkillPointCost": 100,
           "skillId": "chr_0033_camille_normal_skill",
-          "skillName": "战技",
+          "skillName": "驅火焚影",
           "skillType": "battle",
           "sourceIds": [
             "src_game8_rotation_577071",
@@ -51,7 +53,7 @@
           "phase": null,
           "sharedSkillPointCost": 100,
           "skillId": "chr_0006_wolfgd_normal_skill",
-          "skillName": "战技",
+          "skillName": "灼熱彈痕",
           "skillType": "battle",
           "sourceIds": [
             "src_game8_rotation_577071",
@@ -73,7 +75,7 @@
           "phase": null,
           "sharedSkillPointCost": null,
           "skillId": "chr_0006_wolfgd_combo_skill",
-          "skillName": "连携技",
+          "skillName": "爆裂手雷·β型",
           "skillType": "combo",
           "sourceIds": [
             "src_game8_rotation_577071",
@@ -95,7 +97,7 @@
           "phase": null,
           "sharedSkillPointCost": null,
           "skillId": "chr_0016_laevat_ultimate_skill",
-          "skillName": "终结技",
+          "skillName": "黃昏",
           "skillType": "ultimate",
           "sourceIds": [
             "src_game8_rotation_577071",
@@ -119,7 +121,7 @@
           "phase": null,
           "sharedSkillPointCost": null,
           "skillId": "chr_0025_ardelia_combo_skill",
-          "skillName": "连携技",
+          "skillName": "火山蘑菇雲",
           "skillType": "combo",
           "sourceIds": [
             "src_game8_rotation_577071",
@@ -141,7 +143,7 @@
           "phase": null,
           "sharedSkillPointCost": null,
           "skillId": "chr_0033_camille_combo_skill",
-          "skillName": "连携技",
+          "skillName": "錐心之棘",
           "skillType": "combo",
           "sourceIds": [
             "src_game8_rotation_577071",
@@ -163,7 +165,7 @@
           "phase": null,
           "sharedSkillPointCost": null,
           "skillId": "chr_0016_laevat_combo_skill",
-          "skillName": "连携技",
+          "skillName": "沸騰",
           "skillType": "combo",
           "sourceIds": [
             "src_game8_rotation_577071",
@@ -185,7 +187,7 @@
           "phase": null,
           "sharedSkillPointCost": 100,
           "skillId": "chr_0016_laevat_normal_skill",
-          "skillName": "战技",
+          "skillName": "焚滅",
           "skillType": "battle",
           "sourceIds": [
             "src_game8_rotation_577071",
@@ -201,6 +203,1262 @@
       "warnings": [
         "Source guide assumes a single enemy.",
         "Timing is condition-based; no frame-perfect seconds are claimed."
+      ]
+    },
+    {
+      "characterIds": [
+        "chr_0019_karin",
+        "chr_0021_whiten",
+        "chr_0005_chen",
+        "chr_0002_endminm"
+      ],
+      "confidence": 0.72,
+      "dependencies": [],
+      "description": "先由秋栗掛火、埃特拉掛冰，再以埃特拉連攜擊飛，最後由管理員觸發結晶。",
+      "id": "rotation_physical_shatter_202601",
+      "matchType": "complete",
+      "name": "物理碎冰隊基礎循環",
+      "scenario": "boss",
+      "sourceIds": [
+        "src_gamersky_shatter_2078431",
+        "src_nga_shatter_46010223",
+        "src_taptap_shatter_763416813445841179"
+      ],
+      "steps": [
+        {
+          "characterId": "chr_0019_karin",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_physical_shatter_202601-step-1",
+          "note": null,
+          "order": 1,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0019_karin_normal_skill",
+          "skillName": "熱情迸發",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamersky_shatter_2078431",
+            "src_nga_shatter_46010223",
+            "src_taptap_shatter_763416813445841179"
+          ],
+          "triggerCondition": "秋栗戰技施加火屬性效果。",
+          "waitFor": "隊伍可使用共享技力。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0021_whiten",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_physical_shatter_202601-step-2",
+          "note": null,
+          "order": 2,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0021_whiten_normal_skill",
+          "skillName": "凝聲",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamersky_shatter_2078431",
+            "src_nga_shatter_46010223",
+            "src_taptap_shatter_763416813445841179"
+          ],
+          "triggerCondition": "埃特拉戰技施加冰屬性效果。",
+          "waitFor": "秋栗火屬性效果已覆蓋目標。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0021_whiten",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 18,
+          "energyCost": null,
+          "id": "rotation_physical_shatter_202601-step-3",
+          "note": null,
+          "order": 3,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0021_whiten_combo_skill",
+          "skillName": "失真",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamersky_shatter_2078431",
+            "src_nga_shatter_46010223",
+            "src_taptap_shatter_763416813445841179"
+          ],
+          "triggerCondition": "埃特拉連攜技擊飛凍結目標。",
+          "waitFor": "目標已有火、冰層並可觸發碎冰。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0005_chen",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 16,
+          "energyCost": null,
+          "id": "rotation_physical_shatter_202601-step-4",
+          "note": "小陳連攜須在管理員連攜前使用。",
+          "order": 4,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0005_chen_combo_skill",
+          "skillName": "見天河",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamersky_shatter_2078431",
+            "src_nga_shatter_46010223",
+            "src_taptap_shatter_763416813445841179"
+          ],
+          "triggerCondition": "小陳連攜技接續擊飛。",
+          "waitFor": "埃特拉連攜已完成擊飛。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0002_endminm",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 16,
+          "energyCost": null,
+          "id": "rotation_physical_shatter_202601-step-5",
+          "note": null,
+          "order": 5,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0002_endminm_combo_skill",
+          "skillName": "鎖閉序列",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamersky_shatter_2078431",
+            "src_nga_shatter_46010223",
+            "src_taptap_shatter_763416813445841179"
+          ],
+          "triggerCondition": "管理員連攜技觸發結晶。",
+          "waitFor": "小陳連攜已完成，避免結晶被提前消耗。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0002_endminm",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_physical_shatter_202601-step-6",
+          "note": null,
+          "order": 6,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0002_endminm_normal_skill",
+          "skillName": "構成序列",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamersky_shatter_2078431",
+            "src_nga_shatter_46010223",
+            "src_taptap_shatter_763416813445841179"
+          ],
+          "triggerCondition": "管理員戰技收尾。",
+          "waitFor": "共享技力可用且結晶已觸發。",
+          "warnings": []
+        }
+      ],
+      "teamPresetId": "team_physical_shatter_202601",
+      "warnings": [
+        "幾乎僅適用於 Boss，Buff 時間緊。"
+      ]
+    },
+    {
+      "characterIds": [
+        "chr_0017_yvonne",
+        "chr_0027_tangtang",
+        "chr_0011_seraph",
+        "chr_0013_aglina"
+      ],
+      "confidence": 0.76,
+      "dependencies": [],
+      "description": "以賽希開場，湯湯連攜後依序打出重擊、連攜與終結技。",
+      "id": "rotation_tangtang_ice_202603",
+      "matchType": "complete",
+      "name": "湯湯冰隊完整循環",
+      "scenario": "general",
+      "sourceIds": [
+        "src_17173_tangtang_134210910",
+        "src_dvg_tangtang_131046",
+        "src_bilibili_tangtang_bv1ltw8zYE9C",
+        "src_gamekee_tangtang_696877"
+      ],
+      "steps": [
+        {
+          "characterId": "chr_0011_seraph",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_tangtang_ice_202603-step-1",
+          "note": null,
+          "order": 1,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0011_seraph_normal_skill",
+          "skillName": "分佈式拒絕服務",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_17173_tangtang_134210910",
+            "src_dvg_tangtang_131046",
+            "src_bilibili_tangtang_bv1ltw8zYE9C",
+            "src_gamekee_tangtang_696877"
+          ],
+          "triggerCondition": "賽希戰技開場。",
+          "waitFor": "可於戰前施放。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_tangtang_ice_202603-step-2",
+          "note": null,
+          "order": 2,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0027_tangtang_normal_skill",
+          "skillName": "战技",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_17173_tangtang_134210910",
+            "src_dvg_tangtang_131046",
+            "src_bilibili_tangtang_bv1ltw8zYE9C",
+            "src_gamekee_tangtang_696877"
+          ],
+          "triggerCondition": "湯湯戰技建立冰屬性效果。",
+          "waitFor": "賽希開場效果已建立。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 14,
+          "energyCost": null,
+          "id": "rotation_tangtang_ice_202603-step-3",
+          "note": null,
+          "order": 3,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0027_tangtang_combo_skill",
+          "skillName": "连携技",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_17173_tangtang_134210910",
+            "src_dvg_tangtang_131046",
+            "src_bilibili_tangtang_bv1ltw8zYE9C",
+            "src_gamekee_tangtang_696877"
+          ],
+          "triggerCondition": "湯湯連攜技推進循環。",
+          "waitFor": "湯湯戰技效果已就緒。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0017_yvonne",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_tangtang_ice_202603-step-4",
+          "note": null,
+          "order": 4,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0017_yvonne_normal_skill",
+          "skillName": "冰冰彈·β型",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_17173_tangtang_134210910",
+            "src_dvg_tangtang_131046",
+            "src_bilibili_tangtang_bv1ltw8zYE9C",
+            "src_gamekee_tangtang_696877"
+          ],
+          "triggerCondition": "伊馮重擊。",
+          "waitFor": "湯湯連攜已完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0011_seraph",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 8,
+          "energyCost": null,
+          "id": "rotation_tangtang_ice_202603-step-5",
+          "note": null,
+          "order": 5,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0011_seraph_combo_skill",
+          "skillName": "壓力測試",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_17173_tangtang_134210910",
+            "src_dvg_tangtang_131046",
+            "src_bilibili_tangtang_bv1ltw8zYE9C",
+            "src_gamekee_tangtang_696877"
+          ],
+          "triggerCondition": "賽希連攜技。",
+          "waitFor": "伊馮重擊完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_tangtang_ice_202603-step-6",
+          "note": null,
+          "order": 6,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0027_tangtang_normal_skill",
+          "skillName": "战技",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_17173_tangtang_134210910",
+            "src_dvg_tangtang_131046",
+            "src_bilibili_tangtang_bv1ltw8zYE9C",
+            "src_gamekee_tangtang_696877"
+          ],
+          "triggerCondition": "湯湯戰技。",
+          "waitFor": "共享技力可用。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0017_yvonne",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_tangtang_ice_202603-step-7",
+          "note": null,
+          "order": 7,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0017_yvonne_normal_skill",
+          "skillName": "冰冰彈·β型",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_17173_tangtang_134210910",
+            "src_dvg_tangtang_131046",
+            "src_bilibili_tangtang_bv1ltw8zYE9C",
+            "src_gamekee_tangtang_696877"
+          ],
+          "triggerCondition": "伊馮戰技。",
+          "waitFor": "共享技力可用。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0017_yvonne",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_tangtang_ice_202603-step-8",
+          "note": null,
+          "order": 8,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0017_yvonne_normal_skill",
+          "skillName": "冰冰彈·β型",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_17173_tangtang_134210910",
+            "src_dvg_tangtang_131046",
+            "src_bilibili_tangtang_bv1ltw8zYE9C",
+            "src_gamekee_tangtang_696877"
+          ],
+          "triggerCondition": "伊馮重擊。",
+          "waitFor": "伊馮戰技已完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0017_yvonne",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 10,
+          "energyCost": 220,
+          "id": "rotation_tangtang_ice_202603-step-9",
+          "note": null,
+          "order": 9,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0017_yvonne_ultimate_skill",
+          "skillName": "冷凍射手",
+          "skillType": "ultimate",
+          "sourceIds": [
+            "src_17173_tangtang_134210910",
+            "src_dvg_tangtang_131046",
+            "src_bilibili_tangtang_bv1ltw8zYE9C",
+            "src_gamekee_tangtang_696877"
+          ],
+          "triggerCondition": "伊馮終結技。",
+          "waitFor": "終結技能量充足。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0011_seraph",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 20,
+          "energyCost": 80,
+          "id": "rotation_tangtang_ice_202603-step-10",
+          "note": null,
+          "order": 10,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0011_seraph_ultimate_skill",
+          "skillName": "棧溢出",
+          "skillType": "ultimate",
+          "sourceIds": [
+            "src_17173_tangtang_134210910",
+            "src_dvg_tangtang_131046",
+            "src_bilibili_tangtang_bv1ltw8zYE9C",
+            "src_gamekee_tangtang_696877"
+          ],
+          "triggerCondition": "賽希終結技。",
+          "waitFor": "終結技能量充足。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 20,
+          "energyCost": 90,
+          "id": "rotation_tangtang_ice_202603-step-11",
+          "note": "不需下落操作。",
+          "order": 11,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0027_tangtang_ultimate_skill",
+          "skillName": "终结技",
+          "skillType": "ultimate",
+          "sourceIds": [
+            "src_17173_tangtang_134210910",
+            "src_dvg_tangtang_131046",
+            "src_bilibili_tangtang_bv1ltw8zYE9C",
+            "src_gamekee_tangtang_696877"
+          ],
+          "triggerCondition": "湯湯終結技。",
+          "waitFor": "終結技能量充足。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0013_aglina",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 20,
+          "energyCost": 90,
+          "id": "rotation_tangtang_ice_202603-step-12",
+          "note": null,
+          "order": 12,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0013_aglina_ultimate_skill",
+          "skillName": "秘杖·重力場",
+          "skillType": "ultimate",
+          "sourceIds": [
+            "src_17173_tangtang_134210910",
+            "src_dvg_tangtang_131046",
+            "src_bilibili_tangtang_bv1ltw8zYE9C",
+            "src_gamekee_tangtang_696877"
+          ],
+          "triggerCondition": "潔爾佩塔終結技。",
+          "waitFor": "可延後約 5 秒接入循環。",
+          "warnings": []
+        }
+      ],
+      "teamPresetId": "team_tangtang_ice_202603",
+      "warnings": [
+        "湯湯終結技不需下落操作；潔爾佩塔終結技可延後約 5 秒。"
+      ]
+    },
+    {
+      "characterIds": [
+        "chr_0026_lastrite",
+        "chr_0027_tangtang",
+        "chr_0011_seraph",
+        "chr_0004_pelica"
+      ],
+      "confidence": 0.7,
+      "dependencies": [],
+      "description": "別禮與賽希可戰前開場，依序觸發湯湯重擊、佩麗卡與湯湯連攜。",
+      "id": "rotation_lastrite_tangtang_ice_202603",
+      "matchType": "complete",
+      "name": "別禮湯湯冰隊完整循環",
+      "scenario": "general",
+      "sourceIds": [
+        "src_gamekee_lastrite_690813"
+      ],
+      "steps": [
+        {
+          "characterId": "chr_0026_lastrite",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-1",
+          "note": null,
+          "order": 1,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0026_lastrite_normal_skill",
+          "skillName": "塞什卡的秘傳",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "別禮戰技開場。",
+          "waitFor": "可於戰前施放。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0011_seraph",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-2",
+          "note": null,
+          "order": 2,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0011_seraph_normal_skill",
+          "skillName": "分佈式拒絕服務",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "賽希戰技開場。",
+          "waitFor": "可於戰前施放。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-3",
+          "note": null,
+          "order": 3,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0027_tangtang_normal_skill",
+          "skillName": "战技",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "湯湯重擊。",
+          "waitFor": "開場效果已建立。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0004_pelica",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 20,
+          "energyCost": null,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-4",
+          "note": null,
+          "order": 4,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0004_pelica_combo_skill",
+          "skillName": "即時協議·閃鏈",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "佩麗卡連攜技。",
+          "waitFor": "湯湯重擊完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 14,
+          "energyCost": null,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-5",
+          "note": null,
+          "order": 5,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0027_tangtang_combo_skill",
+          "skillName": "连携技",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "湯湯連攜技。",
+          "waitFor": "佩麗卡連攜完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0026_lastrite",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-6",
+          "note": null,
+          "order": 6,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0026_lastrite_normal_skill",
+          "skillName": "塞什卡的秘傳",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "別禮戰技。",
+          "waitFor": "共享技力可用。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-7",
+          "note": null,
+          "order": 7,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0027_tangtang_normal_skill",
+          "skillName": "战技",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "湯湯重擊。",
+          "waitFor": "別禮戰技已完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0011_seraph",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 8,
+          "energyCost": null,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-8",
+          "note": null,
+          "order": 8,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0011_seraph_combo_skill",
+          "skillName": "壓力測試",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "賽希連攜技。",
+          "waitFor": "湯湯重擊完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-9",
+          "note": null,
+          "order": 9,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0027_tangtang_normal_skill",
+          "skillName": "战技",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "湯湯戰技。",
+          "waitFor": "共享技力可用。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0011_seraph",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 20,
+          "energyCost": 80,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-10",
+          "note": null,
+          "order": 10,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0011_seraph_ultimate_skill",
+          "skillName": "棧溢出",
+          "skillType": "ultimate",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "賽希終結技。",
+          "waitFor": "終結技能量充足。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0026_lastrite",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 9,
+          "energyCost": null,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-11",
+          "note": null,
+          "order": 11,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0026_lastrite_combo_skill",
+          "skillName": "噬冬",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "別禮連攜技。",
+          "waitFor": "賽希終結技完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 20,
+          "energyCost": 90,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-12",
+          "note": "開大後立即下落。",
+          "order": 12,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0027_tangtang_ultimate_skill",
+          "skillName": "终结技",
+          "skillType": "ultimate",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "湯湯終結技。",
+          "waitFor": "終結技能量充足。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0027_tangtang",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-13",
+          "note": null,
+          "order": 13,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0027_tangtang_normal_skill",
+          "skillName": "战技",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "湯湯下落。",
+          "waitFor": "湯湯終結技後立即執行。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0026_lastrite",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 20,
+          "energyCost": 240,
+          "id": "rotation_lastrite_tangtang_ice_202603-step-14",
+          "note": null,
+          "order": 14,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0026_lastrite_ultimate_skill",
+          "skillName": "臨終別禮",
+          "skillType": "ultimate",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "別禮終結技。",
+          "waitFor": "終結技能量充足。",
+          "warnings": []
+        }
+      ],
+      "teamPresetId": "team_lastrite_tangtang_ice_202603",
+      "warnings": [
+        "佩麗卡戰鬥中不使用戰技。"
+      ]
+    },
+    {
+      "characterIds": [
+        "chr_0028_wulfa",
+        "chr_0019_karin",
+        "chr_0002_endminm",
+        "chr_0029_pograni"
+      ],
+      "confidence": 0.68,
+      "dependencies": [],
+      "description": "GameKee 洛茜隊爆發軸（猛擊）：駿衛大招→秋栗戰技→管理員戰技→洛茜戰技→洛茜連攜（同時管理員連攜）→秋栗大招→洛茜大招→管理員戰技（猛擊）→管理員大招→秋栗連攜→駿衛連攜。",
+      "id": "rotation_wulfa_team_burst_202601",
+      "matchType": "complete",
+      "name": "洛茜隊爆發循環（猛擊軸）",
+      "scenario": "general",
+      "sourceIds": [
+        "src_gamekee_lastrite_690813"
+      ],
+      "steps": [
+        {
+          "characterId": "chr_0029_pograni",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 10,
+          "energyCost": 90,
+          "id": "rotation_wulfa_team_burst_202601-step-1",
+          "note": "來源軸第 1 動為『主控重擊』，主控幹員重擊並非角色技能，故不列為技能步驟。",
+          "order": 1,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0029_pograni_ultimate_skill",
+          "skillName": "盾衛旗隊，上前",
+          "skillType": "ultimate",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "駿衛終結技；來源第 2 動，第 1 動為主控重擊。",
+          "waitFor": "先以主控幹員完成一次重擊（非角色技能）後開啟駿衛終結技。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0019_karin",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_burst_202601-step-2",
+          "note": null,
+          "order": 2,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0019_karin_normal_skill",
+          "skillName": "熱情迸發",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "秋栗戰技掛一層灼熱附著。",
+          "waitFor": "駿衛終結技已開啟。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0002_endminm",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_burst_202601-step-3",
+          "note": null,
+          "order": 3,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0002_endminm_normal_skill",
+          "skillName": "構成序列",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "管理員戰技掛一層破防。",
+          "waitFor": "秋栗戰技已施加灼熱附著。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0028_wulfa",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_burst_202601-step-4",
+          "note": "來源軸第 5 動為主控重擊，非角色技能，未列為技能步驟。",
+          "order": 4,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0028_wulfa_normal_skill",
+          "skillName": "血紅之影",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "洛茜戰技（血紅之影）。",
+          "waitFor": "先以主控幹員再進行一次重擊（非角色技能）。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0028_wulfa",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 14,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_burst_202601-step-5",
+          "note": "洛茜一段連攜；同一技能的第二段連攜於後續步驟以 note 區分。",
+          "order": 5,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0028_wulfa_combo_skill",
+          "skillName": "燎影時刻",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "洛茜連攜技第一段（燎影時刻）。",
+          "waitFor": "目標同時處於破防與法術附著狀態。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0002_endminm",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 16,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_burst_202601-step-6",
+          "note": "同時釋放：以洛茜二段連攜打破管理員觸發的源石結晶，為全隊增加 15% 攻擊力，並觸發管理員專武的附術效果。",
+          "order": 6,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0002_endminm_combo_skill",
+          "skillName": "鎖閉序列",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "管理員連攜技，與洛茜二段連攜同時釋放。",
+          "waitFor": "洛茜一段連攜已完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0028_wulfa",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 14,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_burst_202601-step-7",
+          "note": "洛茜二段連攜：消耗目標全部法術附著造成擊飛並提升自身暴擊率／暴擊傷害；精準銜接時額外施加 1 層破防。",
+          "order": 7,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0028_wulfa_combo_skill",
+          "skillName": "燎影時刻",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "洛茜連攜技第二段（燎影時刻），與管理員連攜同時釋放。",
+          "waitFor": "洛茜一段連攜與管理員連攜同時在場。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0019_karin",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 20,
+          "energyCost": 120,
+          "id": "rotation_wulfa_team_burst_202601-step-8",
+          "note": "恢復技力並觸發連擊增傷。",
+          "order": 8,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0019_karin_ultimate_skill",
+          "skillName": "小隊，集結！",
+          "skillType": "ultimate",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "秋栗終結技。",
+          "waitFor": "洛茜二段連攜已完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0028_wulfa",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 10,
+          "energyCost": 110,
+          "id": "rotation_wulfa_team_burst_202601-step-9",
+          "note": null,
+          "order": 9,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0028_wulfa_ultimate_skill",
+          "skillName": "「利爪」奇襲",
+          "skillType": "ultimate",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "洛茜終結技（「利爪」奇襲）。",
+          "waitFor": "秋栗終結技已完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0002_endminm",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_burst_202601-step-10",
+          "note": "猛擊，爆掉 4 層破防。",
+          "order": 10,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0002_endminm_normal_skill",
+          "skillName": "構成序列",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "管理員戰技（猛擊）。",
+          "waitFor": "洛茜終結技已完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0002_endminm",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 10,
+          "energyCost": 80,
+          "id": "rotation_wulfa_team_burst_202601-step-11",
+          "note": null,
+          "order": 11,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0002_endminm_ultimate_skill",
+          "skillName": "轟擊序列",
+          "skillType": "ultimate",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "管理員終結技。",
+          "waitFor": "管理員戰技（猛擊）已完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0019_karin",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 10,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_burst_202601-step-12",
+          "note": null,
+          "order": 12,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0019_karin_combo_skill",
+          "skillName": "快閃衝擊",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "秋栗連攜技。",
+          "waitFor": "管理員終結技已完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0029_pograni",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 18,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_burst_202601-step-13",
+          "note": null,
+          "order": 13,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0029_pograni_combo_skill",
+          "skillName": "盈月邀擊",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "駿衛連攜技。",
+          "waitFor": "秋栗連攜技已完成。",
+          "warnings": []
+        }
+      ],
+      "teamPresetId": "team_wulfa_karin_endminm_pograni_202601",
+      "warnings": [
+        "依 GameKee 社群攻略（community secondary）整理，非官方資料。",
+        "來源軸中的所有『主控重擊』為主控幹員的普通攻擊重擊，並非角色技能，未列為技能步驟。",
+        "若洛茜連攜失誤、Boss 閃避或破防未達 4 層，維持同一軸向不拆軸。"
+      ]
+    },
+    {
+      "characterIds": [
+        "chr_0028_wulfa",
+        "chr_0019_karin",
+        "chr_0002_endminm",
+        "chr_0029_pograni"
+      ],
+      "confidence": 0.68,
+      "dependencies": [],
+      "description": "GameKee 洛茜隊充能軸（碎甲）：秋栗戰技→管理員戰技→洛茜戰技→洛茜連攜（同時管理員連攜）→駿衛戰技→秋栗連攜→駿衛連攜。",
+      "id": "rotation_wulfa_team_charge_202601",
+      "matchType": "complete",
+      "name": "洛茜隊充能循環（碎甲軸）",
+      "scenario": "general",
+      "sourceIds": [
+        "src_gamekee_lastrite_690813"
+      ],
+      "steps": [
+        {
+          "characterId": "chr_0019_karin",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_charge_202601-step-1",
+          "note": "來源軸第 1 動為『主控重擊』，非角色技能，未列為技能步驟。",
+          "order": 1,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0019_karin_normal_skill",
+          "skillName": "熱情迸發",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "秋栗戰技；來源第 2 動，第 1 動為主控重擊。",
+          "waitFor": "先以主控幹員完成一次重擊（非角色技能）。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0002_endminm",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_charge_202601-step-2",
+          "note": null,
+          "order": 2,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0002_endminm_normal_skill",
+          "skillName": "構成序列",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "管理員戰技。",
+          "waitFor": "秋栗戰技已完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0028_wulfa",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_charge_202601-step-3",
+          "note": "來源軸第 4 動為主控重擊，非角色技能，未列為技能步驟。",
+          "order": 3,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0028_wulfa_normal_skill",
+          "skillName": "血紅之影",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "洛茜戰技（血紅之影）。",
+          "waitFor": "先以主控幹員再進行一次重擊（非角色技能）。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0028_wulfa",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 14,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_charge_202601-step-4",
+          "note": "洛茜一段連攜；第二段連攜為同一技能，於後續步驟以 note 區分。",
+          "order": 4,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0028_wulfa_combo_skill",
+          "skillName": "燎影時刻",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "洛茜連攜技第一段（燎影時刻）。",
+          "waitFor": "目標同時處於破防與法術附著狀態。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0002_endminm",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 16,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_charge_202601-step-5",
+          "note": "同時釋放：以洛茜二段連攜打破管理員觸發的源石結晶，為全隊增加 15% 攻擊力。",
+          "order": 5,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0002_endminm_combo_skill",
+          "skillName": "鎖閉序列",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "管理員連攜技，與洛茜二段連攜同時釋放。",
+          "waitFor": "洛茜一段連攜已完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0028_wulfa",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 14,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_charge_202601-step-6",
+          "note": "洛茜二段連攜：消耗目標全部法術附著造成擊飛並提升自身暴擊率／暴擊傷害；精準銜接時額外施加 1 層破防。",
+          "order": 6,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0028_wulfa_combo_skill",
+          "skillName": "燎影時刻",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "洛茜連攜技第二段（燎影時刻），與管理員連攜同時釋放。",
+          "waitFor": "洛茜一段連攜與管理員連攜同時在場。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0029_pograni",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 0,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_charge_202601-step-7",
+          "note": null,
+          "order": 7,
+          "phase": null,
+          "sharedSkillPointCost": 100,
+          "skillId": "chr_0029_pograni_normal_skill",
+          "skillName": "粉碎陣線",
+          "skillType": "battle",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "駿衛戰技。",
+          "waitFor": "洛茜二段連攜已完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0019_karin",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 10,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_charge_202601-step-8",
+          "note": null,
+          "order": 8,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0019_karin_combo_skill",
+          "skillName": "快閃衝擊",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "秋栗連攜技。",
+          "waitFor": "駿衛戰技已完成。",
+          "warnings": []
+        },
+        {
+          "characterId": "chr_0029_pograni",
+          "comboWindowSeconds": null,
+          "cooldownSeconds": 18,
+          "energyCost": null,
+          "id": "rotation_wulfa_team_charge_202601-step-9",
+          "note": null,
+          "order": 9,
+          "phase": null,
+          "sharedSkillPointCost": null,
+          "skillId": "chr_0029_pograni_combo_skill",
+          "skillName": "盈月邀擊",
+          "skillType": "combo",
+          "sourceIds": [
+            "src_gamekee_lastrite_690813"
+          ],
+          "triggerCondition": "駿衛連攜技。",
+          "waitFor": "秋栗連攜技已完成。",
+          "warnings": []
+        }
+      ],
+      "teamPresetId": "team_wulfa_karin_endminm_pograni_202601",
+      "warnings": [
+        "依 GameKee 社群攻略（community secondary）整理，非官方資料。",
+        "來源軸中的所有『主控重擊』為主控幹員的普通攻擊重擊，並非角色技能，未列為技能步驟。"
       ]
     }
   ]

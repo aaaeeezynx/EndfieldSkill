@@ -333,8 +333,10 @@ def validate_dataset(
         if not isinstance(team, dict):
             continue
         ids = team.get("characterIds", [])
-        if len(ids) != 4 or len(set(ids)) != 4:
-            result.errors.append(f"team {team.get('id')}: must contain four unique characters")
+        if len(ids) < 1 or len(ids) > 4 or len(set(ids)) != len(ids):
+            result.errors.append(
+                f"team {team.get('id')}: must contain 1 to 4 unique characters"
+            )
         for character_id in ids:
             if character_id not in character_id_set:
                 result.errors.append(
@@ -349,6 +351,19 @@ def validate_dataset(
             result.errors.append(
                 f"rotation {rotation_id}: unresolved teamPresetId "
                 f"{rotation.get('teamPresetId')!r}"
+            )
+        character_ids = rotation.get("characterIds", [])
+        if (
+            len(character_ids) < 1
+            or len(character_ids) > 4
+            or len(set(character_ids)) != len(character_ids)
+        ):
+            result.errors.append(
+                f"rotation {rotation_id}: characterIds must contain 1 to 4 unique characters"
+            )
+        if rotation.get("matchType") not in {"complete", "fragment"}:
+            result.errors.append(
+                f"rotation {rotation_id}: matchType must be complete or fragment"
             )
         steps = rotation.get("steps", [])
         orders = [step.get("order") for step in steps if isinstance(step, dict)]

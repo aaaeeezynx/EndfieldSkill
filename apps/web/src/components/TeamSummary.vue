@@ -146,7 +146,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
           </p>
         </template>
         <p v-else class="no-match-copy">
-          目前隊伍沒有命中任何攻略隊伍。循環與裝備仍會按確定性規則生成，但需要人工核對。
+          目前隊伍沒有命中完整攻略隊伍，循環會標示為「尚無可核驗隊伍循環」；裝備仍依現有資料推薦，需人工核對。
         </p>
       </div>
     </div>

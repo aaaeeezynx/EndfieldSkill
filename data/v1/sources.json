@@ -122,6 +122,32 @@
     {
       "bytes": null,
       "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "characters.skills.name",
+        "characters.skills.description"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_bwiki_skill_database",
+      "isOfficial": false,
+      "notes": [
+        "BWiki 社群編輯整理之技能名稱與描述，作為官方缺漏時之社群次級參考。"
+      ],
+      "publisher": "BWiki (biligame) 社群編輯",
+      "sha256": null,
+      "sourceType": "community-database",
+      "tableFetch": null,
+      "title": "終末地 BWiki 幹員技能頁",
+      "trustLevel": "community-secondary",
+      "url": "https://wiki.biligame.com/zmd/"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
       "fetchError": "Offline cache miss for optional source https://endfield.gryphline.com/zh-tw#home",
       "fetchStatus": "unavailable",
       "fetchedAt": null,
@@ -284,6 +310,335 @@
       "title": "Best Gear and Gear Sets for Each Character | Arknights: Endfield | Game8",
       "trustLevel": "editorial-secondary",
       "url": "https://game8.co/games/Arknights-Endfield/archives/576118"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "characters.chr_0031_mifu.skills"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_warfarin_mifu",
+      "isOfficial": false,
+      "notes": [
+        "Reviewed skill names and Mifu combo trigger condition."
+      ],
+      "publisher": "Warfarin Wiki",
+      "sha256": null,
+      "sourceType": "community-database",
+      "tableFetch": null,
+      "title": "弭弗角色资料",
+      "trustLevel": "community-secondary",
+      "url": "https://warfarin.wiki/cn/operators/mifu"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "characters.chr_0034_typhoeus.skills"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_warfarin_typhoeus",
+      "isOfficial": false,
+      "notes": [
+        "Reviewed battle skill and combo skill names."
+      ],
+      "publisher": "Warfarin Wiki",
+      "sha256": null,
+      "sourceType": "community-database",
+      "tableFetch": null,
+      "title": "提弗洛斯角色资料",
+      "trustLevel": "community-secondary",
+      "url": "https://warfarin.wiki/cn/operators/typhoeus"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "rotations.physical-shatter"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_gamersky_shatter_2078431",
+      "isOfficial": false,
+      "notes": [
+        "Reviewed rotation order; some burst-axis notes are explicitly unverified."
+      ],
+      "publisher": "游民星空",
+      "sha256": null,
+      "sourceType": "editorial-guide",
+      "tableFetch": null,
+      "title": "物理碎冰队攻略",
+      "trustLevel": "editorial-secondary",
+      "url": "https://www.gamersky.com/handbook/202601/2078431.shtml"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "rotations.physical-shatter"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_nga_shatter_46010223",
+      "isOfficial": false,
+      "notes": [
+        "Community discussion used to corroborate setup and combo ordering."
+      ],
+      "publisher": "NGA",
+      "sha256": null,
+      "sourceType": "community-guide",
+      "tableFetch": null,
+      "title": "物理碎冰队讨论",
+      "trustLevel": "community-secondary",
+      "url": "https://bbs.nga.cn/read.php?tid=46010223"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "rotations.physical-shatter"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_taptap_shatter_763416813445841179",
+      "isOfficial": false,
+      "notes": [
+        "Community rotation corroboration."
+      ],
+      "publisher": "TapTap",
+      "sha256": null,
+      "sourceType": "community-guide",
+      "tableFetch": null,
+      "title": "物理碎冰队攻略动态",
+      "trustLevel": "community-secondary",
+      "url": "https://www.taptap.cn/moment/763416813445841179"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "rotations.tangtang-ice"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_17173_tangtang_134210910",
+      "isOfficial": false,
+      "notes": [
+        "Reviewed twelve-step ice-team rotation."
+      ],
+      "publisher": "17173",
+      "sha256": null,
+      "sourceType": "editorial-guide",
+      "tableFetch": null,
+      "title": "汤汤冰队攻略",
+      "trustLevel": "editorial-secondary",
+      "url": "https://news.17173.com/content/03202026/134210910.shtml"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "rotations.tangtang-ice"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_dvg_tangtang_131046",
+      "isOfficial": false,
+      "notes": [
+        "Corroborates the rotation and timing notes."
+      ],
+      "publisher": "DVG",
+      "sha256": null,
+      "sourceType": "editorial-guide",
+      "tableFetch": null,
+      "title": "汤汤冰队攻略",
+      "trustLevel": "editorial-secondary",
+      "url": "https://www.dvg.cn/olzixun/131046.html"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "rotations.tangtang-ice"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_bilibili_tangtang_bv1ltw8zYE9C",
+      "isOfficial": false,
+      "notes": [
+        "Video source; no timestamp is claimed without a verified local transcript."
+      ],
+      "publisher": "Bilibili",
+      "sha256": null,
+      "sourceType": "video-guide",
+      "tableFetch": null,
+      "title": "汤汤冰队视频攻略",
+      "trustLevel": "community-secondary",
+      "url": "https://www.bilibili.com/video/BV1Ltw8zYE9C/"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "rotations.tangtang-ice"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_gamekee_tangtang_696877",
+      "isOfficial": false,
+      "notes": [
+        "Corroborates the Tangtang ice-team sequence."
+      ],
+      "publisher": "GameKee",
+      "sha256": null,
+      "sourceType": "community-guide",
+      "tableFetch": null,
+      "title": "汤汤冰队攻略资料",
+      "trustLevel": "community-secondary",
+      "url": "https://www.gamekee.com/zmd/696877.html"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "rotations.lastrite-tangtang",
+        "rotations.wulfa-team"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_gamekee_lastrite_690813",
+      "isOfficial": false,
+      "notes": [
+        "Reviewed burst and charge axes; no video timestamps are claimed."
+      ],
+      "publisher": "GameKee",
+      "sha256": null,
+      "sourceType": "community-guide",
+      "tableFetch": null,
+      "title": "别礼汤汤冰队与洛茜队攻略",
+      "trustLevel": "community-secondary",
+      "url": "https://www.gamekee.com/zmd/690813.html"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "characters.chr_0028_wulfa.skills"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_canmoe_wulfa_chr_0028",
+      "isOfficial": false,
+      "notes": [
+        "Community database mirror; this is a secondary, non-official source.",
+        "Verifies the 洛茜 combo skill 燎影時刻 name, description and trigger condition."
+      ],
+      "publisher": "end.canmoe.com",
+      "sha256": null,
+      "sourceType": "community-database",
+      "tableFetch": null,
+      "title": "洛茜干员资料（灿馍 Endfield 社区数据库）",
+      "trustLevel": "community-secondary",
+      "url": "https://end.canmoe.com/zh-CN/wiki/characters/chr_0028_wulfa"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "characters.chr_0028_wulfa.skills"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_gamekee_wulfa_695986",
+      "isOfficial": false,
+      "notes": [
+        "Community wiki entry; secondary and non-official.",
+        "Corroborates the 燎影時刻 combo description, cooldown and rank-1 multipliers."
+      ],
+      "publisher": "GameKee",
+      "sha256": null,
+      "sourceType": "community-database",
+      "tableFetch": null,
+      "title": "洛茜干员图鉴（GameKee 社区数据库）",
+      "trustLevel": "community-secondary",
+      "url": "https://www.gamekee.com/mc/695986_303547.html"
+    },
+    {
+      "bytes": null,
+      "contentType": null,
+      "fetchError": null,
+      "fetchStatus": "not-fetched-in-current-run",
+      "fetchedAt": null,
+      "fields": [
+        "characters.chr_0028_wulfa.skills"
+      ],
+      "finalUrl": null,
+      "fromCache": null,
+      "httpStatus": null,
+      "id": "src_warfarin_rossi",
+      "isOfficial": false,
+      "notes": [
+        "Community database; secondary and non-official.",
+        "Third corroborating snapshot for the 燎影時刻 combo skill."
+      ],
+      "publisher": "warfarin.wiki",
+      "sha256": null,
+      "sourceType": "community-database",
+      "tableFetch": null,
+      "title": "Rossi operator data（Warfarin.wiki 社区数据库）",
+      "trustLevel": "community-secondary",
+      "url": "https://warfarin.wiki/cn/operators/rossi"
     }
   ]
 }

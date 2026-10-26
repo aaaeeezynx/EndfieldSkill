@@ -107,7 +107,8 @@ describe('planner character selection', () => {
 
     await expect(store.generate()).resolves.toBe(true)
     expect(store.report?.equipment.map((loadout) => loadout.characterId)).toEqual(selectedIds)
-    expect(store.report?.rotations[0].steps.map((step) => step.characterId)).toEqual(selectedIds)
+    expect(store.report?.rotations[0].kind).toBe('unavailable')
+    expect(store.report?.rotations[0].steps).toEqual([])
   })
 
   it('filters B-form and unknown IDs before validation and recommendation generation', async () => {

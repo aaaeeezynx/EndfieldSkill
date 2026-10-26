@@ -6,6 +6,7 @@ import type {
   DatasetUnresolved,
   EquipmentFact,
   EquipmentSlot,
+  RotationDependency,
   RotationPreset,
   RotationStep,
   SkillFact,
@@ -305,6 +306,21 @@ const normalizeRotationStep = (rawValue: unknown, index: number, rotationId: str
   }
 }
 
+const normalizeRotationMatchType = (value: unknown): 'complete' | 'fragment' => {
+  const raw = (asString(value) ?? '').toLowerCase()
+  return raw === 'fragment' || raw === 'partial' ? 'fragment' : 'complete'
+}
+
+const normalizeRotationDependencies = (value: unknown): RotationDependency[] => {
+  if (!Array.isArray(value)) return []
+  return value.flatMap((entry) => {
+    const raw = asRecord(entry)
+    const characterId = firstString(raw.characterId, raw.character, raw.memberId)
+    const reason = toTraditional(firstString(raw.reason, raw.note, raw.description))
+    return characterId && reason ? [{ characterId, reason }] : []
+  })
+}
+
 const normalizeRotation = (rawValue: unknown, index: number): RotationPreset | null => {
   const raw = asRecord(rawValue)
   const id = firstString(raw.id, raw.rotationId) ?? `rotation-${index + 1}`
@@ -319,11 +335,23 @@ const normalizeRotation = (rawValue: unknown, index: number): RotationPreset | n
     name: toTraditional(firstString(raw.name, raw.title, raw.label)) ?? id,
     teamPresetId: firstString(raw.teamPresetId, raw.teamId, raw.presetId),
     characterIds: asStringArray(raw.characterIds ?? raw.characters ?? raw.members),
+    matchType: normalizeRotationMatchType(raw.matchType),
+    dependencies: normalizeRotationDependencies(raw.dependencies),
     scenario: toTraditional(firstString(raw.scenario, raw.mode, raw.content)),
     description: toTraditional(firstString(raw.description, raw.summary, raw.notes)),
     steps,
     sourceIds: asStringArray(raw.sourceIds ?? raw.sources),
     confidence: firstNumber(raw.confidence, raw.score),
+    author: toTraditional(firstString(raw.author, raw.videoAuthor, raw.creator)),
+    videoTimestamp: toTraditional(
+      firstString(raw.videoTimestamp, raw.timestamp, raw.videoTime),
+    ),
+    publishedAt: toTraditional(firstString(raw.publishedAt, raw.publishDate, raw.date)),
+    triggerConditions:
+      toTraditionalList(asStringArray(raw.triggerConditions ?? raw.triggers)) ?? [],
+    waitConditions:
+      toTraditionalList(asStringArray(raw.waitConditions ?? raw.waits)) ?? [],
+    limitations: toTraditionalList(asStringArray(raw.limitations ?? raw.constraints)) ?? [],
   }
 }
 
@@ -411,6 +439,12 @@ const normalizeSource = (rawValue: unknown, index: number): SourceRecord | null 
     url: firstString(raw.url, raw.link, raw.href),
     fetchedAt: firstString(raw.fetchedAt, raw.scrapedAt, raw.retrievedAt),
     fields: toTraditionalList(asStringArray(raw.fields ?? raw.extractedFields)) ?? [],
+    author: toTraditional(firstString(raw.author, raw.videoAuthor, raw.creator)),
+    publishedAt: toTraditional(firstString(raw.publishedAt, raw.publishDate, raw.date)),
+    videoTimestamp: toTraditional(
+      firstString(raw.videoTimestamp, raw.timestamp, raw.videoTime),
+    ),
+    notes: toTraditionalList(asStringArray(raw.notes ?? raw.remarks)) ?? [],
   }
 }
 
@@ -670,6 +704,9 @@ export const sanitizeDataset = (dataset: Dataset): Dataset => {
             ? rotation.teamPresetId
             : null,
         characterIds,
+        dependencies: rotation.dependencies.filter(
+          (dependency) => !excluded.has(dependency.characterId),
+        ),
         steps,
       },
     ]

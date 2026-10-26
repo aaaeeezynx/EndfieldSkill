@@ -14,6 +14,10 @@ from .sources import (
     TEAM_EXTRACTS,
     UNRESOLVED_EXTRACTS,
 )
+from .reviewed_overrides import (
+    apply_reviewed_skill_overrides,
+    apply_supplemental_skill_overrides,
+)
 
 
 SCHEMA_VERSION = "1.0.0"
@@ -316,6 +320,8 @@ def parse_rotation_presets(
             for key, value in source_rotation.items()
             if key != "steps"
         }
+        rotation.setdefault("matchType", "complete")
+        rotation.setdefault("dependencies", [])
         steps: list[dict[str, Any]] = []
         for source_step in source_rotation["steps"]:
             step = deepcopy(source_step)
@@ -531,10 +537,10 @@ def build_meta(
         "coverage": coverage,
         "unresolved": deepcopy(UNRESOLVED_EXTRACTS),
         "notes": [
-            "全部推荐结果由静态 JSON 与确定性规则生成，运行时不调用 AI。",
-            "未知字段保留 null 或省略；未验证的剧情章节映射未写入数据。",
-            "战技、连携技与终结技的中文名采用通用类型名，游戏表未提供角色专属技能名。",
-            "表中战技 costValue 采用 100 点共享技力刻度；三格量表说法仍需游戏内复核。",
+            "全部推薦結果由靜態 JSON 與確定性規則生成，執行時不呼叫 AI。",
+            "未知欄位保留 null 或省略；未驗證的劇情章節映射未寫入資料。",
+            "技能類型覆蓋已補齊；部分角色仍沿用遊戲表內的通用技能名稱，角色專屬技能描述與觸發條件仍待逐項核驗。",
+            "表中戰技 costValue 採用 100 點共享技力刻度；三格量表說法仍需遊戲內複核。",
         ],
     }
 
@@ -545,7 +551,9 @@ def parse_all(
     manifest: dict[str, Any],
     fetch_meta: dict[str, dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    characters = parse_characters(tables)
+    characters = apply_reviewed_skill_overrides(
+        apply_supplemental_skill_overrides(parse_characters(tables))
+    )
     equipment = parse_equipment(tables)
     teams = parse_team_presets()
     rotations = parse_rotation_presets(characters)

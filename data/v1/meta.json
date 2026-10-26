@@ -9,11 +9,7 @@
       "withSet": 228,
       "withWearLevelGate": 276
     },
-    "missingSkillTypes": [
-      "chr_0028_wulfa:combo",
-      "chr_0031_mifu:battle",
-      "chr_0034_typhoea:battle"
-    ],
+    "missingSkillTypes": [],
     "partialFields": [
       "characters.roles",
       "characters.portraitUrl",
@@ -23,16 +19,16 @@
       "progressions.chapters"
     ],
     "playableCharacters": 33,
-    "rotationPresets": 1,
-    "rotationSteps": 8,
+    "rotationPresets": 6,
+    "rotationSteps": 62,
     "skills": {
-      "battle": 31,
-      "combo": 32,
-      "total": 96,
+      "battle": 33,
+      "combo": 33,
+      "total": 99,
       "ultimate": 33
     },
     "storyChapters": 0,
-    "teamPresets": 2
+    "teamPresets": 6
   },
   "dataVersion": "1.6.4@11262943-8",
   "database": {
@@ -43,7 +39,7 @@
     "tableCfgPath": "public/1.6.4/11262943-8/TableCfg"
   },
   "gameVersion": "1.6.4",
-  "generatedAt": "2026-10-22T17:53:32Z",
+  "generatedAt": "2026-10-26T06:18:04Z",
   "mechanics": {
     "battleSkill": {
       "cooldownSeconds": 0,
@@ -72,7 +68,7 @@
       "value": 4
     },
     "sharedSkillPoints": {
-      "description": "戰技消耗全隊共享技力；表內戰技 costValue 使用 100 點刻度。",
+      "description": "战技消耗全队共享技力；表内战技 costValue 使用 100 点刻度。",
       "gaugeBars": 3,
       "gaugeBarsVerified": false,
       "isOfficial": true,
@@ -92,13 +88,13 @@
     }
   },
   "notes": [
-    "全部推薦結果由靜態 JSON 與確定性規則生成，執行期不呼叫 AI。",
+    "全部推薦結果由靜態 JSON 與確定性規則生成，執行時不呼叫 AI。",
     "未知欄位保留 null 或省略；未驗證的劇情章節映射未寫入資料。",
-    "戰技、連攜技與終結技的中文名採用通用類型名，遊戲資料表未提供角色專屬技能名。",
+    "技能類型覆蓋已補齊；部分角色仍沿用遊戲表內的通用技能名稱，角色專屬技能描述與觸發條件仍待逐項核驗。",
     "表中戰技 costValue 採用 100 點共享技力刻度；三格量表說法仍需遊戲內複核。"
   ],
   "schemaVersion": "1.0.0",
-  "sourceCount": 7,
+  "sourceCount": 21,
   "unresolved": [
     {
       "field": "equipment.recommended-sets",
