@@ -327,7 +327,10 @@ const normalizeRotation = (rawValue: unknown, index: number): RotationPreset | n
   const steps = (Array.isArray(raw.steps) ? raw.steps : [])
     .map((step, stepIndex) => normalizeRotationStep(step, stepIndex, id))
     .filter((step): step is RotationStep => Boolean(step))
-    .sort((a, b) => a.order - b.order)
+    // Preserve the authored array order; recombineRotation keeps source
+    // order, so we must not sort by `order` here. Renumber only to keep a
+    // stable 1..n sequence that mirrors the original array position.
+    .map((step, index) => ({ ...step, order: index + 1 }))
   if (!steps.length) return null
 
   return {
@@ -691,7 +694,6 @@ export const sanitizeDataset = (dataset: Dataset): Dataset => {
     // close any gaps in `order` so the rotation remains 1..n.
     const steps = rotation.steps
       .filter((step) => !excluded.has(step.characterId))
-      .sort((a, b) => a.order - b.order)
       .map((step, index) => ({ ...step, order: index + 1 }))
     if (!characterIds.length || !steps.length) return []
 

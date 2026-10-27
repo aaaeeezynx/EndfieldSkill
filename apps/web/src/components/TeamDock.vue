@@ -20,10 +20,6 @@ const selectedSlots = computed(() =>
 const teamCount = computed(() => planner.selectedCharacters.length)
 const isAtCapacity = computed(() => teamCount.value >= MAX_TEAM_SIZE)
 
-const selectedChapter = computed(() =>
-  planner.chapters.find((chapter) => chapter.id === planner.chapterId),
-)
-
 const getPortraitUrl = (characterId: string): string | null =>
   getCharacterPortrait(characterId)
 
@@ -125,7 +121,7 @@ const submit = async (): Promise<void> => {
 
     <div class="progress-section">
       <div class="section-rule">
-        <span>03 / PROGRESS GATE</span>
+        <span>03 / LEVEL GATE</span>
         <i></i>
       </div>
 
@@ -144,32 +140,8 @@ const submit = async (): Promise<void> => {
         />
       </div>
 
-      <label class="field-label" for="chapter">劇情進度（可選）</label>
-      <select
-        id="chapter"
-        class="chapter-select"
-        :value="planner.chapterId"
-        :disabled="!planner.hasChapterData"
-        @change="planner.setChapter(($event.target as HTMLSelectElement).value)"
-      >
-        <template v-if="planner.hasChapterData">
-          <option value="">不指定章節（僅用已知等級條件）</option>
-          <option v-for="chapter in planner.chapters" :key="chapter.id" :value="chapter.id">
-            {{ chapter.name }}{{ chapter.minPlayerLevel ? ` · Lv.${chapter.minPlayerLevel}` : '' }}
-          </option>
-        </template>
-        <option v-else value="">章節資料尚未核驗（不阻塞生成）</option>
-      </select>
-
-      <p v-if="selectedChapter" class="chapter-meta">
-        CHAPTER ORDER {{ String(selectedChapter.order).padStart(2, '0') }}
-        <template v-if="selectedChapter.minPlayerLevel">
-          / GATE LV.{{ selectedChapter.minPlayerLevel }}
-        </template>
-      </p>
-      <p v-else-if="!planner.hasChapterData" class="chapter-meta unverified">
-        CHAPTER / AUTHORITY DATA UNVERIFIED
-        <span>本次只按裝備穿戴等級與已知配方資料篩選，不判定劇情或配方權限。</span>
+      <p class="progress-note">
+        裝備依<strong>玩家等級</strong>列出全部可製造裝備；此處僅為<strong>可製造等級門檻</strong>，<strong>與劇情章節阻擋無關</strong>，章節、配方權限、角色職業與元素亦不影響可製造清單。
       </p>
     </div>
 
@@ -501,45 +473,10 @@ const submit = async (): Promise<void> => {
   opacity: 1;
 }
 
-.chapter-select {
-  width: 100%;
-  height: 43px;
-  border: 1px solid var(--color-border-primary);
-  background: #ffffff;
-  padding: 0 0.7rem;
-  color: var(--color-text-primary);
-  font-size: 0.76rem;
-}
-
 .level-field input:focus-visible,
 .chapter-select:focus-visible {
   outline: 3px solid var(--color-text-primary);
   outline-offset: 2px;
-}
-
-.chapter-select option {
-  background: #ffffff;
-}
-
-.chapter-meta {
-  margin-top: 0.42rem;
-  color: var(--color-text-tertiary);
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.08em;
-}
-
-.chapter-meta.unverified {
-  color: #5c3a00;
-  line-height: 1.45;
-}
-
-.chapter-meta.unverified span {
-  display: block;
-  margin-top: 0.18rem;
-  color: #3f3f3f;
-  font-family: "Noto Sans TC", sans-serif;
-  letter-spacing: 0;
 }
 
 .validation-list {

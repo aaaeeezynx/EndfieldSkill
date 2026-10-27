@@ -49,15 +49,8 @@ export const validatePlannerInput = (
   const chapter = selectedChapterId
     ? chapters.find((item) => item.id === selectedChapterId) ?? null
     : null
-  // Chapter progress is optional in the current data contract. Missing chapter
-  // mappings must not block planning when the characters dataset is usable.
-  if (chapters.length > 0 && selectedChapterId && !chapter) {
-    errors.push('所選劇情章節不在資料庫中。')
-  }
-
-  if (chapter?.minPlayerLevel && playerLevel !== null && playerLevel < chapter.minPlayerLevel) {
-    errors.push(`該章節至少需要玩家等級 Lv.${chapter.minPlayerLevel}。`)
-  }
+  // Chapter progress is intentionally outside the current planning contract.
+  // An unknown or stale chapter is ignored instead of blocking generation.
 
   return {
     valid: errors.length === 0,

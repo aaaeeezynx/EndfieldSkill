@@ -142,8 +142,8 @@ const fileStatus = (file: string): string => {
         <div v-if="hasUnverifiedProgressData" class="progress-limits">
           <span>PROGRESS DATA UNVERIFIED</span>
           <p>
-            章節資料為空，配方權限也尚未由劇情或權限進度自動核驗。角色選擇、技能循環與裝備穿戴等級推薦仍可使用，
-            但本頁不會把章節門檻或「目前可製造」狀態宣稱為完整結論。
+            章節資料為空，配方權限也尚未由劇情或權限進度自動核驗；但章節、配方權限不參與本輪裝備篩選，只依可製造等級。
+            角色選擇、技能循環與裝備穿戴等級推薦仍可使用。
           </p>
         </div>
 

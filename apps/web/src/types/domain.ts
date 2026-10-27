@@ -1,3 +1,5 @@
+import type { RotationSourceSegment } from '@/lib/rotationRecombination'
+
 export type SkillType = 'battle' | 'combo' | 'ultimate' | 'other'
 
 export type SkillResource = 'shared_skill_points' | 'energy' | 'none' | 'unknown'
@@ -58,6 +60,11 @@ export interface RotationStep {
   cooldownSeconds: number | null
   warnings: string[]
   note: string | null
+  /**
+   * Source evidence attached to an individual step. Presets normally carry the
+   * authoritative sourceIds, but some reviewed data attaches sources per step.
+   */
+  sourceIds?: string[]
 }
 
 export interface RotationDependency {
@@ -189,7 +196,12 @@ export interface TeamMatch {
   sourceBacked: boolean
 }
 
-export type RotationChoiceKind = 'source-backed' | 'source-fragment' | 'unavailable'
+export type RotationChoiceKind =
+  | 'source-backed'
+  | 'source-composite'
+  | 'source-fragment'
+  | 'unavailable'
+  | 'invalid-selection'
 
 export interface RotationChoice {
   id: string
@@ -210,6 +222,14 @@ export interface RotationChoice {
   waitConditions: string[]
   limitations: string[]
   matchedCharacterIds: string[]
+  /** Authoritative selected roster (1-4 unique characters). */
+  selectedCharacterIds: string[]
+  /** Selected characters with no emitted step (gaps disclosed to the UI). */
+  uncoveredCharacterIds: string[]
+  /** Per-source evidence segments, preserving each source's order. */
+  sourceSegments: RotationSourceSegment[]
+  /** Human-readable explanation of how the choice was built. */
+  explanation: string
 }
 
 export type UnlockState = 'unlocked' | 'locked' | 'unknown' | 'not-craftable'
@@ -243,4 +263,6 @@ export interface RecommendationReport {
   equipment: EquipmentLoadout[]
   teamTags: string[]
   warnings: string[]
+  /** Authoritative selected roster captured for the report. */
+  selectedCharacterIds: string[]
 }

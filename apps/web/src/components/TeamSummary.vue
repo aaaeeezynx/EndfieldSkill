@@ -21,9 +21,16 @@ const characterById = computed(
 )
 
 const selectedCharacters = computed(() =>
-  props.report.equipment
-    .map((item) => characterById.value.get(item.characterId))
-    .filter((character): character is CharacterFact => Boolean(character)),
+  (() => {
+    // Prefer the authoritative selected roster; fall back to equipment-derived
+    // character ids when the report does not carry an explicit selection.
+    const ids = props.report.selectedCharacterIds?.length
+      ? props.report.selectedCharacterIds
+      : props.report.equipment.map((item) => item.characterId)
+    return ids
+      .map((id) => characterById.value.get(id))
+      .filter((character): character is CharacterFact => Boolean(character))
+  })(),
 )
 
 const bestMatch = computed(() => props.report.exactTeam ?? props.report.teamMatches[0] ?? null)
@@ -146,7 +153,8 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
           </p>
         </template>
         <p v-else class="no-match-copy">
-          目前隊伍沒有命中完整攻略隊伍，循環會標示為「尚無可核驗隊伍循環」；裝備仍依現有資料推薦，需人工核對。
+            目前隊伍沒有命中完整攻略隊伍；單人與部分命中可顯示來源片段，跨來源可組合但會分段明示，不代表單一攻略。
+            無可靠來源時才顯示「尚無可核驗循環」；裝備只依可製造等級列出。
         </p>
       </div>
     </div>

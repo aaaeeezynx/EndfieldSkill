@@ -1,4 +1,6 @@
 <script lang="ts">
+// Step index helpers are exported so the manual step controller stays safe
+// when the step list is empty or the index falls outside the source range.
 export const clampStepIndex = (index: number, total: number): number => {
   if (total <= 0) return -1
   return Math.min(Math.max(index, 0), total - 1)
@@ -37,7 +39,9 @@ watch(
 
 const activeChoice = computed(
   () =>
-    props.choices.find((choice) => choice.id === activeChoiceId.value) ??
+    (props.choices.find((choice) => choice.id === activeChoiceId.value) as
+      | RotationChoice
+      | undefined) ??
     props.choices[0] ??
     null,
 )
@@ -46,9 +50,84 @@ const characterById = computed(
   () => new Map(props.characters.map((character) => [character.id, character])),
 )
 
-const orderedSteps = computed(() =>
-  [...(activeChoice.value?.steps ?? [])].sort((a, b) => a.order - b.order),
+// Source-authored order is authoritative; never re-sort by `order`.
+const orderedSteps = computed(() => activeChoice.value?.steps ?? [])
+
+// Localized labels + short tab badge for each of the five rotation kinds.
+const rotationKindMeta: Record<
+  RotationChoice['kind'],
+  { title: string; detail: string; badge: string }
+> = {
+  'source-backed': {
+    title: '完整攻略循環',
+    detail: '來源完整命中',
+    badge: '完整',
+  },
+  'source-composite': {
+    title: '跨來源重組循環',
+    detail: '多來源分段組合',
+    badge: '重組',
+  },
+  'source-fragment': {
+    title: '來源循環片段',
+    detail: '部分角色命中',
+    badge: '片段',
+  },
+  unavailable: {
+    title: '尚無可核驗循環',
+    detail: '無可靠資料',
+    badge: '無資料',
+  },
+  'invalid-selection': {
+    title: '隊伍編排無效',
+    detail: '請選 1～4 名不同角色',
+    badge: '無效',
+  },
+}
+
+const kindMeta = (kind: RotationChoice['kind']) => rotationKindMeta[kind]
+
+const fallbackHeading = computed(() => {
+  if (activeChoice.value?.kind === 'invalid-selection') {
+    return '隊伍編排無效 / 請重新選擇'
+  }
+  if (activeChoice.value?.kind === 'source-fragment') {
+    return '部分匹配 / 待核對'
+  }
+  return '尚無可核驗資料'
+})
+
+const fallbackCopy = computed(() => {
+  if (activeChoice.value?.kind === 'invalid-selection') {
+    return '隊伍人數必須為 1 至 4 名不同角色。本次選擇未通過校驗，因此未生成任何技能循環，也不會以規則推導或虛構步驟冒充攻略。'
+  }
+  if (activeChoice.value?.kind === 'source-fragment') {
+    return '此循環只涵蓋目前隊伍中的部分角色；單人與部分命中亦可顯示來源片段。若由多個來源組合，會分段明示，不代表單一攻略，也不能視為完整隊伍循環。'
+  }
+  return '目前沒有找到可核驗此隊伍的來源循環；無可靠來源時不會以規則推導或虛構步驟冒充攻略。'
+})
+
+// Selected characters the source steps never cover; disclosed as a gap.
+const uncoveredNames = computed(() =>
+  (activeChoice.value?.uncoveredCharacterIds ?? [])
+    .map((characterId) => characterName(characterId))
+    .filter((name) => name.length > 0),
 )
+
+// Map each step back to the source segment that emitted it, so composite
+// rotations can show per-segment headings in the step list.
+const stepSegmentMap = computed(() => {
+  const map = new Map<string, { name: string }>()
+  for (const segment of activeChoice.value?.sourceSegments ?? []) {
+    for (const step of segment.steps) {
+      map.set(step.id, { name: segment.name })
+    }
+  }
+  return map
+})
+
+const segmentNameForStep = (step: RotationStep): string | null =>
+  stepSegmentMap.value.get(step.id)?.name ?? null
 
 const currentStepIndex = ref(-1)
 
@@ -168,20 +247,8 @@ const characterName = (characterId: string): string => {
         <h2>技能釋放順序</h2>
       </div>
       <div class="rotation-kind" :class="activeChoice.kind">
-        <span>{{
-          activeChoice.kind === 'source-backed'
-            ? '完整攻略循環'
-            : activeChoice.kind === 'source-fragment'
-              ? '來源循環片段'
-              : '尚無可核驗循環'
-        }}</span>
-        <strong>{{
-          activeChoice.kind === 'source-backed'
-            ? '來源完整命中'
-            : activeChoice.kind === 'source-fragment'
-              ? '僅部分命中'
-              : '無可靠資料'
-        }}</strong>
+        <span>{{ kindMeta(activeChoice.kind).title }}</span>
+        <strong>{{ kindMeta(activeChoice.kind).detail }}</strong>
       </div>
     </div>
 
@@ -228,28 +295,18 @@ const characterName = (characterId: string): string => {
         @click="activeChoiceId = choice.id"
       >
         <span>{{
-          choice.kind === 'source-backed'
-            ? '完整'
-            : choice.kind === 'source-fragment'
-              ? '片段'
-              : '無資料'
+          kindMeta(choice.kind).badge
         }}</span>
         {{ choice.name }}
       </button>
     </div>
 
     <div
-      v-if="activeChoice.kind === 'source-fragment' || activeChoice.kind === 'unavailable'"
+      v-if="activeChoice.kind === 'source-fragment' || activeChoice.kind === 'unavailable' || activeChoice.kind === 'invalid-selection'"
       class="fallback-banner"
     >
-      <span>{{ activeChoice.kind === 'source-fragment' ? '部分匹配 / 待核對' : '尚無可核驗資料' }}</span>
-      <p>
-        {{
-          activeChoice.kind === 'source-fragment'
-            ? '此循環只命中目前隊伍中的部分角色；同一來源至少要有兩名角色命中才會顯示片段。步驟保留自同一來源，未跨來源拼接，也不能視為完整隊伍循環。'
-            : '目前沒有找到能完整重現此隊伍的可核驗循環；同一來源只有一名角色命中時不算片段，因此不會以規則推導或跨來源拼接冒充攻略。'
-        }}
-      </p>
+      <span>{{ fallbackHeading }}</span>
+      <p>{{ fallbackCopy }}</p>
     </div>
 
     <section
@@ -267,7 +324,7 @@ const characterName = (characterId: string): string => {
     </section>
 
     <div class="rotation-overview">
-      <p>{{ activeChoice.description }}</p>
+      <p>{{ activeChoice.explanation }}</p>
       <div>
         <span>{{ orderedSteps.length }} 個步驟</span>
         <span v-if="activeChoice.confidence !== null">信心 {{ Math.round(activeChoice.confidence * 100) }}%</span>
@@ -275,7 +332,18 @@ const characterName = (characterId: string): string => {
       </div>
     </div>
 
-    <dl v-if="activeChoice.kind !== 'unavailable'" class="source-facts">
+    <div
+      v-if="uncoveredNames.length"
+      class="uncovered-banner"
+      role="status"
+    >
+      <span>未涵蓋角色 / UNCOVERED</span>
+      <p>
+        以下角色未出現在來源步驟中，此循環不包含其技能釋放順序：{{ uncoveredNames.join('、') }}
+      </p>
+    </div>
+
+    <dl v-if="activeChoice.kind !== 'unavailable' && activeChoice.kind !== 'invalid-selection'" class="source-facts">
       <div>
         <dt>資料完整度</dt>
         <dd>
@@ -415,6 +483,13 @@ const characterName = (characterId: string): string => {
         :class="{ 'is-current': currentStepIndex === index }"
         :aria-current="currentStepIndex === index ? 'step' : undefined"
       >
+        <div
+          v-if="activeChoice.sourceSegments.length > 1 && segmentNameForStep(step)"
+          class="step-segment-heading"
+        >
+          來源段落：{{ segmentNameForStep(step) }}
+        </div>
+
         <div class="step-rail">
           <button
             type="button"
@@ -466,7 +541,7 @@ const characterName = (characterId: string): string => {
 
     <div v-else class="rotation-empty">
       <strong>尚無可核驗隊伍循環</strong>
-      <p>目前隊伍沒有能完整重現的來源循環。系統不會以規則推導或跨來源拼接產生未經證實的攻略步驟。</p>
+      <p>目前沒有可核驗此隊伍的來源循環；系統不會以規則推導或虛構未經證實的攻略步驟。</p>
     </div>
 
     <div v-if="activeChoice.warnings.length" class="rotation-warnings">
@@ -523,6 +598,10 @@ const characterName = (characterId: string): string => {
 
 .rotation-kind.unavailable {
   color: var(--color-text-secondary);
+}
+
+.rotation-kind.invalid-selection {
+  color: var(--color-danger);
 }
 
 .rotation-kind span {
@@ -716,6 +795,47 @@ const characterName = (characterId: string): string => {
   color: #5c3a00;
   font-size: 0.73rem;
   line-height: 1.6;
+}
+
+.uncovered-banner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.8rem;
+  margin-top: 0.75rem;
+  border: 1px solid #8f3f00;
+  border-left: 5px solid #8f3f00;
+  background: #fff4e8;
+  padding: 0.7rem 0.85rem;
+}
+
+.uncovered-banner span {
+  color: #8f3f00;
+  font-family: var(--font-display);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.uncovered-banner p {
+  margin: 0;
+  color: #5c3a00;
+  font-size: 0.73rem;
+  line-height: 1.6;
+}
+
+.step-segment-heading {
+  grid-column: 1 / -1;
+  margin: 0.9rem 0 0.2rem;
+  color: var(--color-accent-blue);
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.step-card:first-child .step-segment-heading {
+  margin-top: 0.2rem;
 }
 
 .rotation-overview {

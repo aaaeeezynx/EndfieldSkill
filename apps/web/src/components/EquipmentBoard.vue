@@ -1,345 +1,228 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import EquipmentArtwork from '@/components/EquipmentArtwork.vue'
-import { getCharacterPortrait } from '@/data/portraitLoader'
-import { displayElement, displayProfession } from '@/lib/displayLabels'
 import {
-  buildEquipmentStatDisplays,
-  type EquipmentStatDisplay,
-} from '@/lib/equipmentDisplay'
-import {
-  describeUnlockGate,
-  EQUIPMENT_SLOT_LABELS,
-} from '@/lib/recommendation'
+  selectIndeterminateEquipmentBySlot,
+  selectLevelEligibleEquipmentBySlot,
+} from '@/lib/equipmentEligibility'
 import type {
   CharacterFact,
-  EquipmentCandidate,
+  EquipmentFact,
   EquipmentLoadout,
   EquipmentSlot,
-  EquipmentSlotRecommendation,
-  UnlockState,
 } from '@/types/domain'
 
+// `loadouts` and `characters` remain accepted for backwards compatibility with
+// the planner page. They are intentionally not used to filter this board:
+// manufacturing eligibility is decided by the configured player level only.
 const props = defineProps<{
-  loadouts: EquipmentLoadout[]
-  characters: CharacterFact[]
+  loadouts?: EquipmentLoadout[]
+  characters?: CharacterFact[]
+  equipment?: EquipmentFact[]
+  playerLevel?: number
 }>()
 
 const equipmentSlots: EquipmentSlot[] = ['body', 'hand', 'edc']
 
-const characterById = computed(
-  () => new Map(props.characters.map((character) => [character.id, character])),
+const slotLabels: Record<EquipmentSlot, string> = {
+  body: '身體',
+  hand: '手部',
+  edc: 'EDC',
+}
+
+const emptySlotRecord = (): Record<EquipmentSlot, EquipmentFact[]> => ({
+  body: [],
+  hand: [],
+  edc: [],
+})
+
+const equipmentPool = computed(() => props.equipment ?? [])
+
+const hasUsableLevel = computed(
+  () => props.playerLevel !== undefined && Number.isFinite(props.playerLevel),
 )
 
-const displayName = (characterId: string, name?: string): string => {
-  if (characterId === 'chr_0002_endminm') return '管理員'
-  return name ?? characterId
-}
-
-const stateLabel = (state: UnlockState): string => {
-  if (state === 'unlocked') return '穿戴門檻已達標'
-  if (state === 'locked') return '已知門檻未達'
-  if (state === 'not-craftable') return '來源標記不可製造'
-  return '門檻待核對'
-}
-
-const targetLabel = (candidate: EquipmentCandidate | null): string => {
-  if (!candidate) return '尚無候選'
-  if (candidate.unlockState === 'unlocked') return '目前門檻最佳'
-  if (candidate.unlockState === 'locked') return '角色上限方向'
-  return '待核對方向'
-}
-
-const statEntries = (candidate: EquipmentCandidate): EquipmentStatDisplay[] =>
-  buildEquipmentStatDisplays(
-    candidate.equipment.stats,
-    candidate.equipment.statTypes,
-    6,
+const eligibleBySlot = computed<Record<EquipmentSlot, EquipmentFact[]>>(() => {
+  if (!hasUsableLevel.value) return emptySlotRecord()
+  return selectLevelEligibleEquipmentBySlot(
+    equipmentPool.value,
+    props.playerLevel as number,
   )
+})
 
-const hasDistinctAvailable = (slot: EquipmentSlotRecommendation): boolean =>
-  Boolean(
-    slot.available &&
-      slot.available.equipment.id !== slot.target?.equipment.id,
-  )
+const indeterminateBySlot = computed<Record<EquipmentSlot, EquipmentFact[]>>(
+  () => selectIndeterminateEquipmentBySlot(equipmentPool.value),
+)
 
-const visibleAlternatives = (
-  slot: EquipmentSlotRecommendation,
-): EquipmentCandidate[] => {
-  const excluded = new Set(
-    [slot.target?.equipment.id, slot.available?.equipment.id].filter(
-      (id): id is string => Boolean(id),
-    ),
-  )
-  return slot.alternatives
-    .filter((candidate) => !excluded.has(candidate.equipment.id))
-    .slice(0, 2)
-}
+const totalEligible = computed(() =>
+  equipmentSlots.reduce(
+    (total, slot) => total + eligibleBySlot.value[slot].length,
+    0,
+  ),
+)
 
-const hasFormulaAuthority = (candidate: EquipmentCandidate): boolean =>
-  candidate.equipment.formulaAuthorityRank !== null
+const totalIndeterminate = computed(() =>
+  equipmentSlots.reduce(
+    (total, slot) => total + indeterminateBySlot.value[slot].length,
+    0,
+  ),
+)
+
+const playerLevelLabel = computed(() =>
+  hasUsableLevel.value ? `Lv.${props.playerLevel}` : '尚未設定',
+)
+
+const playerLevelGateLabel = (equipment: EquipmentFact): string =>
+  equipment.unlock.playerLevel === null
+    ? '穿戴等級門檻未知'
+    : `穿戴等級 Lv.${equipment.unlock.playerLevel}`
 
 const equipmentMeta = (
-  candidate: EquipmentCandidate,
+  equipment: EquipmentFact,
   fallbackSlot: EquipmentSlot,
 ): string => {
-  const parts = [
-    candidate.equipment.slot
-      ? EQUIPMENT_SLOT_LABELS[candidate.equipment.slot]
-      : EQUIPMENT_SLOT_LABELS[fallbackSlot],
-  ]
-  if (candidate.equipment.setName) parts.push(candidate.equipment.setName)
-  if (candidate.equipment.rarity) parts.push(`${candidate.equipment.rarity}★`)
+  const parts = [slotLabels[equipment.slot ?? fallbackSlot]]
+  if (equipment.setName) parts.push(equipment.setName)
+  if (equipment.rarity !== null) parts.push(`${equipment.rarity}★`)
   return parts.join(' · ')
 }
 
-const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
-  const slotWarnings = new Set(
-    equipmentSlots.flatMap((slot) => loadout.slots[slot].warnings),
-  )
-  return loadout.warnings.filter((warning) => !slotWarnings.has(warning))
+const indeterminateReason = (equipment: EquipmentFact): string => {
+  if (equipment.craftable === null && equipment.unlock.playerLevel === null)
+    return '可製造標記與穿戴等級皆未知'
+  if (equipment.craftable === null) return '可製造標記未知'
+  return '穿戴等級門檻未知'
 }
 </script>
 
 <template>
-  <section class="equipment-board panel reveal">
-    <div class="equipment-head">
+  <section class="equipment-board panel reveal" aria-labelledby="equipment-title">
+    <header class="equipment-head">
       <div>
-        <p class="eyebrow">06 / EQUIPMENT LOADOUT</p>
-        <h2>角色裝備推薦</h2>
+        <p class="eyebrow">06 / EQUIPMENT BY LEVEL</p>
+        <h2 id="equipment-title">依等級可製造裝備</h2>
       </div>
       <p class="equipment-principle">
-        依角色定位、元素、目前等級與已知章節條件，分別比對身體、手部與 EDC。
-        配方權限仍需進入遊戲核對，本頁不宣稱任何裝備已解鎖配方或目前可製造。
+        僅依目前設定的玩家等級，列出所有可製造裝備。劇情章節、配方權限、
+        角色職業、元素與推薦標籤都不參與篩選，也不截斷結果。
       </p>
+    </header>
+
+    <div class="level-summary" aria-live="polite">
+      <div>
+        <span>目前設定等級</span>
+        <strong>{{ playerLevelLabel }}</strong>
+      </div>
+      <div>
+        <span>可製造裝備</span>
+        <strong>{{ totalEligible }}<small>件</small></strong>
+      </div>
+      <div v-if="totalIndeterminate" class="summary-unknown">
+        <span>無法判定</span>
+        <strong>{{ totalIndeterminate }}<small>件</small></strong>
+      </div>
     </div>
 
-    <div class="equipment-legend">
-      <span>OWNED ROSTER × WEAR GATE</span>
-      <p>
-        <strong>角色上限方向</strong>是綜合分數最高的目標；
-        <strong>目前門檻最佳</strong>只代表已確認通過穿戴等級與已知章節條件。
-        兩者分開呈現，不會把未達門檻的裝備誤標為可立即使用。
-      </p>
+    <p class="eligibility-note">
+      判定條件只有兩項：來源標記為可製造，且穿戴等級不高於目前設定等級。
+      章節為 null 或配方權限尚未核驗，都不會排除已達等級門檻的裝備。
+      排序為稀有度降冪、穿戴等級降冪、ID 升冪。
+    </p>
+
+    <div v-if="!hasUsableLevel" class="board-message">
+      <strong>請先設定玩家等級</strong>
+      <p>設定等級後，才會列出可製造裝備；缺少可製造標記或穿戴等級的資料會另列於下方。</p>
     </div>
 
-    <div v-if="loadouts.length" class="loadout-list stagger-list">
-      <article
-        v-for="loadout in loadouts"
-        :key="loadout.characterId"
-        class="loadout-character"
+    <div v-else class="eligibility-grid">
+      <section
+        v-for="slot in equipmentSlots"
+        :key="slot"
+        class="eligibility-slot"
       >
-        <header class="character-strip">
-          <span class="character-avatar">
-            <img
-              v-if="getCharacterPortrait(loadout.characterId)"
-              :src="getCharacterPortrait(loadout.characterId) ?? ''"
-              :alt="displayName(loadout.characterId, characterById.get(loadout.characterId)?.name)"
-              loading="lazy"
-            />
-            <span v-else>
-              {{ displayName(loadout.characterId, characterById.get(loadout.characterId)?.name).slice(0, 1) }}
-            </span>
-          </span>
-          <div class="character-copy">
-            <p class="character-index">OPERATOR LOADOUT</p>
-            <h3>
-              {{ displayName(loadout.characterId, characterById.get(loadout.characterId)?.name) }}
-            </h3>
-            <p>
-              {{ displayProfession(characterById.get(loadout.characterId)?.profession) || '職業未標註' }}
-              ·
-              {{ displayElement(characterById.get(loadout.characterId)?.element) || '元素未標註' }}
-            </p>
+        <header class="slot-head">
+          <div>
+            <p>{{ slot.toUpperCase() }}</p>
+            <h3>{{ slotLabels[slot] }}</h3>
           </div>
-          <span class="slot-count">03 GEAR SLOTS</span>
+          <strong>{{ eligibleBySlot[slot].length }} 件</strong>
         </header>
 
-        <div class="slot-grid">
-          <section
-            v-for="(slotKey, slotIndex) in equipmentSlots"
-            :key="slotKey"
-            class="slot-card"
+        <ul v-if="eligibleBySlot[slot].length" class="equipment-list">
+          <li
+            v-for="equipment in eligibleBySlot[slot]"
+            :key="equipment.id"
+            class="equipment-item"
           >
-            <header class="slot-head">
-              <span class="slot-number">0{{ slotIndex + 1 }}</span>
-              <div>
-                <p>{{ slotKey.toUpperCase() }}</p>
-                <h4>{{ EQUIPMENT_SLOT_LABELS[slotKey] }}</h4>
-              </div>
-              <span
-                v-if="loadout.slots[slotKey].target"
-                class="slot-state"
-                :class="loadout.slots[slotKey].target?.unlockState"
-              >
-                {{ stateLabel(loadout.slots[slotKey].target!.unlockState) }}
-              </span>
-            </header>
-
-            <template v-if="loadout.slots[slotKey].target">
-              <div class="target-block">
-                <EquipmentArtwork
-                  class="target-artwork"
-                  :equipment-id="loadout.slots[slotKey].target!.equipment.id"
-                  :name="loadout.slots[slotKey].target!.equipment.name"
-                  :rarity="loadout.slots[slotKey].target!.equipment.rarity"
-                />
-                <div class="target-copy">
-                  <span class="target-kicker">
-                    TARGET / {{ targetLabel(loadout.slots[slotKey].target) }}
-                  </span>
-                  <h5>{{ loadout.slots[slotKey].target!.equipment.name }}</h5>
-                  <p class="equipment-meta">
-                    {{ equipmentMeta(loadout.slots[slotKey].target!, slotKey) }}
-                  </p>
-                  <p class="gate-line">
-                    {{ describeUnlockGate(loadout.slots[slotKey].target!) }}
-                  </p>
-                </div>
-              </div>
-
-              <div
-                v-if="statEntries(loadout.slots[slotKey].target!).length"
-                class="stat-grid"
-              >
-                <span
-                  v-for="stat in statEntries(loadout.slots[slotKey].target!)"
-                  :key="stat.key"
-                >
-                  {{ stat.label }}
-                  <strong>{{ stat.value }}</strong>
-                </span>
-              </div>
-              <p v-else class="field-warning">此裝備未提供可顯示的屬性數值。</p>
-
-              <div
-                v-if="loadout.slots[slotKey].target!.matchNotes.length"
-                class="match-notes"
-              >
-                <span
-                  v-for="note in loadout.slots[slotKey].target!.matchNotes"
-                  :key="note"
-                >
-                  {{ note }}
-                </span>
-              </div>
-
-              <div class="material-line">
-                <span>MATERIALS</span>
-                <div
-                  v-if="loadout.slots[slotKey].target!.equipment.unlock.materials.length"
-                >
-                  <span
-                    v-for="material in loadout.slots[slotKey].target!.equipment.unlock.materials"
-                    :key="material"
-                  >
-                    {{ material }}
-                  </span>
-                </div>
-                <small v-else>材料未標註</small>
-              </div>
-
-              <p
-                v-if="hasFormulaAuthority(loadout.slots[slotKey].target!)"
-                class="authority-note"
-              >
-                配方權限與配方階級僅作門檻提示，尚未由玩家進度自動確認。
-              </p>
-
-              <p
-                v-if="loadout.slots[slotKey].target!.unlockState === 'unlocked'"
-                class="single-result-note"
-              >
-                此裝備同時是角色上限與目前已知門檻下的最佳結果；不代表配方已解鎖或現在可製造。
-              </p>
-            </template>
-
-            <div v-else class="slot-empty">
-              <span>NO MATCH</span>
-              <p>此部位沒有符合角色標籤或通用屬性的裝備資料。</p>
+            <EquipmentArtwork
+              compact
+              :equipment-id="equipment.id"
+              :name="equipment.name"
+              :rarity="equipment.rarity"
+            />
+            <div class="equipment-copy">
+              <strong>{{ equipment.name }}</strong>
+              <small>{{ equipmentMeta(equipment, slot) }}</small>
+              <small class="equipment-gate">{{ playerLevelGateLabel(equipment) }}</small>
             </div>
-
-            <div
-              v-if="hasDistinctAvailable(loadout.slots[slotKey])"
-              class="available-block"
-            >
-              <p class="subhead">ALTERNATIVE / 穿戴門檻已達標</p>
-              <div class="available-candidate">
-                <EquipmentArtwork
-                  compact
-                  :equipment-id="loadout.slots[slotKey].available!.equipment.id"
-                  :name="loadout.slots[slotKey].available!.equipment.name"
-                  :rarity="loadout.slots[slotKey].available!.equipment.rarity"
-                />
-                <div>
-                  <h5>{{ loadout.slots[slotKey].available!.equipment.name }}</h5>
-                  <p class="equipment-meta">
-                    {{ equipmentMeta(loadout.slots[slotKey].available!, slotKey) }}
-                  </p>
-                  <p class="gate-line">
-                    {{ describeUnlockGate(loadout.slots[slotKey].available!) }}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div
-              v-if="visibleAlternatives(loadout.slots[slotKey]).length"
-              class="alternative-block"
-            >
-              <p class="subhead">OTHER CANDIDATES / 其他候選</p>
-              <article
-                v-for="alternative in visibleAlternatives(loadout.slots[slotKey])"
-                :key="alternative.equipment.id"
-                class="alternative-card"
-              >
-                <EquipmentArtwork
-                  compact
-                  :equipment-id="alternative.equipment.id"
-                  :name="alternative.equipment.name"
-                  :rarity="alternative.equipment.rarity"
-                />
-                <div>
-                  <strong>{{ alternative.equipment.name }}</strong>
-                  <small>{{ describeUnlockGate(alternative) }}</small>
-                </div>
-              </article>
-            </div>
-
-            <div
-              v-if="loadout.slots[slotKey].warnings.length"
-              class="slot-warnings"
-            >
-              <p
-                v-for="warning in loadout.slots[slotKey].warnings"
-                :key="warning"
-              >
-                <span>!</span>{{ warning }}
-              </p>
-            </div>
-
-            <p
-              v-if="loadout.slots[slotKey].target?.equipment.sourceIds.length"
-              class="equipment-source"
-            >
-              SOURCES
-              {{ loadout.slots[slotKey].target!.equipment.sourceIds.join(' / ') }}
-            </p>
-            <p v-else class="equipment-source">SOURCES 未標註</p>
-          </section>
-        </div>
-
-        <div v-if="loadoutWarnings(loadout).length" class="loadout-warnings">
-          <p v-for="warning in loadoutWarnings(loadout)" :key="warning">
-            <span>DATA NOTE</span>{{ warning }}
-          </p>
-        </div>
-      </article>
+          </li>
+        </ul>
+        <p v-else class="slot-empty">
+          目前等級沒有符合此部位的可製造裝備。
+        </p>
+      </section>
     </div>
 
-    <div v-else class="equipment-empty">
+    <section
+      v-if="totalIndeterminate"
+      class="indeterminate-board"
+      aria-labelledby="indeterminate-title"
+    >
+      <header class="indeterminate-head">
+        <div>
+          <p class="eyebrow">DATA BOUNDARY / UNKNOWN</p>
+          <h3 id="indeterminate-title">無法判定（{{ totalIndeterminate }} 件）</h3>
+        </div>
+        <p>下列裝備缺少可製造標記或穿戴等級，因此不放入可製造清單，也不猜測其資格。</p>
+      </header>
+
+      <div class="indeterminate-grid">
+        <section
+          v-for="slot in equipmentSlots"
+          :key="slot"
+          class="indeterminate-slot"
+        >
+          <h4>
+            {{ slotLabels[slot] }}
+            <small>{{ indeterminateBySlot[slot].length }} 件</small>
+          </h4>
+          <ul v-if="indeterminateBySlot[slot].length" class="equipment-list">
+            <li
+              v-for="equipment in indeterminateBySlot[slot]"
+              :key="equipment.id"
+              class="equipment-item"
+            >
+              <EquipmentArtwork
+                compact
+                :equipment-id="equipment.id"
+                :name="equipment.name"
+                :rarity="equipment.rarity"
+              />
+              <div class="equipment-copy">
+                <strong>{{ equipment.name }}</strong>
+                <small>{{ equipmentMeta(equipment, slot) }}</small>
+                <small class="unknown-reason">{{ indeterminateReason(equipment) }}</small>
+              </div>
+            </li>
+          </ul>
+          <p v-else class="slot-empty">此部位沒有無法判定的裝備。</p>
+        </section>
+      </div>
+    </section>
+
+    <div v-if="!equipmentPool.length" class="board-message board-message-empty">
       <strong>NO EQUIPMENT RECORDS</strong>
-      <p>裝備資料為空，無法生成門檻過濾後的推薦。</p>
+      <p>目前沒有裝備資料，因此無法列出可製造清單。</p>
     </div>
   </section>
 </template>
@@ -385,525 +268,271 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
   text-align: right;
 }
 
-.equipment-legend {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
+.level-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
   margin-top: 1rem;
-  border: 1px solid #949494;
-  border-left: 5px solid #fffa00;
-  background: #f2f2f2;
-  padding: 0.72rem 0.9rem;
 }
 
-.equipment-legend > span {
-  flex: 0 0 auto;
-  color: #191919;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
-
-.equipment-legend p {
-  color: #3f3f3f;
-  font-size: 0.75rem;
-  line-height: 1.6;
-}
-
-.equipment-legend strong {
-  color: #191919;
-}
-
-.loadout-list {
-  display: grid;
-  gap: 1.15rem;
-  margin-top: 1.15rem;
-}
-
-.loadout-character {
-  position: relative;
-  border: 1px solid #949494;
-  background: #fafafa;
-  padding: 1.15rem;
-}
-
-.loadout-character::before {
-  content: "";
-  position: absolute;
-  top: -1px;
-  left: -1px;
-  width: 56px;
-  height: 5px;
-  background: #fffa00;
-}
-
-.character-strip {
+.level-summary > div {
   display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  border-bottom: 1px solid #949494;
-  padding-bottom: 0.85rem;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.7rem;
+  border: 1px solid #949494;
+  border-left: 5px solid #191919;
+  background: #f7f7f7;
+  padding: 0.7rem 0.8rem;
 }
 
-.character-avatar {
-  display: grid;
-  width: 54px;
-  height: 58px;
-  flex: 0 0 auto;
-  place-items: center;
-  overflow: hidden;
-  border: 2px solid #191919;
-  background: #35373c;
-  color: #fffa00;
-  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 1.3rem;
-  font-weight: 700;
+.level-summary > div:first-child {
+  border-left-color: #fffa00;
 }
 
-.character-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.level-summary > .summary-unknown {
+  border-left-color: #8f3f00;
+  background: #fff8e8;
 }
 
-.character-copy {
-  min-width: 0;
-  flex: 1;
-}
-
-.character-index {
+.level-summary span {
   color: #3f3f3f;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
 }
 
-.character-strip h3 {
+.level-summary strong {
   color: #191919;
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 
-.character-strip p:last-child {
+.level-summary small {
+  margin-left: 0.18rem;
+  color: #3f3f3f;
+  font-size: 0.72rem;
+}
+
+.eligibility-note {
+  margin-top: 0.75rem;
   color: #3f3f3f;
   font-size: 0.75rem;
+  line-height: 1.7;
 }
 
-.slot-count {
-  color: #3f3f3f;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
-
-.slot-grid {
+.eligibility-grid,
+.indeterminate-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.85rem;
   margin-top: 0.9rem;
 }
 
-.slot-card {
-  display: flex;
+.eligibility-slot,
+.indeterminate-slot {
   min-width: 0;
-  flex-direction: column;
   border: 1px solid #949494;
+  background: #fafafa;
+  padding: 0.8rem;
+}
+
+.eligibility-slot {
   border-top: 4px solid #191919;
-  background: #ffffff;
-  padding: 0.9rem;
 }
 
 .slot-head {
   display: flex;
-  align-items: center;
-  gap: 0.55rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.6rem;
   border-bottom: 1px solid #949494;
-  padding-bottom: 0.65rem;
-}
-
-.slot-number {
-  display: grid;
-  width: 34px;
-  height: 30px;
-  flex: 0 0 auto;
-  place-items: center;
-  background: #191919;
-  color: #fffa00;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.slot-head > div {
-  min-width: 0;
-  flex: 1;
+  padding-bottom: 0.55rem;
 }
 
 .slot-head p {
   color: #3f3f3f;
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.12em;
 }
 
-.slot-head h4 {
+.slot-head h3,
+.indeterminate-slot h4 {
   color: #191919;
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 1rem;
+  font-size: 1.05rem;
   font-weight: 700;
 }
 
-.slot-state {
-  border: 1px solid #949494;
-  background: #f2f2f2;
-  padding: 0.18rem 0.32rem;
-  color: #3f3f3f;
-  font-size: 0.6rem;
+.slot-head > strong {
+  color: #145c35;
+  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
+  font-size: 0.78rem;
   white-space: nowrap;
 }
 
-.slot-state.locked {
-  border-color: #8f3f00;
-  background: #fff8e8;
-  color: #5c3a00;
+.equipment-list {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
 }
 
-.slot-state.unknown,
-.slot-state.not-craftable {
-  border-color: #9e332a;
-  background: #fff2f0;
-  color: #9e332a;
-}
-
-.slot-state.unlocked {
-  border-color: #145c35;
-  background: #effbf2;
-  color: #145c35;
-}
-
-.target-block {
+.equipment-item {
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  margin-top: 0.8rem;
+  gap: 0.55rem;
+  min-width: 0;
 }
 
-.target-artwork {
-  width: 126px;
-}
-
-.target-copy {
+.equipment-copy {
   min-width: 0;
   flex: 1;
 }
 
-.target-kicker {
-  color: #3f3f3f;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.07em;
-}
-
-.target-copy h5,
-.available-candidate h5 {
-  margin-top: 0.18rem;
-  color: #191919;
-  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 1.06rem;
-  font-weight: 700;
-  line-height: 1.3;
-}
-
-.equipment-meta {
-  margin-top: 0.16rem;
-  color: #3f3f3f;
-  font-size: 0.75rem;
-  line-height: 1.45;
-}
-
-.gate-line {
-  margin-top: 0.42rem;
-  border-top: 1px solid #949494;
-  padding-top: 0.38rem;
-  color: #3f3f3f;
-  font-size: 0.75rem;
-  line-height: 1.5;
-}
-
-.stat-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.28rem;
-  margin-top: 0.55rem;
-}
-
-.stat-grid span {
-  max-width: 100%;
-  border: 1px solid #949494;
-  background: #f7f7f7;
-  padding: 0.18rem 0.3rem;
-  color: #3f3f3f;
-  font-size: 0.75rem;
-  line-height: 1.45;
-  overflow-wrap: anywhere;
-}
-
-.stat-grid strong {
-  margin-left: 0.16rem;
-  color: #191919;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-.match-notes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  margin-top: 0.48rem;
-}
-
-.match-notes span {
-  border: 1px solid #949494;
-  background: #f7f7f7;
-  padding: 0.14rem 0.28rem;
-  color: #3f3f3f;
-  font-size: 0.75rem;
-}
-
-.field-warning {
-  margin-top: 0.5rem;
-  color: #5c3a00;
-  font-size: 0.7rem;
-}
-
-.material-line {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.45rem;
-  margin-top: 0.6rem;
-}
-
-.material-line > span,
-.subhead {
-  color: #3f3f3f;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.material-line > div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.22rem;
-}
-
-.material-line > div span {
-  border: 1px solid #949494;
-  background: #f7f7f7;
-  padding: 0.12rem 0.26rem;
-  color: #3f3f3f;
-  font-size: 0.75rem;
-}
-
-.material-line small {
-  color: #5c3a00;
-  font-size: 0.75rem;
-}
-
-.authority-note,
-.single-result-note {
-  margin-top: 0.52rem;
-  border-left: 3px solid #8f3f00;
-  background: #fff8e8;
-  padding: 0.35rem 0.45rem;
-  color: #5c3a00;
-  font-size: 0.75rem;
-  line-height: 1.5;
-}
-
-.single-result-note {
-  border-left-color: #145c35;
-  background: #effbf2;
-  color: #145c35;
-}
-
-.available-block,
-.alternative-block {
-  margin-top: 0.75rem;
-  border-top: 1px solid #949494;
-  padding-top: 0.65rem;
-}
-
-.available-candidate,
-.alternative-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-  margin-top: 0.5rem;
-}
-
-.available-candidate > div,
-.alternative-card > div {
-  min-width: 0;
-  flex: 1;
-}
-
-.alternative-card {
-  border: 1px solid #949494;
-  background: #f7f7f7;
-  padding: 0.45rem;
-}
-
-.alternative-card + .alternative-card {
-  margin-top: 0.38rem;
-}
-
-.alternative-card strong {
+.equipment-copy strong {
   display: block;
   color: #191919;
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
-  font-size: 0.84rem;
+  font-size: 0.9rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
-.alternative-card small {
+.equipment-copy small {
   display: block;
   margin-top: 0.12rem;
   color: #3f3f3f;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   line-height: 1.45;
 }
 
-.slot-warnings {
-  display: grid;
-  gap: 0.18rem;
-  margin-top: 0.62rem;
+.equipment-gate {
+  color: #145c35 !important;
 }
 
-.slot-warnings p {
-  display: flex;
-  gap: 0.32rem;
-  color: #5c3a00;
-  font-size: 0.75rem;
-  line-height: 1.45;
-}
-
-.slot-warnings span {
-  color: #5c3a00;
-  font-family: "Rajdhani", sans-serif;
-  font-weight: 700;
+.unknown-reason {
+  color: #5c3a00 !important;
 }
 
 .slot-empty {
-  margin-top: 0.7rem;
-  border: 1px dashed #949494;
-  background: #f7f7f7;
-  padding: 1.2rem 0.8rem;
-  text-align: center;
-}
-
-.slot-empty span {
-  color: #5c3a00;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-}
-
-.slot-empty p {
-  margin-top: 0.25rem;
-  color: #3f3f3f;
-  font-size: 0.75rem;
-  line-height: 1.5;
-}
-
-.equipment-source {
-  margin-top: auto;
-  padding-top: 0.65rem;
-  color: #3f3f3f;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.06em;
-  overflow-wrap: anywhere;
-}
-
-.loadout-warnings {
-  display: grid;
-  gap: 0.35rem;
-  margin-top: 0.85rem;
-  border: 1px solid #8f3f00;
-  background: #fffaf0;
-  padding: 0.65rem 0.75rem;
-}
-
-.loadout-warnings p {
+  margin-top: 0.65rem;
   color: #5c3a00;
   font-size: 0.75rem;
   line-height: 1.55;
 }
 
-.loadout-warnings span {
-  margin-right: 0.55rem;
+.indeterminate-board {
+  margin-top: 1.15rem;
+  border: 1px solid #8f3f00;
+  border-left: 5px solid #8f3f00;
+  background: #fffaf0;
+  padding: 1rem 1.1rem 1.15rem;
+}
+
+.indeterminate-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-bottom: 1px solid #b88a5d;
+  padding-bottom: 0.65rem;
+}
+
+.indeterminate-head .eyebrow {
   color: #5c3a00;
   font-family: "Rajdhani", sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.equipment-empty {
-  border: 1px dashed #949494;
-  background: #f7f7f7;
-  margin-top: 1rem;
-  padding: 2.5rem 1rem;
-  text-align: center;
-}
-
-.equipment-empty strong {
-  color: #191919;
-  font-family: "Rajdhani", sans-serif;
-  font-size: 0.76rem;
   letter-spacing: 0.12em;
 }
 
-.equipment-empty p {
-  margin-top: 0.45rem;
+.indeterminate-head h3 {
+  margin-top: 0.2rem;
+  color: #191919;
+  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.indeterminate-head > p {
+  max-width: 430px;
+  color: #5c3a00;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  text-align: right;
+}
+
+.indeterminate-slot {
+  background: #ffffff;
+}
+
+.indeterminate-slot h4 {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-bottom: 1px solid #949494;
+  padding-bottom: 0.5rem;
+}
+
+.indeterminate-slot h4 small {
+  color: #5c3a00;
+  font-size: 0.72rem;
+}
+
+.board-message {
+  margin-top: 1rem;
+  border: 1px dashed #949494;
+  background: #f7f7f7;
+  padding: 1rem;
+}
+
+.board-message strong {
+  color: #191919;
+  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
+  font-size: 0.9rem;
+}
+
+.board-message p {
+  margin-top: 0.3rem;
   color: #3f3f3f;
   font-size: 0.75rem;
+  line-height: 1.6;
+}
+
+.board-message-empty {
+  border-style: solid;
+  background: #fff8e8;
 }
 
 @media (max-width: 1180px) {
-  .slot-grid {
+  .eligibility-grid,
+  .indeterminate-grid {
     grid-template-columns: 1fr;
-  }
-
-  .slot-card {
-    border-top-width: 3px;
   }
 }
 
 @media (max-width: 780px) {
-  .equipment-head {
+  .equipment-head,
+  .indeterminate-head {
     align-items: flex-start;
     flex-direction: column;
     gap: 0.65rem;
   }
 
-  .equipment-principle {
+  .equipment-principle,
+  .indeterminate-head > p {
+    max-width: none;
     text-align: left;
   }
 
-  .equipment-legend {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 0.35rem;
+  .level-summary {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -912,20 +541,9 @@ const loadoutWarnings = (loadout: EquipmentLoadout): string[] => {
     padding: 1rem;
   }
 
-  .loadout-character {
-    padding: 0.8rem;
-  }
-
-  .slot-count {
-    display: none;
-  }
-
-  .target-artwork {
-    width: 104px;
-  }
-
-  .target-block {
-    gap: 0.6rem;
+  .eligibility-slot,
+  .indeterminate-slot {
+    padding: 0.7rem;
   }
 }
 </style>

@@ -243,7 +243,6 @@ const pairs = [
   pair(componentColor('#5c3a00', 'src/components/RotationBoard.vue'), '#fff7ef', 'RotationBoard note on warm white (body)', 'body'),
 
   pair(componentColor('#5c3a00', 'src/components/EquipmentBoard.vue'), '#fff8e8', 'EquipmentBoard warning on cream (body)', 'body'),
-  pair(componentColor('#9e332a', 'src/components/EquipmentBoard.vue'), '#fff2f0', 'EquipmentBoard danger on red-cream (body)', 'body'),
   pair(componentColor('#145c35', 'src/components/EquipmentBoard.vue'), '#effbf2', 'EquipmentBoard success on green-cream (body)', 'body'),
   pair(componentColor('#3f3f3f', 'src/components/EquipmentBoard.vue'), '#f7f7f7', 'EquipmentBoard tertiary on grey (body)', 'body'),
   pair(componentColor('#5c3a00', 'src/components/EquipmentBoard.vue'), '#fffaf0', 'EquipmentBoard loadout warning on cream (body)', 'body'),

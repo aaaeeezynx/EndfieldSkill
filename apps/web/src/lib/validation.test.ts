@@ -62,11 +62,11 @@ describe('validatePlannerInput', () => {
     expect(result.errors).toContain('玩家等級必須是 1–999 的整數。')
   })
 
-  it('enforces the chapter minimum player level', () => {
+  it('does not block validation by chapter minimum player level', () => {
     const result = validate(['a', 'b', 'c', 'd'], '19', 'chapter-2')
 
-    expect(result.valid).toBe(false)
-    expect(result.errors).toContain('該章節至少需要玩家等級 Lv.20。')
+    expect(result.valid).toBe(true)
+    expect(result.errors).toEqual([])
   })
 
   it('allows chapter progress to be omitted when chapter data is unavailable', () => {
@@ -84,10 +84,11 @@ describe('validatePlannerInput', () => {
     expect(result.chapter).toBeNull()
   })
 
-  it('rejects an unknown non-empty chapter only when chapter records exist', () => {
-    expect(validate(['a', 'b', 'c', 'd'], '25', 'chapter-x').errors).toContain(
-      '所選劇情章節不在資料庫中。',
-    )
-    expect(validate(['a', 'b', 'c', 'd'], '25', 'chapter-x', []).valid).toBe(true)
+  it('ignores an unknown non-empty chapter because chapters do not gate planning', () => {
+    const result = validate(['a', 'b', 'c', 'd'], '25', 'chapter-x')
+
+    expect(result.valid).toBe(true)
+    expect(result.errors).toEqual([])
+    expect(result.chapter).toBeNull()
   })
 })

@@ -7,8 +7,14 @@ import RotationBoard from '@/components/RotationBoard.vue'
 import TeamDock from '@/components/TeamDock.vue'
 import TeamSummary from '@/components/TeamSummary.vue'
 import { usePlannerStore } from '@/stores/planner'
+import { getSkillGapCharacters } from '@/lib/skillGap'
 
 const planner = usePlannerStore()
+// Player level used to drive the full "every craftable by level" equipment
+// board. The board is purely level-gated (story chapters / formula authority
+// are never consulted), so we expose the validated level or undefined when
+// none is set yet.
+const playerLevel = computed(() => planner.validation.playerLevel ?? undefined)
 const showPipelineState = computed(
   () => planner.dataState === 'loading' || planner.dataState === 'empty' ||
     planner.dataState === 'error' || !planner.hasCoreData,
@@ -18,6 +24,12 @@ const hasUnverifiedProgressData = computed(
   () => planner.characters.length > 0 && !planner.hasChapterData,
 )
 const squadSize = computed(() => planner.selectedCharacters.length)
+// Dynamic list of characters missing a usable 戰技 or 連攜技, derived purely
+// from character.skills. Clears itself automatically when data is repaired.
+const skillGapCharacters = computed(() =>
+  getSkillGapCharacters(planner.characters),
+)
+const hasSkillGaps = computed(() => skillGapCharacters.value.length > 0)
 </script>
 
 <template>
@@ -45,30 +57,40 @@ const squadSize = computed(() => planner.selectedCharacters.length)
             <div class="hero-copy">
               <p class="hero-eyebrow">01—04 / 彈性隊伍編排</p>
               <h1 id="hero-title" class="display-title">你的隊伍，<br /><span>每一步都有依據。</span></h1>
-              <p class="hero-lede">選擇 1～4 名已擁有角色，依照等級與進度安排技能順序，並找出目前可用的裝備方向。缺少的資料會清楚標示。</p>
+              <p class="hero-lede">選擇 1～4 名已擁有角色，依據可核驗來源重組隊伍技能釋放順序，並列出目前等級可製造的裝備。缺少的資料會清楚標示，絕不假造規則。</p>
               <a class="hero-action" href="#roster">開始建立編成 <span aria-hidden="true">↓</span></a>
             </div>
-            <div class="roster-status" aria-label="編成使用流程">
+            <div class="roster-status" aria-label="目前編成狀態">
               <div class="status-heading"><span>SQUAD / INPUT</span><strong>1～4 人彈性編成</strong></div>
               <div class="roster-count"><span>目前選擇</span><strong>{{ squadSize }}<small>/ 04</small></strong></div>
               <div class="roster-slots" aria-label="四個可選席位">
                 <span v-for="index in 4" :key="index" :class="{ filled: index <= squadSize }">0{{ index }}<i>{{ index <= squadSize ? '已選' : '可選' }}</i></span>
               </div>
-              <p>一名角色即可生成，最多四名；完整攻略僅在角色組合完全一致時採用。</p>
+              <p>一名角色即可生成，最多四名；技能釋放順序由所選 1～4 名角色重組可核驗來源循環，而非固定隊伍或機械排列。</p>
             </div>
           </div>
           <ol class="workflow" aria-label="編排流程">
-            <li><span>01</span><div><strong>選角色</strong><small>從已擁有名單編成</small></div></li>
-            <li><span>02</span><div><strong>設進度</strong><small>限定目前裝備門檻</small></div></li>
-            <li><span>03</span><div><strong>排技能</strong><small>逐步確認釋放時機</small></div></li>
-            <li><span>04</span><div><strong>篩裝備</strong><small>核對屬性與穿戴條件</small></div></li>
+            <li><span>01</span><div><strong>選角色</strong><small>從已擁有名單編成 1～4 人</small></div></li>
+            <li><span>02</span><div><strong>設等級</strong><small>決定可製造裝備門檻</small></div></li>
+            <li><span>03</span><div><strong>排技能</strong><small>重組來源循環順序</small></div></li>
+            <li><span>04</span><div><strong>篩裝備</strong><small>列出等級可製造清單</small></div></li>
           </ol>
         </div>
       </section>
 
-      <div class="partial-banner skill-warning reveal" role="status">
+      <div
+        v-if="hasSkillGaps"
+        class="partial-banner skill-warning reveal"
+        role="status"
+        aria-live="polite"
+      >
         <span>SKILL GAPS</span>
-        <p><strong>技能資料缺失標示：</strong>目前資料庫中，角色<strong>「弭弗」</strong>、<strong>「提弗洛斯」</strong>在官方原始資料缺少戰技；角色<strong>「湯湯」</strong>、<strong>「訣」</strong>、<strong>「梨諾」</strong>、<strong>「噗切娜」</strong>、<strong>「祀」</strong>等尚缺專屬戰技與完整連攜技能核驗。本工具嚴守客觀資料邊界，缺失部分清楚標明，絕不憑空虛構。</p>
+        <p>
+          <strong>技能資料缺失提示：</strong>下列角色在可核驗資料中缺少
+          <template v-for="(entry, index) in skillGapCharacters" :key="entry.id"
+            ><strong>「{{ entry.name }}」</strong>{{ index < skillGapCharacters.length - 1 ? '、' : '' }}<span class="gap-types">{{ entry.missingLabels.join('／') }}</span></template>
+          。本工具嚴守客觀資料邊界，缺失部分清楚標明，絕不憑空虛構。
+        </p>
         <RouterLink to="/data">查看資料邊界 →</RouterLink>
       </div>
 
@@ -79,7 +101,7 @@ const squadSize = computed(() => planner.selectedCharacters.length)
       </div>
       <div v-if="hasUnverifiedProgressData" class="partial-banner progress-warning reveal">
         <span>PROGRESS UNVERIFIED</span>
-        <p>章節與權限解鎖資料尚未核驗。你仍可選擇 1～4 名角色並依裝備穿戴等級產生結果；劇情章節、配方權限與「目前能否製造」不會被標示為已確認。</p>
+        <p>章節與權限解鎖資料尚未核驗，但不影響本輪結果。裝備篩選只依可製造等級，章節、配方權限不參與；你仍可選擇 1～4 名角色並依可製造等級產生結果。</p>
         <RouterLink to="/data">查看資料邊界 →</RouterLink>
       </div>
 
@@ -92,14 +114,19 @@ const squadSize = computed(() => planner.selectedCharacters.length)
         <template v-if="planner.report">
           <TeamSummary :report="planner.report" :characters="planner.characters" />
           <RotationBoard :choices="planner.report.rotations" :characters="planner.characters" />
-          <EquipmentBoard :loadouts="planner.report.equipment" :characters="planner.characters" />
+          <EquipmentBoard
+            :loadouts="planner.report.equipment"
+            :characters="planner.characters"
+            :equipment="planner.dataset?.equipment ?? []"
+            :player-level="playerLevel"
+          />
         </template>
         <section v-else class="awaiting-output panel reveal">
           <div class="awaiting-code">OUTPUT//LOCKED</div>
           <div class="awaiting-body">
             <p class="eyebrow">TACTICAL PAYLOAD</p>
-            <h2>等待隊伍編成與進度門檻。</h2>
-            <p>結果分為隊伍匹配、技能序列、裝備門檻三段。沒有完整攻略時，僅顯示明確標註的規則回退。</p>
+            <h2>等待隊伍編成與玩家等級。</h2>
+            <p>結果分為隊伍匹配、技能序列、裝備門檻三段。資料不足時明確標示，不以規則冒充可核驗攻略。</p>
             <div class="output-preview"><span><i>04</i> SQUAD MATCH</span><span><i>05</i> SKILL SEQUENCE</span><span><i>06</i> EQUIPMENT GATES</span></div>
           </div>
         </section>
@@ -115,12 +142,12 @@ const squadSize = computed(() => planner.selectedCharacters.length)
 .hero-contours { position: absolute; z-index: -1; right: -4%; bottom: -10%; width: 66%; color: #fffa00; opacity: .23; }
 .hero-contours svg { display: block; width: 100%; }
 .hero-contours path { fill: none; stroke: currentColor; stroke-width: 1; }
-.hero-wordmark { position: absolute; z-index: -1; top: 23%; right: -0.02em; margin: 0; color: #303030; font-family: var(--font-display); font-size: clamp(7rem, 15vw, 14rem); font-weight: 700; letter-spacing: 0; line-height: 1; white-space: nowrap; }
+.hero-wordmark { position: absolute; z-index: -1; right: clamp(-5rem, -3vw, -1rem); bottom: -0.18em; margin: 0; color: #252525; font-family: var(--font-display); font-size: clamp(5.5rem, 12vw, 11rem); font-weight: 700; letter-spacing: 0; line-height: 1; white-space: nowrap; pointer-events: none; }
 .hero-content { position: relative; padding: clamp(1.25rem, 3vw, 2.3rem); animation: hero-enter 480ms ease-out both; }
 .hero-topline { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .6rem 1rem; border-bottom: 1px solid #666; padding-bottom: .8rem; color: #fff; font-family: var(--font-display); font-size: .62rem; font-weight: 700; letter-spacing: .1em; }
 .hero-state { display: inline-flex; align-items: center; gap: .4rem; }
 .hero-state i { width: .4rem; height: .4rem; background: #fffa00; }
-.hero-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(240px, .65fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: center; padding: 2.3rem 0 2rem; }
+.hero-layout { position: relative; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(250px, .65fr); gap: clamp(1.75rem, 4vw, 4.25rem); align-items: center; padding: 2.3rem 0 2rem; }
 .hero-copy { max-width: 720px; }
 .hero-eyebrow { color: #fffa00; font: 700 .78rem var(--font-display); letter-spacing: .1em; }
 .hero h1 { margin: .9rem 0 1.2rem; font-size: clamp(2.5rem, 5.1vw, 4.75rem); }
@@ -130,7 +157,7 @@ const squadSize = computed(() => planner.selectedCharacters.length)
 .hero-action:hover { background: #fff; }
 .hero-action span { font-size: 1.2rem; line-height: 1; }
 .hero-action:focus-visible { outline-color: #fff; }
-.roster-status { border-top: 5px solid #fffa00; background: #242424; padding: 1.15rem; }
+.roster-status { position: relative; z-index: 2; border: 1px solid #777; border-top: 5px solid #fffa00; background: #242424; padding: 1.15rem; }
 .status-heading { display: flex; justify-content: space-between; gap: .7rem; align-items: baseline; }
 .status-heading span { color: #fff; font: 700 .62rem var(--font-display); letter-spacing: .08em; }
 .status-heading strong { font-size: .78rem; }
@@ -142,8 +169,8 @@ const squadSize = computed(() => planner.selectedCharacters.length)
 .roster-slots span { display: grid; gap: .2rem; border: 1px solid #929292; padding: .45rem; color: #fff; font: 700 .78rem var(--font-display); }
 .roster-slots span.filled { border-color: #fffa00; background: #fffa00; color: #191919; }
 .roster-slots i { font: normal .6rem var(--font-body); }
-.roster-status > p { margin: 1rem 0 0; color: #fff; font-size: .68rem; line-height: 1.65; }
-.workflow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid #666; list-style: none; }
+.roster-status > p { margin: 1rem 0 0; color: #fff; font-size: .75rem; line-height: 1.65; }
+.workflow { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid #666; list-style: none; }
 .workflow li { display: flex; gap: .7rem; padding: 1rem .7rem 0; border-left: 1px solid #666; }
 .workflow li:first-child { border-left: 0; padding-left: 0; }
 .workflow li > span { color: #fffa00; font: 700 .75rem var(--font-display); }
@@ -153,6 +180,7 @@ const squadSize = computed(() => planner.selectedCharacters.length)
 .partial-banner > span { flex: 0 0 auto; color: #8a3400; font: 700 .75rem var(--font-display); letter-spacing: .1em; }
 .partial-banner p { flex: 1; color: #5a3a1a; font-size: .78rem; line-height: 1.6; }
 .partial-banner a { flex: 0 0 auto; color: #7a3608; font-size: .76rem; text-decoration: none; }
+.partial-banner.skill-warning .gap-types { color: #8a3400; font-weight: 700; margin-left: .15rem; }
 .partial-banner.progress-warning { border-color: #6b6000; background: #fffde7; }
 .partial-banner.progress-warning > span, .partial-banner.progress-warning a { color: #5a5500; }
 .partial-banner.progress-warning p { color: #565015; }
@@ -170,7 +198,7 @@ const squadSize = computed(() => planner.selectedCharacters.length)
 @media (max-width: 1000px) {
   .hero-layout { grid-template-columns: 1fr; gap: 1.5rem; }
   .roster-status { max-width: 500px; }
-  .hero-wordmark { top: 35%; font-size: 10rem; }
+  .hero-wordmark { right: -0.04em; bottom: .08em; font-size: 9rem; }
   .planner-layout { grid-template-columns: 1fr; }
 }
 @media (max-width: 640px) {
@@ -182,7 +210,7 @@ const squadSize = computed(() => planner.selectedCharacters.length)
   .hero h1 { font-size: clamp(2.1rem, 10.5vw, 3rem); line-height: 1.08; }
   .hero-lede { font-size: .8rem; }
   .hero-action { width: 100%; }
-  .hero-wordmark { top: 39%; right: -.05em; font-size: 7rem; }
+  .hero-wordmark { right: -.06em; bottom: .02em; font-size: 5.4rem; opacity: .72; }
   .hero-contours { width: 130%; right: -38%; bottom: 5%; }
   .workflow { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 0; }
   .workflow li:nth-child(3) { border-left: 0; padding-left: 0; }
