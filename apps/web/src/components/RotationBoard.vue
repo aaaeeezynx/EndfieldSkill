@@ -15,6 +15,55 @@ export const moveStepIndex = (
   const safeCurrent = clampStepIndex(current, total)
   return clampStepIndex(safeCurrent + direction, total)
 }
+
+export type RotationConditionState = 'documented' | 'unknown'
+
+// Condition text is source evidence. Missing or blank text stays explicitly
+// unknown; callers must never infer a trigger or wait state from step order.
+export const conditionState = (
+  condition: string | null | undefined,
+): RotationConditionState =>
+  typeof condition === 'string' && condition.trim().length > 0
+    ? 'documented'
+    : 'unknown'
+
+export interface ConditionAwareStep {
+  triggerCondition?: string | null
+  waitFor?: string | null
+}
+
+export interface RotationConditionSummaryInput {
+  triggerConditions?: readonly string[]
+  waitConditions?: readonly string[]
+  steps?: readonly ConditionAwareStep[]
+}
+
+export interface RotationConditionSummary {
+  triggerConditions: string[]
+  waitConditions: string[]
+}
+
+const uniqueConditionText = (
+  values: readonly (string | null | undefined)[],
+): string[] => [...new Set(values
+  .map((value) => typeof value === 'string' ? value.trim() : '')
+  .filter((value) => value.length > 0))]
+
+export const summarizeRotationConditions = (
+  input: RotationConditionSummaryInput,
+): RotationConditionSummary => {
+  const steps = input.steps ?? []
+  return {
+    triggerConditions: uniqueConditionText([
+      ...(input.triggerConditions ?? []),
+      ...steps.map((step) => step.triggerCondition),
+    ]),
+    waitConditions: uniqueConditionText([
+      ...(input.waitConditions ?? []),
+      ...steps.map((step) => step.waitFor),
+    ]),
+  }
+}
 </script>
 
 <script setup lang="ts">
@@ -153,6 +202,13 @@ const currentStep = computed(
       : null,
 )
 
+const upcomingStep = computed(
+  () =>
+    currentStepIndex.value >= 0
+      ? orderedSteps.value[currentStepIndex.value + 1] ?? null
+      : null,
+)
+
 const hasPreviousStep = computed(
   () => currentStepIndex.value > 0 && orderedSteps.value.length > 0,
 )
@@ -237,6 +293,38 @@ const characterName = (characterId: string): string => {
   if (characterId === 'chr_0002_endminm') return '管理員'
   return characterById.value.get(characterId)?.name ?? characterId
 }
+
+const activeConditionSummary = computed<RotationConditionSummary>(() =>
+  summarizeRotationConditions({
+    triggerConditions: activeChoice.value?.triggerConditions ?? [],
+    waitConditions: activeChoice.value?.waitConditions ?? [],
+    steps: [
+      ...(activeChoice.value?.steps ?? []),
+      ...(activeChoice.value?.sourceSegments ?? []).flatMap(
+        (segment) => segment.steps,
+      ),
+    ],
+  }),
+)
+
+const conditionStateLabel = (condition: string | null | undefined): string =>
+  conditionState(condition) === 'documented' ? '已標註' : '來源未標註'
+
+const nextStepFor = (index: number): RotationStep | null =>
+  orderedSteps.value[index + 1] ?? null
+
+const nextStepName = (index: number): string => {
+  const nextStep = nextStepFor(index)
+  return nextStep
+    ? `${characterName(nextStep.characterId)} / ${nextStep.skillName}`
+    : ''
+}
+
+const nextStepCondition = (index: number): string => {
+  const nextStep = nextStepFor(index)
+  return nextStep?.waitFor || '來源未標註等待／承接條件'
+}
+
 </script>
 
 <template>
@@ -374,11 +462,17 @@ const characterName = (characterId: string): string => {
       </div>
       <div>
         <dt>觸發條件</dt>
-        <dd>{{ activeChoice.triggerConditions.join(' / ') || '來源未標註觸發條件' }}</dd>
+        <dd class="condition-value" :class="conditionState(activeConditionSummary.triggerConditions.join(' / '))">
+          <span class="condition-state">{{ conditionStateLabel(activeConditionSummary.triggerConditions.join(' / ')) }}</span>
+          {{ activeConditionSummary.triggerConditions.join(' / ') || '來源未標註觸發條件' }}
+        </dd>
       </div>
       <div>
         <dt>等待／承接條件</dt>
-        <dd>{{ activeChoice.waitConditions.join(' / ') || '來源未標註等待／承接條件' }}</dd>
+        <dd class="condition-value" :class="conditionState(activeConditionSummary.waitConditions.join(' / '))">
+          <span class="condition-state">{{ conditionStateLabel(activeConditionSummary.waitConditions.join(' / ')) }}</span>
+          {{ activeConditionSummary.waitConditions.join(' / ') || '來源未標註等待／承接條件' }}
+        </dd>
       </div>
     </dl>
 
@@ -464,13 +558,31 @@ const characterName = (characterId: string): string => {
             </div>
             <div>
               <dt>觸發條件</dt>
-              <dd>{{ currentStep.triggerCondition || '來源未標註觸發條件' }}</dd>
+              <dd class="condition-value" :class="conditionState(currentStep.triggerCondition)">
+                <span class="condition-state">{{ conditionStateLabel(currentStep.triggerCondition) }}</span>
+                {{ currentStep.triggerCondition || '來源未標註觸發條件' }}
+              </dd>
             </div>
             <div>
               <dt>等待／承接時機</dt>
-              <dd>{{ currentStep.waitFor || '來源未標註等待／承接時機' }}</dd>
+              <dd class="condition-value" :class="conditionState(currentStep.waitFor)">
+                <span class="condition-state">{{ conditionStateLabel(currentStep.waitFor) }}</span>
+                {{ currentStep.waitFor || '來源未標註等待／承接時機' }}
+              </dd>
             </div>
           </dl>
+          <div v-if="upcomingStep" class="next-step-guide">
+            <span>NEXT / 下一步</span>
+            <strong>
+              {{ characterName(upcomingStep.characterId) }}
+              /
+              {{ upcomingStep.skillName }}
+            </strong>
+            <small>
+              下一步等待／承接標註：
+              {{ upcomingStep.waitFor || '來源未標註等待／承接條件' }}
+            </small>
+          </div>
         </div>
       </div>
     </section>
@@ -500,7 +612,9 @@ const characterName = (characterId: string): string => {
           >
             {{ String(step.order).padStart(2, '0') }}
           </button>
-          <i aria-hidden="true"></i>
+          <i class="step-connector" aria-hidden="true">
+            <span>{{ index < orderedSteps.length - 1 ? 'NEXT / 承接' : 'END / 結束' }}</span>
+          </i>
         </div>
 
         <div class="step-content">
@@ -521,14 +635,25 @@ const characterName = (characterId: string): string => {
           </div>
 
           <div class="condition-grid">
-            <div>
+            <div class="condition-item" :class="conditionState(step.triggerCondition)">
               <span>觸發條件</span>
+              <strong class="condition-state">{{ conditionStateLabel(step.triggerCondition) }}</strong>
               <p>{{ step.triggerCondition || '來源未標註觸發條件' }}</p>
             </div>
-            <div>
+            <div class="condition-item" :class="conditionState(step.waitFor)">
               <span>等待條件</span>
+              <strong class="condition-state">{{ conditionStateLabel(step.waitFor) }}</strong>
               <p>{{ step.waitFor || '來源未標註等待條件' }}</p>
             </div>
+          </div>
+
+          <div v-if="nextStepFor(index)" class="next-step-guide step-next-guide">
+            <span>NEXT / 下一步</span>
+            <strong>{{ nextStepName(index) }}</strong>
+            <small>
+              下一步等待／承接標註：
+              {{ nextStepCondition(index) }}
+            </small>
           </div>
 
           <p v-if="step.note" class="step-note">{{ step.note }}</p>
@@ -901,6 +1026,75 @@ const characterName = (characterId: string): string => {
   line-height: 1.5;
 }
 
+.condition-value {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.45rem;
+  align-items: baseline;
+}
+
+.condition-state {
+  display: inline-flex;
+  width: max-content;
+  border: 1px solid #949494;
+  background: #f7f7f7;
+  padding: 0.12rem 0.32rem;
+  color: var(--color-text-secondary);
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.condition-value.documented .condition-state,
+.condition-item.documented .condition-state {
+  border-color: var(--color-accent-blue);
+  background: #eef3ff;
+  color: var(--color-accent-blue);
+}
+
+.condition-value.unknown .condition-state,
+.condition-item.unknown .condition-state {
+  border-color: #8f3f00;
+  background: #fff8f1;
+  color: #8f3f00;
+}
+
+.next-step-guide {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.18rem 0.65rem;
+  margin-top: 0.65rem;
+  border-left: 4px solid var(--color-accent-blue);
+  background: #eef3ff;
+  padding: 0.55rem 0.65rem;
+}
+
+.next-step-guide > span {
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--color-accent-blue);
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.next-step-guide strong {
+  overflow-wrap: anywhere;
+  color: var(--color-text-primary);
+  font-size: 0.76rem;
+}
+
+.next-step-guide small {
+  overflow-wrap: anywhere;
+  color: var(--color-text-secondary);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
 .step-controller {
   position: relative;
   overflow: hidden;
@@ -1157,14 +1351,41 @@ const characterName = (characterId: string): string => {
   color: var(--color-text-primary);
 }
 
-.step-rail i {
-  width: 1px;
-  min-height: 24px;
+.step-connector {
+  display: flex;
+  width: 100%;
+  min-height: 42px;
   flex: 1;
-  background: #949494;
+  flex-direction: column;
+  align-items: center;
 }
 
-.step-card:last-child .step-rail i {
+.step-connector::before,
+.step-connector::after {
+  width: 1px;
+  min-height: 8px;
+  flex: 1;
+  background: #949494;
+  content: "";
+}
+
+.step-connector span {
+  max-width: 46px;
+  padding: 0.28rem 0;
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.step-card.is-current .step-connector span {
+  color: var(--color-accent-blue);
+}
+
+.step-card:last-child .step-connector::after {
   background: linear-gradient(#949494, transparent);
 }
 
@@ -1278,16 +1499,23 @@ const characterName = (characterId: string): string => {
   background: #949494;
 }
 
-.condition-grid div {
+.condition-item {
+  position: relative;
   min-width: 0;
   background: #fafafa;
   padding: 0.6rem 0.65rem;
 }
 
-.condition-grid span {
+.condition-item > span:first-child {
   color: var(--color-text-tertiary);
   font-size: 0.62rem;
   font-weight: 700;
+}
+
+.condition-item .condition-state {
+  position: absolute;
+  top: 0.52rem;
+  right: 0.55rem;
 }
 
 .condition-grid p {
@@ -1296,6 +1524,10 @@ const characterName = (characterId: string): string => {
   color: var(--color-text-primary);
   font-size: 0.74rem;
   line-height: 1.6;
+}
+
+.step-next-guide {
+  margin-top: 0.65rem;
 }
 
 .step-note {

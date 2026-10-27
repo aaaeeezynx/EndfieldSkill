@@ -303,6 +303,11 @@ const normalizeRotationStep = (rawValue: unknown, index: number, rotationId: str
     cooldownSeconds: firstNumber(raw.cooldownSeconds, raw.cooldown, raw.cd),
     warnings: toTraditionalList(asStringArray(raw.warnings ?? raw.caveats)) ?? [],
     note: toTraditional(firstString(raw.note, raw.notes, raw.description)),
+    // Keep evidence attached to an authored step. The preset-level sourceIds
+    // remain authoritative, but retaining these ids lets recombination use a
+    // step-only source when a reviewed preset intentionally has no preset
+    // source list.
+    sourceIds: asStringArray(raw.sourceIds ?? raw.sources),
   }
 }
 
@@ -319,6 +324,53 @@ const normalizeRotationDependencies = (value: unknown): RotationDependency[] => 
     const reason = toTraditional(firstString(raw.reason, raw.note, raw.description))
     return characterId && reason ? [{ characterId, reason }] : []
   })
+}
+
+type RotationIndex = {
+  tags: string[]
+  archetype: string | null
+}
+
+// These labels are a small compatibility index over the reviewed presets that
+// already exist in rotation-presets.json. Keep unknown or incomplete builds
+// unclassified instead of inventing a source-backed archetype.
+const KNOWN_ROTATION_INDEX: Record<string, RotationIndex> = {
+  rotation_game8_laevatain_577071: {
+    tags: ['火'],
+    archetype: '火',
+  },
+  rotation_physical_shatter_202601: {
+    tags: ['物理碎甲', '火', '冰'],
+    archetype: '物理碎甲',
+  },
+  rotation_tangtang_ice_202603: {
+    tags: ['冰'],
+    archetype: '冰',
+  },
+  rotation_lastrite_tangtang_ice_202603: {
+    tags: ['冰'],
+    archetype: '冰',
+  },
+  rotation_wulfa_team_burst_202601: {
+    tags: ['物理/猛擊'],
+    archetype: '物理/猛擊',
+  },
+  rotation_wulfa_team_charge_202601: {
+    tags: ['物理碎甲'],
+    archetype: '物理碎甲',
+  },
+}
+
+const normalizeRotationIndex = (raw: UnknownRecord, id: string): RotationIndex => {
+  const fallback = KNOWN_ROTATION_INDEX[id]
+  const explicitTags = asStringArray(raw.tags ?? raw.rotationTags ?? raw.labels)
+  const explicitArchetype = firstString(raw.archetype, raw.rotationArchetype, raw.build)
+
+  return {
+    tags:
+      toTraditionalList(explicitTags.length ? explicitTags : fallback?.tags ?? []) ?? [],
+    archetype: toTraditional(explicitArchetype) ?? fallback?.archetype ?? null,
+  }
 }
 
 const normalizeRotation = (rawValue: unknown, index: number): RotationPreset | null => {
@@ -349,6 +401,7 @@ const normalizeRotation = (rawValue: unknown, index: number): RotationPreset | n
     videoTimestamp: toTraditional(
       firstString(raw.videoTimestamp, raw.timestamp, raw.videoTime),
     ),
+    ...normalizeRotationIndex(raw, id),
     publishedAt: toTraditional(firstString(raw.publishedAt, raw.publishDate, raw.date)),
     triggerConditions:
       toTraditionalList(asStringArray(raw.triggerConditions ?? raw.triggers)) ?? [],

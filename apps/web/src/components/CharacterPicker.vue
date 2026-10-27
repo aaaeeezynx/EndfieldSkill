@@ -1,6 +1,40 @@
+<script lang="ts">
+import type { CharacterFact } from '@/types/domain'
+
+export type CharacterFilterMode = 'single' | 'multi'
+
+export const applyFilterSelection = (
+  current: readonly string[],
+  value: string,
+  mode: CharacterFilterMode,
+): string[] => {
+  if (mode === 'single') return [value]
+  return current.includes(value)
+    ? current.filter((selected) => selected !== value)
+    : [...current, value]
+}
+
+export const characterMatchesFilters = (
+  character: CharacterFact,
+  searchText: string,
+  query: string,
+  selectedElements: readonly string[],
+  selectedProfessions: readonly string[],
+): boolean => {
+  const normalizedQuery = query.trim().toLowerCase()
+  const matchesQuery = !normalizedQuery || searchText.toLowerCase().includes(normalizedQuery)
+  const matchesElement =
+    selectedElements.length === 0 ||
+    (character.element !== null && selectedElements.includes(character.element))
+  const matchesProfession =
+    selectedProfessions.length === 0 ||
+    (character.profession !== null && selectedProfessions.includes(character.profession))
+  return matchesQuery && matchesElement && matchesProfession
+}
+</script>
+
 <script setup lang="ts">
 import { computed, ref, reactive } from 'vue'
-import type { CharacterFact } from '@/types/domain'
 import { getCharacterPortrait } from '@/data/portraitLoader'
 import {
   displayElement,
@@ -20,8 +54,9 @@ const emit = defineEmits<{
 }>()
 
 const search = ref('')
-const elementFilter = ref('')
-const roleFilter = ref('')
+const filterMode = ref<CharacterFilterMode>('multi')
+const elementFilters = ref<string[]>([])
+const professionFilters = ref<string[]>([])
 const imageErrors = reactive<Set<string>>(new Set())
 
 const elements = computed(() =>
@@ -62,10 +97,12 @@ const filteredCharacters = computed(() => {
       .filter(Boolean)
       .join(' ')
       .toLowerCase()
-    return (
-      (!query || haystack.includes(query)) &&
-      (!elementFilter.value || character.element === elementFilter.value) &&
-      (!roleFilter.value || character.profession === roleFilter.value)
+    return characterMatchesFilters(
+      character,
+      haystack,
+      query,
+      elementFilters.value,
+      professionFilters.value,
     )
   })
 })
@@ -83,8 +120,32 @@ const isCapacityBlocked = (character: CharacterFact): boolean =>
 
 const clearFilters = (): void => {
   search.value = ''
-  elementFilter.value = ''
-  roleFilter.value = ''
+  elementFilters.value = []
+  professionFilters.value = []
+}
+
+const setFilterMode = (mode: CharacterFilterMode): void => {
+  filterMode.value = mode
+  if (mode === 'single') {
+    elementFilters.value = elementFilters.value.slice(-1)
+    professionFilters.value = professionFilters.value.slice(-1)
+  }
+}
+
+const selectElement = (element: string): void => {
+  elementFilters.value = applyFilterSelection(
+    elementFilters.value,
+    element,
+    filterMode.value,
+  )
+}
+
+const selectProfession = (profession: string): void => {
+  professionFilters.value = applyFilterSelection(
+    professionFilters.value,
+    profession,
+    filterMode.value,
+  )
 }
 
 const monogram = (character: CharacterFact): string =>
@@ -143,22 +204,79 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
         </svg>
         <input v-model="search" type="search" placeholder="搜尋角色 / 職業 / 標籤" />
       </label>
-      <label class="compact-select">
-        <span>元素</span>
-        <select v-model="elementFilter">
-          <option value="">全部</option>
-          <option v-for="element in elements" :key="element" :value="element">{{ displayElement(element) }}</option>
-        </select>
-      </label>
-      <label class="compact-select">
-        <span>職業</span>
-        <select v-model="roleFilter">
-          <option value="">全部</option>
-          <option v-for="profession in professions" :key="profession" :value="profession">
+
+      <div class="filter-mode" role="group" aria-label="篩選選擇模式">
+        <span>選擇模式</span>
+        <button
+          type="button"
+          :aria-pressed="filterMode === 'single'"
+          :class="{ active: filterMode === 'single' }"
+          @click="setFilterMode('single')"
+        >
+          單選
+        </button>
+        <button
+          type="button"
+          :aria-pressed="filterMode === 'multi'"
+          :class="{ active: filterMode === 'multi' }"
+          @click="setFilterMode('multi')"
+        >
+          多選
+        </button>
+      </div>
+
+      <fieldset class="filter-group">
+        <legend>元素</legend>
+        <div class="filter-options">
+          <button
+            type="button"
+            :aria-pressed="elementFilters.length === 0"
+            :class="{ active: elementFilters.length === 0 }"
+            @click="elementFilters = []"
+          >
+            全部
+          </button>
+          <button
+            v-for="element in elements"
+            :key="element"
+            type="button"
+            :aria-pressed="elementFilters.includes(element)"
+            :class="{ active: elementFilters.includes(element) }"
+            @click="selectElement(element)"
+          >
+            {{ displayElement(element) }}
+          </button>
+        </div>
+      </fieldset>
+
+      <fieldset class="filter-group">
+        <legend>職業</legend>
+        <div class="filter-options">
+          <button
+            type="button"
+            :aria-pressed="professionFilters.length === 0"
+            :class="{ active: professionFilters.length === 0 }"
+            @click="professionFilters = []"
+          >
+            全部
+          </button>
+          <button
+            v-for="profession in professions"
+            :key="profession"
+            type="button"
+            :aria-pressed="professionFilters.includes(profession)"
+            :class="{ active: professionFilters.includes(profession) }"
+            @click="selectProfession(profession)"
+          >
             {{ displayProfession(profession) }}
-          </option>
-        </select>
-      </label>
+          </button>
+        </div>
+      </fieldset>
+
+      <div class="filter-status">
+        <p aria-live="polite">符合 <strong>{{ filteredCharacters.length }}</strong> 名角色</p>
+        <button type="button" class="clear-filter" @click="clearFilters">清除篩選</button>
+      </div>
     </div>
 
     <div v-if="filteredCharacters.length" class="character-grid stagger-list">
@@ -285,9 +403,9 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
 
 .filter-bar {
   display: grid;
-  grid-template-columns: minmax(200px, 1fr) auto auto;
-  gap: 0.55rem;
-  padding: 0.8rem 0 1rem;
+  grid-template-columns: minmax(220px, 1fr) auto;
+  gap: 0.65rem 0.85rem;
+  padding: 0.85rem 0 1rem;
   border-bottom: 1px solid var(--color-border-primary);
 }
 
@@ -323,8 +441,7 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   font-size: 0.8rem;
 }
 
-.search-field input:focus-visible,
-.compact-select select:focus-visible {
+.search-field input:focus-visible {
   outline: 3px solid var(--color-text-primary);
   outline-offset: 2px;
 }
@@ -333,35 +450,98 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   color: var(--color-text-tertiary);
 }
 
-.compact-select {
-  display: flex;
-  align-items: center;
-  height: 42px;
-  border: 1px solid var(--color-border-primary);
-  background: #ffffff;
-  padding-left: 0.7rem;
+.filter-mode,
+.filter-group {
+  min-width: 0;
 }
 
-.compact-select span {
+.filter-mode {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.filter-mode > span,
+.filter-group legend {
   color: var(--color-text-secondary);
   font-family: "Rajdhani", "Noto Sans TC", sans-serif;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.08em;
 }
 
-.compact-select select {
-  height: 100%;
-  max-width: 105px;
-  border: 0;
-  background: transparent;
-  padding: 0 1.5rem 0 0.45rem;
-  color: var(--color-text-primary);
-  font-size: 0.76rem;
+.filter-mode button,
+.filter-options button,
+.clear-filter {
+  min-height: 38px;
+  border: 1px solid var(--color-border-primary);
+  background: #ffffff;
+  padding: 0.42rem 0.65rem;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-.compact-select option {
-  background: #ffffff;
+.filter-mode button:hover,
+.filter-options button:hover,
+.clear-filter:hover {
+  border-color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.filter-mode button.active,
+.filter-options button.active {
+  border-color: var(--color-text-primary);
+  background: var(--color-text-primary);
+  color: var(--color-text-inverse);
+}
+
+.filter-mode button:focus-visible,
+.filter-options button:focus-visible,
+.clear-filter:focus-visible {
+  outline: 3px solid var(--color-text-primary);
+  outline-offset: 2px;
+}
+
+.filter-group {
+  grid-column: 1 / -1;
+  border: 1px solid var(--color-border-primary);
+  padding: 0.55rem 0.65rem 0.65rem;
+}
+
+.filter-group legend {
+  padding: 0 0.25rem;
+}
+
+.filter-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.filter-status {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.filter-status p {
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+}
+
+.filter-status strong {
+  color: var(--color-text-primary);
+}
+
+.clear-filter {
+  min-height: 34px;
+  border-color: var(--color-border-strong);
 }
 
 .character-grid {
@@ -652,16 +832,16 @@ const missingSkillLabels = (character: CharacterFact): string[] =>
   }
 
   .filter-bar {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 
   .search-field {
     grid-column: 1 / -1;
   }
 
-  .compact-select select {
-    width: 100%;
-    max-width: none;
+  .filter-mode {
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
   .character-grid {

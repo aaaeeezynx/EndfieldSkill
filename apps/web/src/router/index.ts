@@ -1,6 +1,4 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
-import PlannerView from '@/views/PlannerView.vue'
-import DataView from '@/views/DataView.vue'
 
 export const router = createRouter({
   history: createWebHashHistory(),
@@ -8,12 +6,12 @@ export const router = createRouter({
     {
       path: '/',
       name: 'planner',
-      component: PlannerView,
+      component: () => import('@/views/PlannerView.vue'),
     },
     {
       path: '/data',
       name: 'data',
-      component: DataView,
+      component: () => import('@/views/DataView.vue'),
     },
     {
       path: '/:pathMatch(.*)*',

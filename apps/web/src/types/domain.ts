@@ -75,6 +75,10 @@ export interface RotationDependency {
 export interface RotationPreset {
   id: string
   name: string
+  /** Optional search/filter index. Older fixtures may omit it. */
+  tags?: string[]
+  /** Optional canonical build family. Older fixtures may omit it. */
+  archetype?: string | null
   teamPresetId: string | null
   characterIds: string[]
   matchType: 'complete' | 'fragment'

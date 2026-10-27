@@ -21,6 +21,15 @@ venv/
 # Crawler cache and temporary files
 crawler/.cache/
 *.tmp
+tmp_*
+tmp-probe.mjs
+equipment-new-contact-sheet.jpg
+apps/web/.chrome-cdp-*
+apps/web/tmp_cdp_test.mjs
+apps/web/public/data/.v1.backup-*
+.codex-audit/
+.codex-official.css
+material/
 
 # Local configuration and logs
 .env

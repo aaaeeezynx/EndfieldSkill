@@ -120,6 +120,152 @@ const SCROLL_TO_BOTTOM_FN = `(() => {
   })();
 })()`
 
+const SETTLE_RENDERED_FN = `(() => {
+  const waitFrame = () => new Promise((resolve) =>
+    requestAnimationFrame(() => requestAnimationFrame(resolve))
+  );
+  const isVisible = (el) => {
+    if (!el) return false;
+    const cs = getComputedStyle(el);
+    if (cs.display === 'none' || cs.visibility === 'hidden' ||
+        cs.visibility === 'collapse' || parseFloat(cs.opacity) === 0) return false;
+    const rect = el.getBoundingClientRect();
+    return rect.width > 0 && rect.height > 0;
+  };
+  const ownAuditText = (el) => {
+    const directText = Array.from(el.childNodes || [])
+      .filter((node) => node.nodeType === Node.TEXT_NODE)
+      .map((node) => node.textContent.trim()).join(' ').trim();
+    if (directText) return true;
+    if (el.matches('input,textarea') &&
+        (String(el.value || '').trim() || (el.getAttribute('placeholder') || '').trim())) {
+      return true;
+    }
+    if (el.matches('select') && Array.from(el.options).some((option) =>
+      (option.textContent || '').trim())) return true;
+    return ['::before', '::after'].some((pseudo) => {
+      const content = getComputedStyle(el, pseudo).content;
+      return content && content !== 'none' && content !== 'normal' &&
+        /^["'].*["']$/s.test(content) && content.slice(1, -1).trim();
+    });
+  };
+  const auditTextElements = () => Array.from(document.querySelectorAll('*'))
+    .filter((el) => isVisible(el) && !el.closest('[aria-hidden="true"]') && ownAuditText(el));
+  const effectiveOpacity = (el) => {
+    let opacity = 1;
+    let current = el;
+    while (current) {
+      opacity *= parseFloat(getComputedStyle(current).opacity);
+      current = current.parentElement;
+    }
+    return opacity;
+  };
+  const opacityIssues = () => auditTextElements()
+    .filter((el) => effectiveOpacity(el) < 0.999)
+    .map((el) => ({
+      selector: el.tagName.toLowerCase() + (el.id ? '#' + el.id : ''),
+      opacity: Math.round(effectiveOpacity(el) * 1000) / 1000,
+    }));
+  const relevantAnimations = () => {
+    const textElements = auditTextElements();
+    return document.getAnimations().filter((animation) => {
+      const target = animation.effect && animation.effect.target;
+      return target instanceof Element && textElements.some((el) =>
+        target === el || target.contains(el) || el.contains(target));
+    });
+  };
+  const isFiniteAnimation = (animation) => {
+    const timing = animation.effect && animation.effect.getTiming();
+    return Number.isFinite(timing && timing.iterations);
+  };
+
+  return (async () => {
+    const deadline = performance.now() + 5000;
+    let contentSeen = false;
+    let stableSince = 0;
+    while (performance.now() < deadline) {
+      await waitFrame();
+      contentSeen = contentSeen ||
+        (!!document.querySelector('.planner-page, .data-page, .pipeline-shell') &&
+          document.querySelectorAll('body *').length > 25);
+      const animations = relevantAnimations();
+      const runningFinite = animations.some((animation) =>
+        isFiniteAnimation(animation) &&
+        animation.playState !== 'finished' && animation.playState !== 'idle');
+      const issues = opacityIssues();
+      if (contentSeen && !runningFinite && !issues.length) {
+        if (!stableSince) stableSince = performance.now();
+        if (performance.now() - stableSince >= 400) {
+          return JSON.stringify({
+            settled: true,
+            waitedMs: Math.round(performance.now() - (deadline - 5000)),
+            opacityIssues: [],
+            animationStates: [],
+          });
+        }
+      } else {
+        stableSince = 0;
+      }
+    }
+
+    const animationStates = [];
+    for (const animation of relevantAnimations()) {
+      const previous = {
+        animation,
+        playState: animation.playState,
+        currentTime: animation.currentTime,
+      };
+      try {
+        animation.pause();
+        const computed = animation.effect.getComputedTiming();
+        const timing = animation.effect.getTiming();
+        if (isFiniteAnimation(animation)) {
+          if (Number.isFinite(computed.endTime)) animation.currentTime = computed.endTime;
+        } else {
+          const duration = Number(timing.duration);
+          const delay = Number(timing.delay) || 0;
+          if (Number.isFinite(duration) && duration > 0) {
+            for (let i = 0; i <= 24; i++) {
+              animation.currentTime = delay + duration * (i / 24);
+              const target = animation.effect.target;
+              if (parseFloat(getComputedStyle(target).opacity) >= 0.999) break;
+            }
+          }
+        }
+        animationStates.push(previous);
+      } catch {}
+    }
+    await waitFrame();
+    window.__endfieldRenderedAnimationStates = animationStates;
+    return JSON.stringify({
+      settled: opacityIssues().length === 0,
+      waitedMs: 5000,
+      opacityIssues: opacityIssues(),
+      animationStates: animationStates.length,
+    });
+  })();
+})()`
+
+const RESTORE_ANIMATIONS_FN = `(() => {
+  const states = window.__endfieldRenderedAnimationStates || [];
+  for (const state of states) {
+    try {
+      state.animation.currentTime = state.currentTime;
+      if (state.playState === 'running' || state.playState === 'pending') {
+        state.animation.play();
+      } else if (state.playState === 'finished') {
+        state.animation.finish();
+      } else if (state.playState === 'paused') {
+        state.animation.pause();
+      } else {
+        state.animation.cancel();
+      }
+    } catch {}
+  }
+  delete window.__endfieldRenderedAnimationStates;
+  return JSON.stringify({ restored: states.length });
+})()`
+
 // One browser-side collector handles text nodes, placeholders, options,
 // generated pseudo-elements, disabled controls, and real computed colors.
 // `backgroundImage !== none` is deliberately reported as a limitation because
@@ -594,9 +740,17 @@ async function main() {
       }
     })
 
-    const navigate = async (url) => {
+    const settleRendered = async (label) => evaluateJson(
+      call, sessionId, SETTLE_RENDERED_FN, dig, `${label} animation settle`, true,
+    )
+
+    const restoreAnimations = async (label) => evaluateJson(
+      call, sessionId, RESTORE_ANIMATIONS_FN, dig, `${label} animation restore`, false,
+    )
+
+    const navigate = async (url, label) => {
       await call(sessionId, 'Page.navigate', { url })
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await settleRendered(label)
     }
 
     const setViewport = async (vp) => {
@@ -612,30 +766,35 @@ async function main() {
       call, sessionId, SCROLL_TO_BOTTOM_FN, dig, 'bottom scroll', true,
     )
 
-    const inspectPage = async (label) => {
-      const scrollResult = await scrollToBottom()
-      if (!scrollResult.settled) {
-        overflow.push(
-          `${label}: could not reach document bottom ` +
-          `(scrollY ${scrollResult.scrollY}, maxScroll ${scrollResult.maxScroll})`,
-        )
+    const inspectPage = async (label, prepared = false) => {
+      if (!prepared) await settleRendered(label)
+      try {
+        const scrollResult = await scrollToBottom()
+        if (!scrollResult.settled) {
+          overflow.push(
+            `${label}: could not reach document bottom ` +
+            `(scrollY ${scrollResult.scrollY}, maxScroll ${scrollResult.maxScroll})`,
+          )
+        }
+        const parsed = await evaluateJson(call, sessionId, SCAN_FN, dig, `${label} scan`)
+        for (const item of parsed.out || []) {
+          fontFailures.push(
+            `${label}: ${item.selector}${item.state ? ` [${item.state}]` : ''} ` +
+            `"${item.t}" ${formatPx(item.px)}px`,
+          )
+        }
+        if (parsed.overflow) overflow.push(`${label}: horizontal overflow ${parsed.overflow}px`)
+        if (parsed.footerNav?.occluded) {
+          overflow.push(
+            `${label}: footer content occluded by bottom nav ` +
+            `(footerBottom ${parsed.footerNav.footerBottom} > navTop ${parsed.footerNav.navTop})`,
+          )
+        }
+        addContrastResults(parsed, label, contrastFailures, auditLimitations)
+        return parsed
+      } finally {
+        await restoreAnimations(label)
       }
-      const parsed = await evaluateJson(call, sessionId, SCAN_FN, dig, `${label} scan`)
-      for (const item of parsed.out || []) {
-        fontFailures.push(
-          `${label}: ${item.selector}${item.state ? ` [${item.state}]` : ''} ` +
-          `"${item.t}" ${formatPx(item.px)}px`,
-        )
-      }
-      if (parsed.overflow) overflow.push(`${label}: horizontal overflow ${parsed.overflow}px`)
-      if (parsed.footerNav?.occluded) {
-        overflow.push(
-          `${label}: footer content occluded by bottom nav ` +
-          `(footerBottom ${parsed.footerNav.footerBottom} > navTop ${parsed.footerNav.navTop})`,
-        )
-      }
-      addContrastResults(parsed, label, contrastFailures, auditLimitations)
-      return parsed
     }
 
     const auditFocusVisible = async (label) => {
@@ -709,8 +868,8 @@ async function main() {
       await setViewport(vp)
       for (const route of ROUTES) {
         const label = `${vp.name} ${route}`
-        await navigate(`${BASE_URL}${route}`)
-        await inspectPage(label)
+        await navigate(`${BASE_URL}${route}`, label)
+        await inspectPage(label, true)
         await auditFocusVisible(label)
       }
     }
@@ -718,7 +877,8 @@ async function main() {
     // Exercise team-size boundaries through the real controls, then scan the
     // complete generated planner state (not only #recommendation-output).
     await setViewport(VIEWPORTS.find((vp) => vp.name === 'iphone-390'))
-    await navigate(`${BASE_URL}#/`)
+    await navigate(`${BASE_URL}#/`, 'iphone-390 #/ (drive)')
+    await restoreAnimations('iphone-390 #/ (drive)')
     const drive = await evaluateJson(call, sessionId, `(() => {
       const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
       return (async () => {

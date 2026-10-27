@@ -1,4 +1,6 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { parseDataset } from '@/data/loadDataset'
 import type { RotationPreset, RotationStep, SkillType } from '@/types/domain'
 import { recombineRotation } from './rotationRecombination'
 
@@ -52,6 +54,25 @@ const makePreset = (
 
 const stepNames = (result: ReturnType<typeof recombineRotation>): string[] =>
   result.steps.map((step) => step.skillName)
+
+const combinations = <T>(values: T[]): T[][] =>
+  Array.from({ length: (1 << values.length) - 1 }, (_, index) => index + 1).map(
+    (mask) => values.filter((__, index) => (mask & (1 << index)) !== 0),
+  )
+
+const loadPhysicalShatterPreset = (): RotationPreset => {
+  const raw = JSON.parse(
+    readFileSync(
+      new URL('../../public/data/v1/rotation-presets.json', import.meta.url),
+      'utf8',
+    ),
+  )
+  const preset = parseDataset({ 'rotation-presets.json': raw }).rotationPresets.find(
+    (rotation) => rotation.id === 'rotation_physical_shatter_202601',
+  )
+  if (!preset) throw new Error('rotation_physical_shatter_202601 is missing')
+  return preset
+}
 
 describe('recombineRotation', () => {
   it('rejects an empty selection without truncating or inventing steps', () => {
@@ -630,5 +651,50 @@ describe('recombineRotation', () => {
       'src-b',
       'src-c',
     ])
+  })
+
+  describe('real rotation_physical_shatter_202601 subset matrix', () => {
+    const preset = loadPhysicalShatterPreset()
+
+    for (const selection of combinations(preset.characterIds)) {
+      it(`recombines ${selection.length} character(s) while preserving authored evidence`, () => {
+        const expectedSteps = preset.steps.filter((step) =>
+          selection.includes(step.characterId),
+        )
+        const result = recombineRotation(selection, [preset])
+        const reversed = recombineRotation([...selection].reverse(), [preset])
+
+        expect(result.kind).toBe(
+          selection.length === preset.characterIds.length
+            ? 'source-backed'
+            : 'source-fragment',
+        )
+        expect(result.steps.map((step) => step.id)).toEqual(
+          expectedSteps.map((step) => step.id),
+        )
+        expect(stepNames(result)).toEqual(
+          expectedSteps.map((step) => step.skillName),
+        )
+        expect(result.steps.map((step) => step.characterId)).toEqual(
+          expectedSteps.map((step) => step.characterId),
+        )
+        expect(result.sourceIds).toEqual(preset.sourceIds)
+        expect(result.sourceSegments).toHaveLength(1)
+        expect(result.sourceSegments[0]).toMatchObject({
+          presetId: 'rotation_physical_shatter_202601',
+          name: '物理碎冰隊基礎循環',
+          sourceIds: [
+            'src_gamersky_shatter_2078431',
+            'src_nga_shatter_46010223',
+            'src_taptap_shatter_763416813445841179',
+          ],
+        })
+        expect(result.sourceSegments[0].steps).toEqual(result.steps)
+        expect(result.sourceSegments[0].steps.map((step) => step.id)).toEqual(
+          expectedSteps.map((step) => step.id),
+        )
+        expect(reversed).toEqual(result)
+      })
+    }
   })
 })

@@ -1,5 +1,44 @@
+<script lang="ts">
+import type { EquipmentSlot } from '@/types/domain'
+
+export type EquipmentBoardTab = EquipmentSlot | 'all'
+
+export const isEquipmentSlotVisible = (
+  slot: EquipmentSlot,
+  activeTab: EquipmentBoardTab,
+): boolean => activeTab === 'all' || activeTab === slot
+
+export type EquipmentTabKey =
+  | 'ArrowLeft'
+  | 'ArrowRight'
+  | 'Home'
+  | 'End'
+
+export const moveEquipmentTabIndex = (
+  current: number,
+  total: number,
+  key: string,
+): number | null => {
+  if (total <= 0) return null
+  if (key === 'Home') return 0
+  if (key === 'End') return total - 1
+  if (key !== 'ArrowLeft' && key !== 'ArrowRight') return null
+
+  const safeCurrent = Number.isFinite(current)
+    ? Math.min(Math.max(Math.trunc(current), 0), total - 1)
+    : 0
+  const direction = key === 'ArrowLeft' ? -1 : 1
+  return (safeCurrent + direction + total) % total
+}
+
+export const equipmentTabRovingTabIndex = (
+  activeIndex: number,
+  index: number,
+): 0 | -1 => activeIndex === index ? 0 : -1
+</script>
+
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import EquipmentArtwork from '@/components/EquipmentArtwork.vue'
 import {
   selectIndeterminateEquipmentBySlot,
@@ -9,7 +48,6 @@ import type {
   CharacterFact,
   EquipmentFact,
   EquipmentLoadout,
-  EquipmentSlot,
 } from '@/types/domain'
 
 // `loadouts` and `characters` remain accepted for backwards compatibility with
@@ -23,12 +61,24 @@ const props = defineProps<{
 }>()
 
 const equipmentSlots: EquipmentSlot[] = ['body', 'hand', 'edc']
+const equipmentTabs: EquipmentBoardTab[] = ['all', ...equipmentSlots]
+const activeSlot = ref<EquipmentBoardTab>('all')
+const tabButtons = ref<Array<HTMLButtonElement | null>>([])
 
 const slotLabels: Record<EquipmentSlot, string> = {
-  body: '身體',
-  hand: '手部',
-  edc: 'EDC',
+  body: '軀幹 Body',
+  hand: '手部 Hand',
+  edc: '戰術背心 EDC',
 }
+
+const tabLabels: Record<EquipmentBoardTab, string> = {
+  all: '全部',
+  ...slotLabels,
+}
+
+const visibleEquipmentSlots = computed(() =>
+  equipmentSlots.filter((slot) => isEquipmentSlotVisible(slot, activeSlot.value)),
+)
 
 const emptySlotRecord = (): Record<EquipmentSlot, EquipmentFact[]> => ({
   body: [],
@@ -67,6 +117,47 @@ const totalIndeterminate = computed(() =>
     0,
   ),
 )
+
+const totalVisibleIndeterminate = computed(() =>
+  visibleEquipmentSlots.value.reduce(
+    (total, slot) => total + indeterminateBySlot.value[slot].length,
+    0,
+  ),
+)
+
+const tabCount = (tab: EquipmentBoardTab): number => {
+  if (tab === 'all') return totalEligible.value + totalIndeterminate.value
+  return eligibleBySlot.value[tab].length + indeterminateBySlot.value[tab].length
+}
+
+const activeTabIndex = computed(() =>
+  Math.max(0, equipmentTabs.indexOf(activeSlot.value)),
+)
+
+const setTabButton = (index: number, element: unknown): void => {
+  tabButtons.value[index] =
+    element instanceof HTMLButtonElement ? element : null
+}
+
+const selectTab = async (index: number, focus = false): Promise<void> => {
+  const tab = equipmentTabs[index]
+  if (!tab) return
+  activeSlot.value = tab
+  if (!focus) return
+  await nextTick()
+  tabButtons.value[index]?.focus()
+}
+
+const onTabKeyDown = (event: KeyboardEvent, index: number): void => {
+  const nextIndex = moveEquipmentTabIndex(
+    index,
+    equipmentTabs.length,
+    event.key,
+  )
+  if (nextIndex === null) return
+  event.preventDefault()
+  void selectTab(nextIndex, true)
+}
 
 const playerLevelLabel = computed(() =>
   hasUsableLevel.value ? `Lv.${props.playerLevel}` : '尚未設定',
@@ -129,76 +220,56 @@ const indeterminateReason = (equipment: EquipmentFact): string => {
       排序為稀有度降冪、穿戴等級降冪、ID 升冪。
     </p>
 
-    <div v-if="!hasUsableLevel" class="board-message">
-      <strong>請先設定玩家等級</strong>
-      <p>設定等級後，才會列出可製造裝備；缺少可製造標記或穿戴等級的資料會另列於下方。</p>
-    </div>
-
-    <div v-else class="eligibility-grid">
-      <section
-        v-for="slot in equipmentSlots"
-        :key="slot"
-        class="eligibility-slot"
+    <div class="slot-tabs" role="tablist" aria-label="裝備部位">
+      <button
+        v-for="(tab, index) in equipmentTabs"
+        :key="tab"
+        :id="`equipment-tab-${tab}`"
+        :ref="(element) => setTabButton(index, element)"
+        type="button"
+        role="tab"
+        class="slot-tab"
+        :class="{ active: activeSlot === tab }"
+        :aria-selected="activeSlot === tab"
+        aria-controls="equipment-results"
+        :tabindex="equipmentTabRovingTabIndex(activeTabIndex, index)"
+        @click="selectTab(index)"
+        @keydown="onTabKeyDown($event, index)"
       >
-        <header class="slot-head">
-          <div>
-            <p>{{ slot.toUpperCase() }}</p>
-            <h3>{{ slotLabels[slot] }}</h3>
-          </div>
-          <strong>{{ eligibleBySlot[slot].length }} 件</strong>
-        </header>
-
-        <ul v-if="eligibleBySlot[slot].length" class="equipment-list">
-          <li
-            v-for="equipment in eligibleBySlot[slot]"
-            :key="equipment.id"
-            class="equipment-item"
-          >
-            <EquipmentArtwork
-              compact
-              :equipment-id="equipment.id"
-              :name="equipment.name"
-              :rarity="equipment.rarity"
-            />
-            <div class="equipment-copy">
-              <strong>{{ equipment.name }}</strong>
-              <small>{{ equipmentMeta(equipment, slot) }}</small>
-              <small class="equipment-gate">{{ playerLevelGateLabel(equipment) }}</small>
-            </div>
-          </li>
-        </ul>
-        <p v-else class="slot-empty">
-          目前等級沒有符合此部位的可製造裝備。
-        </p>
-      </section>
+        <span>{{ tabLabels[tab] }}</span>
+        <strong>{{ tabCount(tab) }}</strong>
+      </button>
     </div>
 
-    <section
-      v-if="totalIndeterminate"
-      class="indeterminate-board"
-      aria-labelledby="indeterminate-title"
+    <div
+      id="equipment-results"
+      class="equipment-results"
+      role="tabpanel"
+      :aria-label="`${tabLabels[activeSlot]}裝備`"
+      :aria-labelledby="`equipment-tab-${activeSlot}`"
     >
-      <header class="indeterminate-head">
-        <div>
-          <p class="eyebrow">DATA BOUNDARY / UNKNOWN</p>
-          <h3 id="indeterminate-title">無法判定（{{ totalIndeterminate }} 件）</h3>
-        </div>
-        <p>下列裝備缺少可製造標記或穿戴等級，因此不放入可製造清單，也不猜測其資格。</p>
-      </header>
+      <div v-if="!hasUsableLevel" class="board-message">
+        <strong>請先設定玩家等級</strong>
+        <p>設定等級後，才會列出可製造裝備；缺少可製造標記或穿戴等級的資料會另列於下方。</p>
+      </div>
 
-      <div class="indeterminate-grid">
+      <div v-else class="eligibility-grid">
         <section
-          v-for="slot in equipmentSlots"
+          v-for="slot in visibleEquipmentSlots"
           :key="slot"
-          class="indeterminate-slot"
+          class="eligibility-slot"
         >
-          <h4>
-            {{ slotLabels[slot] }}
-            <small>{{ indeterminateBySlot[slot].length }} 件</small>
-          </h4>
-          <ul v-if="indeterminateBySlot[slot].length" class="equipment-list">
+          <header class="slot-head">
+            <div>
+              <p>{{ slot.toUpperCase() }}</p>
+              <h3>{{ slotLabels[slot] }}</h3>
+            </div>
+            <strong>{{ eligibleBySlot[slot].length }} 件</strong>
+          </header>
+
+          <ul v-if="eligibleBySlot[slot].length" class="equipment-list">
             <li
-              v-for="equipment in indeterminateBySlot[slot]"
+              v-for="equipment in eligibleBySlot[slot]"
               :key="equipment.id"
               class="equipment-item"
             >
@@ -211,18 +282,67 @@ const indeterminateReason = (equipment: EquipmentFact): string => {
               <div class="equipment-copy">
                 <strong>{{ equipment.name }}</strong>
                 <small>{{ equipmentMeta(equipment, slot) }}</small>
-                <small class="unknown-reason">{{ indeterminateReason(equipment) }}</small>
+                <small class="equipment-gate">{{ playerLevelGateLabel(equipment) }}</small>
               </div>
             </li>
           </ul>
-          <p v-else class="slot-empty">此部位沒有無法判定的裝備。</p>
+          <p v-else class="slot-empty">
+            目前等級沒有符合此部位的可製造裝備。
+          </p>
         </section>
       </div>
-    </section>
 
-    <div v-if="!equipmentPool.length" class="board-message board-message-empty">
-      <strong>NO EQUIPMENT RECORDS</strong>
-      <p>目前沒有裝備資料，因此無法列出可製造清單。</p>
+      <section
+        v-if="totalVisibleIndeterminate"
+        class="indeterminate-board"
+        aria-labelledby="indeterminate-title"
+      >
+        <header class="indeterminate-head">
+          <div>
+            <p class="eyebrow">DATA BOUNDARY / UNKNOWN</p>
+            <h3 id="indeterminate-title">無法判定（{{ totalVisibleIndeterminate }} 件）</h3>
+          </div>
+          <p>下列裝備缺少可製造標記或穿戴等級，因此不放入可製造清單，也不猜測其資格。</p>
+        </header>
+
+        <div class="indeterminate-grid">
+          <section
+            v-for="slot in visibleEquipmentSlots"
+            :key="slot"
+            class="indeterminate-slot"
+          >
+            <h4>
+              {{ slotLabels[slot] }}
+              <small>{{ indeterminateBySlot[slot].length }} 件</small>
+            </h4>
+            <ul v-if="indeterminateBySlot[slot].length" class="equipment-list">
+              <li
+                v-for="equipment in indeterminateBySlot[slot]"
+                :key="equipment.id"
+                class="equipment-item"
+              >
+                <EquipmentArtwork
+                  compact
+                  :equipment-id="equipment.id"
+                  :name="equipment.name"
+                  :rarity="equipment.rarity"
+                />
+                <div class="equipment-copy">
+                  <strong>{{ equipment.name }}</strong>
+                  <small>{{ equipmentMeta(equipment, slot) }}</small>
+                  <small class="unknown-reason">{{ indeterminateReason(equipment) }}</small>
+                </div>
+              </li>
+            </ul>
+            <p v-else class="slot-empty">此部位沒有無法判定的裝備。</p>
+          </section>
+        </div>
+      </section>
+
+      <div v-if="!equipmentPool.length" class="board-message board-message-empty">
+        <strong>NO EQUIPMENT RECORDS</strong>
+        <p>目前沒有裝備資料，因此無法列出可製造清單。</p>
+      </div>
     </div>
   </section>
 </template>
@@ -320,6 +440,63 @@ const indeterminateReason = (equipment: EquipmentFact): string => {
   color: #3f3f3f;
   font-size: 0.75rem;
   line-height: 1.7;
+}
+
+.slot-tabs {
+  display: flex;
+  gap: 0.45rem;
+  max-width: 100%;
+  margin-top: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-color: #949494 transparent;
+}
+
+.slot-tab {
+  display: flex;
+  min-height: 44px;
+  flex: 1 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.15rem;
+  border: 1px solid #949494;
+  background: #ffffff;
+  padding: 0.58rem 0.75rem;
+  color: #3f3f3f;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.slot-tab strong {
+  min-width: 1.8rem;
+  color: #191919;
+  font-family: "Rajdhani", "Noto Sans TC", sans-serif;
+  font-size: 0.75rem;
+}
+
+.slot-tab:hover {
+  border-color: #191919;
+  background: #f7f7f7;
+}
+
+.slot-tab.active {
+  border-color: #191919;
+  background: #191919;
+  color: #ffffff;
+}
+
+.slot-tab.active strong {
+  color: #fffa00;
+}
+
+.slot-tab:focus-visible {
+  outline: 3px solid #1744ad;
+  outline-offset: 2px;
+}
+
+.equipment-results {
+  min-width: 0;
 }
 
 .eligibility-grid,
